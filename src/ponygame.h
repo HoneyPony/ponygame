@@ -1,7 +1,6 @@
 #pragma once
 
 #include "pony_clib.h"
-#include "pony_object.h"
 #include "pony_node.h"
 
 

@@ -8,7 +8,7 @@ void construct_Node(void *node) {
 	Node *self = node;
 
 	self->parent = NULL;
-	ds_init_list(self->children);
+	ls_initialize(self->children);
 }
 
 void pony_init_builtin_nodes() {

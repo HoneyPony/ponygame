@@ -13,10 +13,9 @@ PRIMARY_SRC:=$(addprefix $(SRC_DIR)/,$(PRIMARY_SRC))
 SRC=\
 main.c\
 pony_clib.c\
-pony_data_structure.c\
+pony_list.c\
 pony_node_init.c\
 pony_node.c\
-pony_object.c\
 script.c
 
 CFLAGS:=$(CFLAGS) -Wall -g -Isrc
