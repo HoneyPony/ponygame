@@ -15,11 +15,11 @@ static void *node_new_from_pool(struct NodePool64 *pool, size_t stride) {
 
 static void *node_new_uninit_from_header(NodeHeader *header) {
 	size_t index = header->alloc_last_pool;
-	size_t count = header->alloc_pools.length;
+	size_t count = ls_length(header->alloc_pools);
 
 	for(size_t counter = 0; counter < count; ++counter) {
-		if(~header->alloc_pools.at[index].mask) {
-			return node_new_from_pool(&header->alloc_pools.at[index], header->node_size);
+		if(~header->alloc_pools[index].mask) {
+			return node_new_from_pool(&header->alloc_pools[index], header->node_size);
 		}
 
 		index = (index + 1) % count;

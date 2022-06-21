@@ -33,7 +33,7 @@ extern NodeHeader node_header(List) ;
 #define node_meta_initialize(Ty, base_class_ptr, construct_f) \
 node_header(Ty).base_class = base_class_ptr; \
 node_header(Ty).node_size = sizeof(Ty); \
-ls_initialize(node_header(Ty).alloc_pools); \
+ls_init(node_header(Ty).alloc_pools); \
 node_header(Ty).alloc_last_pool = 0; \
 node_header(Ty).construct = construct_f;
 
