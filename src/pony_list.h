@@ -12,6 +12,8 @@ void ls_pop_internal(void *list, size_t item_size, void *item_out);
 void ls_delete_internal(void *list, size_t item_size, size_t index);
 bool ls_has_internal(void *list, size_t item_size, void *item);
 
+extern void ls_free(void *list);
+
 #define ls_init(list)\
 	((list) = ls_init_internal(sizeof(*(list))))
 

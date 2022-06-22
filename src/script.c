@@ -1,6 +1,6 @@
 #include "ponygame.h"
 #include <stdio.h>
-
+/*
 void print_list(list_of(int) my_list) {
 	printf("--- list(%d) ---\n", ls_length(my_list));
 
@@ -29,4 +29,15 @@ void test() {
 	}
 
 	print_list(my_list);
+}
+*/
+
+void test() {
+	str my_str = str_fromf("%s%s", "ABC", " : ");
+
+	for(char c = 'a'; c <= 'z'; ++c) {
+		str_push(my_str, c);
+
+		printf("%2d [%s]\n", str_length(my_str), my_str);
+	}
 }

@@ -14,6 +14,7 @@ SRC=\
 main.c\
 pony_clib.c\
 pony_list.c\
+pony_string.c\
 pony_node_init.c\
 pony_node.c\
 script.c

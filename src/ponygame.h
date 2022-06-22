@@ -2,7 +2,7 @@
 
 #include "pony_clib.h"
 #include "pony_node.h"
-
+#include "pony_string.h"
 
 
 
