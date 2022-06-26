@@ -11,7 +11,7 @@ BIN:=ponygame.exe
 PRIMARY_SRC:=$(addprefix $(SRC_DIR)/,$(PRIMARY_SRC))
 
 SRC=\
-main.c\
+pony_main.c\
 pony_clib.c\
 pony_list.c\
 pony_string.c\
@@ -45,5 +45,8 @@ clean:
 	
 install: $(BIN)
 	cp $(BIN) /usr/bin/$(BIN)
+
+web:
+	emcc -o html-build/index.html $(addprefix $(SRC_DIR)/,$(SRC))
 
 -include $(OBJ:.o=.d)
