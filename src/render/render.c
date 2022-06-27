@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "shader_src.h"
+
 typedef struct {
 	// The framebuffer used for all pixel graphics operations. This
 	// framebuffer is rendered with nearest neighbor filtering to display
@@ -12,10 +14,23 @@ typedef struct {
 	GLuint pix_framebuffer;
 	GLuint pix_tex;
 	GLuint pix_depth_stencil_rbo;
+
+	
 } RenderCtx;
 
 
 static RenderCtx ctx;
+
+static GLuint shader;
+
+float vertices[] = {
+	-0.5f, -0.5f, 0.0f,
+     0.5f, -0.5f, 0.0f,
+     0.0f,  0.5f, 0.0f
+};
+
+static GLuint vao, vbo;
+
 
 static void init_ctx() {
 	glGenFramebuffers(1, &ctx.pix_framebuffer);
@@ -49,6 +64,24 @@ void render_init() {
 		exit(-1);
 	}
 
-	init_ctx();
+	shader = shader_compile(shader_src_sprite_vert, shader_src_sprite_frag);
+
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0); 
+
+	//init_ctx();
+
 }
 
+void render() {
+	glUseProgram(shader);
+	glBindVertexArray(vao);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+}

@@ -11,6 +11,7 @@
 #endif
 
 #include "pony_internal.h"
+#include "pony_render.h"
 
 /* Do we want multiple window support? */
 static SDL_Window *pony_main_window = NULL;
@@ -38,14 +39,7 @@ static void pony_render() {
 	glClearColor(0.1, 0.1, 0.1, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	glBegin(GL_TRIANGLE_STRIP);
-
-	glVertex2f(-0.5f, -0.5f);
-	glVertex2f( 0.5f, -0.5f);
-	glVertex2f(-0.5f,  0.5f);
-	glVertex2f( 0.5f,  0.5f);
-	
-	glEnd();
+	render();
 }
 
 /* TODO: Handle this by closing event loop */
@@ -120,6 +114,8 @@ int main(int argc, char **argv) {
 		puts("[ponygame] Could not create GL context.");
 		exit(-1);
 	}
+
+	render_init();
 	
 #ifdef __EMSCRIPTEN__
 	is_vsync = 1;

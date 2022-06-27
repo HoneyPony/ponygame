@@ -1,8 +1,8 @@
 CC?=gcc
 
-LINK=mingw32 SDL2main SDL2 opengl32 gdi32
+LINK=mingw32 SDL2main SDL2 opengl32 gdi32 glew32
 
-STATIC_SDL_FLAGS=-mwindows -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -static-libgcc -lsetupapi
+#STATIC_SDL_FLAGS=-static -mwindows -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -static-libgcc -lsetupapi
 #shell32
 
 SRC_DIR=src
@@ -19,6 +19,8 @@ pony_list.c\
 pony_string.c\
 pony_node_init.c\
 pony_node.c\
+render/render.c\
+render/shader.c\
 script.c
 
 SHADER_SRC=\
@@ -59,11 +61,12 @@ $(OBJ_DIR)/%.c.o: $(SRC_DIR)/%.c $(DIR_LOCK)
 	$(CC) -MD -c $< -o $@ $(CFLAGS) -Iinclude -O2
 
 $(BIN): $(OBJ) $(SHADER_OBJ)
-	$(CC) -o $@ $^ $(CXXFLAGS) $(addprefix -l,$(LINK)) -static $(STATIC_SDL_FLAGS)
+	$(CC) -o $@ $^ $(CXXFLAGS) $(addprefix -l,$(LINK))
 
 $(DIR_LOCK):
 	mkdir -p build
 	mkdir -p build/shaders
+	mkdir -p build/render
 	touch $@
 
 unity: $(SHADER_C)
