@@ -39,7 +39,7 @@ SRC_C:=$(addprefix $(SRC_DIR)/,$(SRC))
 
 SHADER_OBJ:=$(addsuffix .o,$(SHADER_C))
 
-.PHONY: all clean unity install
+.PHONY: all clean unity install lib
 .PRECIOUS: $(OBJ_DIR)/shaders/%.c
 
 # In order to ensure the build directory is created, we need a way to depend
@@ -71,7 +71,11 @@ $(DIR_LOCK):
 
 unity: $(SHADER_C)
 	$(CC) $(SRC_C) $(SHADER_C) -o $(addsuffix _unity,$(BIN)) -O2 $(addprefix -l,$(LINK))
-	
+
+lib: $(OBJ) $(SHADER_OBJ)
+	$(CC) -o ponygame.o $^ $(addprefix -l,$(LINK))
+	ar rcs libponygame.a ponygame.o 
+
 shader2c: tools/shader2c.c
 	$(CC) $< -o $@ -O2
 
