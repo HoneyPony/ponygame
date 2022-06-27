@@ -1,6 +1,8 @@
 CC?=gcc
 
-LINK=mingw32 SDL2main SDL2 opengl32 gdi32\
+LINK=mingw32 SDL2main SDL2 opengl32 gdi32
+
+STATIC_SDL_FLAGS=-mwindows -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -static-libgcc -lsetupapi
 #shell32
 
 SRC_DIR=src
@@ -57,7 +59,7 @@ $(OBJ_DIR)/%.c.o: $(SRC_DIR)/%.c $(DIR_LOCK)
 	$(CC) -MD -c $< -o $@ $(CFLAGS) -Iinclude -O2
 
 $(BIN): $(OBJ) $(SHADER_OBJ)
-	$(CC) -o $@ $^ $(CXXFLAGS) $(addprefix -l,$(LINK))
+	$(CC) -o $@ $^ $(CXXFLAGS) $(addprefix -l,$(LINK)) -static $(STATIC_SDL_FLAGS)
 
 $(DIR_LOCK):
 	mkdir -p build
