@@ -2,7 +2,12 @@
 
 #include "pony_clib.h"
 
-#include <GL/glew.h>
+#ifdef __EMSCRIPTEN__
+	#include <GLES2/gl2.h>
+	#include <EGL/egl.h>
+#else
+	#include <GL/glew.h>
+#endif
 
 #include <stdio.h>
 

@@ -1,1 +1,1 @@
-emcc -sUSE_SDL=2 -sLEGACY_GL_EMULATION -o html-build/index.js src/pony_main.c src/pony_clib.c src/pony_list.c src/pony_string.c src/pony_node_init.c src/pony_node.c src/script.c
+emcc -Isrc -sUSE_SDL=2 -o html-build/index.js src/pony_main.c src/pony_clib.c src/pony_list.c src/pony_string.c src/pony_node_init.c src/pony_node.c src/render/render.c src/render/shader.c src/script.c build/shaders/sprite.frag.c build/shaders/sprite.vert.c

@@ -87,7 +87,8 @@ clean:
 install: $(BIN)
 	cp $(BIN) /usr/bin/$(BIN)
 
-web:
-	emcc -o html-build/index.html $(addprefix $(SRC_DIR)/,$(SRC))
+web: $(SHADER_C)
+	echo emcc -Isrc -sUSE_SDL=2 -o html-build/index.js $(SRC_C) $(SHADER_C) > web-build.bat
+#	emcc -o html-build/index.html $(addprefix $(SRC_DIR)/,$(SRC))
 
 -include $(OBJ:.o=.d)

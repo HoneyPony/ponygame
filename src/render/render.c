@@ -1,6 +1,13 @@
 #include "pony_render.h"
 
-#include <GL/glew.h>
+#ifndef __EMSCRIPTEN__
+	#include <GL/glew.h>
+#else
+	#include <GL/gl.h>
+
+	#include <GLES2/gl2.h>
+	#include <EGL/egl.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,16 +65,18 @@ static void init_ctx() {
 }
 
 void render_init() {
+#ifndef __EMSCRIPTEN__
 	GLenum err = glewInit();
 	if(err != GLEW_OK) {
 		printf("[ponygame] GLEW error: %s\n", glewGetErrorString(err));
 		exit(-1);
 	}
+#endif
 
 	shader = shader_compile(shader_src_sprite_vert, shader_src_sprite_frag);
 
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
+	//glGenVertexArrays(1, &vao);
+	//glBindVertexArray(vao);
 
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -82,6 +91,16 @@ void render_init() {
 
 void render() {
 	glUseProgram(shader);
-	glBindVertexArray(vao);
+
+	// TODO: Implement this more broadly
+	// Details: it appears that the minimal subset of WebGL supported by
+	// Emscripten does not support vertex array objects, e.g. glBindVertexArray
+	//
+	// We could use WebGL 2.0 as I understand, but I think it might make more sense
+	// to stick with a minimal subset for now, as the renderer is not going to be
+	// doing that much manipulation of the attributes anyways.
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0); 
+	//glBindVertexArray(vao);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 }
