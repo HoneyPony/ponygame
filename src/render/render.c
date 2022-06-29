@@ -30,6 +30,11 @@ struct {
 	GLuint mat;
 } sprite_shader;
 
+struct {
+	GLuint shader;
+	GLuint tex;
+} framebuffer_shader;
+
 static mat4 projection;
 
 

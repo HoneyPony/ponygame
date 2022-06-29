@@ -26,7 +26,9 @@ script.c
 
 SHADER_SRC=\
 sprite.frag\
-sprite.vert
+sprite.vert\
+frame.frag\
+frame.vert
 
 CFLAGS:=$(CFLAGS) -Wall -g -Isrc
 
