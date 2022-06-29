@@ -185,3 +185,16 @@ str str_fromf(const char *format, ...) {
 
 	return string;
 }
+
+bool cstr_has_prefix(const char *str, const char *prefix) {
+	while(*str && *prefix) {
+		if(*str != *prefix) return false;
+
+		++str;
+		++prefix;
+
+		if(*prefix == '\0') return true;
+		if(*str == '\0') return false;
+	}
+	return false;
+}

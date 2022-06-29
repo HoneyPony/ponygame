@@ -20,6 +20,7 @@ pony_string.c\
 pony_node_init.c\
 pony_node.c\
 pony_glm.c\
+pony_fs.c\
 render/render.c\
 render/shader.c\
 script.c
@@ -30,7 +31,7 @@ sprite.vert\
 frame.frag\
 frame.vert
 
-CFLAGS:=$(CFLAGS) -Wall -g -Isrc
+CFLAGS:=$(CFLAGS) -Wall -g -Isrc -Ivendor
 
 OBJ:=$(addsuffix .o,$(SRC))
 OBJ:=$(addprefix $(OBJ_DIR)/,$(OBJ))

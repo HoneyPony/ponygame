@@ -37,3 +37,5 @@ extern void str_writef_by_ptr(str *string, const char* format, ...);
 
 #define str_writef(str, format, ...)\
 str_writef_by_ptr(&(str), format, __VA_ARGS__)
+
+extern bool cstr_has_prefix(const char *str, const char *prefix);
