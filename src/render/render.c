@@ -25,15 +25,21 @@ typedef struct {
 	
 } RenderCtx;
 
+struct {
+	GLuint shader;
+	GLuint mat;
+} sprite_shader;
+
+static mat4 projection;
+
 
 static RenderCtx ctx;
 
-static GLuint shader;
 
 float vertices[] = {
-	-0.5f, -0.5f, 0.0f,
-     0.5f, -0.5f, 0.0f,
-     0.0f,  0.5f, 0.0f
+	-10.f, -10.f, 0.0f,
+     10.f, -10.f, 0.0f,
+     0.0f,  10.f, 0.0f
 };
 
 static GLuint vao, vbo;
@@ -73,7 +79,8 @@ void render_init() {
 	}
 #endif
 
-	shader = shader_compile(shader_src_sprite_vert, shader_src_sprite_frag);
+	sprite_shader.shader = shader_compile(shader_src_sprite_vert, shader_src_sprite_frag);
+	sprite_shader.mat = shader_name(sprite_shader.shader, "transform");
 
 	//glGenVertexArrays(1, &vao);
 	//glBindVertexArray(vao);
@@ -85,12 +92,21 @@ void render_init() {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0); 
 
+	mat4_ortho(&projection,
+		-20, 20,
+		-20, 20,
+		-10, 10);
 	//init_ctx();
 
 }
 
 void render() {
-	glUseProgram(shader);
+	glUseProgram(sprite_shader.shader);
+
+	
+
+	shader_set_mat4(sprite_shader.mat, &projection);
+
 
 	// TODO: Implement this more broadly
 	// Details: it appears that the minimal subset of WebGL supported by

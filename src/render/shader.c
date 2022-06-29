@@ -52,3 +52,16 @@ GLuint shader_compile(const char *vertex_src, const char *frag_src) {
 
 	return program;
 }
+
+GLuint shader_name(GLuint shader, const char *name) {
+	return glGetUniformLocation(shader, name);
+}
+
+void shader_bind(GLuint shader) {
+	glUseProgram(shader);
+}
+
+void shader_set_mat4(GLuint var, mat4 *mat) {
+
+	glUniformMatrix4fv(var, 1, GL_FALSE, mat->data);
+}

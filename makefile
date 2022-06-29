@@ -19,6 +19,7 @@ pony_list.c\
 pony_string.c\
 pony_node_init.c\
 pony_node.c\
+pony_glm.c\
 render/render.c\
 render/shader.c\
 script.c
