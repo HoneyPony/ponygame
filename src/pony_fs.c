@@ -8,7 +8,7 @@
 
 #include "pony_string.h"
 
-FSImg fs_load_png(const char *path) {
+FSImg fs_load_png(const char *path, bool flip) {
 	if(cstr_has_prefix(path, "res://")) {
 		/* TODO: Implement loading from memory in final builds */
 
@@ -20,6 +20,7 @@ FSImg fs_load_png(const char *path) {
 	FSImg result = { 0 };
 
 	int width, height;
+	stbi_set_flip_vertically_on_load(flip);
 	uint8_t *data = stbi_load(path, &width, &height, NULL, 4);
 
 	if(!data) {

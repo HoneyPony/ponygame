@@ -1,13 +1,11 @@
 #version 100
+precision mediump float;
 
-//out vec4 frag_color;
+varying vec2 v_uv;
 
-//in vec2 uv;
-
-//uniform sampler2D tex;
+uniform sampler2D tex;
 
 void main() {
-	gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
-	//frag_color = vec4(1.0, 1.0, 0.0, 1.0);
-	//frag_color = texture(tex, uv);
+	gl_FragColor = texture2D(tex, v_uv, 0.0);
+	if(gl_FragColor.a < 0.01) discard;
 }

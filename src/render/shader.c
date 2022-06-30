@@ -2,12 +2,7 @@
 
 #include "pony_clib.h"
 
-#ifdef __EMSCRIPTEN__
-	#include <GLES2/gl2.h>
-	#include <EGL/egl.h>
-#else
-	#include <GL/glew.h>
-#endif
+#include "pony_opengl.h"
 
 #include <stdio.h>
 
@@ -62,6 +57,9 @@ void shader_bind(GLuint shader) {
 }
 
 void shader_set_mat4(GLuint var, mat4 *mat) {
-
 	glUniformMatrix4fv(var, 1, GL_FALSE, mat->data);
+}
+
+void shader_set_int(GLuint var, int what) {
+	glUniform1i(var, what);
 }
