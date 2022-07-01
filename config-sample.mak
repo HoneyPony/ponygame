@@ -5,5 +5,8 @@
 # Set EMCC to the path to emcc. If the emsdk is stored right in
 # the C directory, you can simply use the commented out example path.
 
+# This file must be renamed to 'config.mak' in order to configure the makefile
+# properly.
+
 EMCC=
 #EMCC=C:\\emsdk\\upstream\\emscripten\\emcc
