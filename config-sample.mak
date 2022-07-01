@@ -9,4 +9,4 @@
 # properly.
 
 EMCC=
-#EMCC=C:\\emsdk\\upstream\\emscripten\\emcc
+#EMCC=/c/emsdk/upstream/emscripten/emcc
