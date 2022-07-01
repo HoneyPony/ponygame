@@ -5,3 +5,5 @@
 *.exe
 *.a
 *.o
+
+config.mak

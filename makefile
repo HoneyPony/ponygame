@@ -1,3 +1,5 @@
+-include config.mak
+
 CC?=gcc
 
 LINK=mingw32 SDL2main SDL2 opengl32 gdi32 glew32
@@ -93,7 +95,15 @@ install: $(BIN)
 	cp $(BIN) /usr/bin/$(BIN)
 
 web: $(SHADER_C)
-	echo emcc --preload-file test_sprite.png -Isrc -Ivendor -sUSE_SDL=2 -o html-build/index.js $(SRC_C) $(SHADER_C) > web-build.bat
+#	echo call $(EMSDK_ENV_BAT) > web-build.bat
+#	echo @echo on >> web-build.bat
+#	echo $(EMCC) --preload-file test_sprite.png -Isrc -Ivendor -sUSE_SDL=2 -o html-build/index.js $(SRC_C) $(SHADER_C) > web-build.bat
+	mkdir -p html-build
+	cp web_src/basic_shell.html html-build/index.html
+
+	$(EMCC) --preload-file test_sprite.png -Isrc -Ivendor -sUSE_SDL=2 -o html-build/index.js $(SRC_C) $(SHADER_C)
+
+#	cmd /c web-build.bat
 #	emcc -o html-build/index.html $(addprefix $(SRC_DIR)/,$(SRC))
 
 -include $(OBJ:.o=.d)
