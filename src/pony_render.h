@@ -4,6 +4,7 @@
 #include "pony_glm.h"
 
 extern void render_init();
+extern void render_fit_window(int width, int height);
 extern void render();
 
 extern GLuint shader_compile(const char *vert_src, const char *frag_src);

@@ -105,7 +105,24 @@ void render_init() {
 	tex = gltex_load("res://test_sprite.png");
 }
 
+void render_fit_window(int width, int height) {
+	glViewport(0, 0, width, height);
+
+	float x = width;
+	float y = height;
+	x *= 0.5;
+	y *= 0.5;
+
+	mat4_ortho(&projection,
+		-x, x,
+		-y, y,
+		-10, 10); // TODO: Determine Z range
+}
+
 void render() {
+	glClearColor(0.1, 0.1, 0.1, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT);
+
 	glUseProgram(sprite_shader.shader);
 
 	

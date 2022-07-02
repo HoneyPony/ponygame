@@ -33,12 +33,9 @@ static void pony_render() {
 
 	int width, height;
 	SDL_GetWindowSize(pony_main_window, &width, &height);
+
 	
-	glViewport(0, 0, width, height);
-
-	glClearColor(0.1, 0.1, 0.1, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT);
-
+	render_fit_window(width, height);
 	render();
 }
 
