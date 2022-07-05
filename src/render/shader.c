@@ -15,7 +15,7 @@ static void print_shader_err(GLuint shader, const char *type) {
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
 		char *log = pony_malloc(length);
 		glGetShaderInfoLog(shader, length, NULL, log);
-		printf("[ponygame] ----- %s shader compile error: -----\n%s\n           -----------------------------------\n", type, log);
+		printf("----- %s shader compile error: -----\n%s\n -----------------------------------\n", type, log);
 
 		pony_free(log);
 	}

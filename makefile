@@ -26,6 +26,7 @@ pony_fs.c\
 render/render.c\
 render/shader.c\
 render/gltex.c\
+pony_log.c\
 script.c
 
 SHADER_SRC=\

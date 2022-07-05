@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "pony_log.h"
 #include "shader_src.h"
 
 typedef struct {
@@ -98,7 +99,7 @@ static void init_ctx() {
 
 	int status;
 	if((status = glCheckFramebufferStatus(GL_FRAMEBUFFER)) != GL_FRAMEBUFFER_COMPLETE) {
-		printf("[ponygame] framebuffer status incomplete: %x\n", status);
+		logf_error("framebuffer status incomplete: %x", status);
 	}
 }
 
@@ -120,7 +121,7 @@ void render_init() {
 #ifndef __EMSCRIPTEN__
 	GLenum err = glewInit();
 	if(err != GLEW_OK) {
-		printf("[ponygame] GLEW error: %s\n", glewGetErrorString(err));
+		logf_error("GLEW error: %s", glewGetErrorString(err));
 		exit(-1);
 	}
 #endif

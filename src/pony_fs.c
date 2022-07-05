@@ -6,6 +6,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include "pony_log.h"
 #include "pony_string.h"
 
 FSImg fs_load_png(const char *path, bool flip) {
@@ -24,7 +25,7 @@ FSImg fs_load_png(const char *path, bool flip) {
 	uint8_t *data = stbi_load(path, &width, &height, NULL, 4);
 
 	if(!data) {
-		printf("[ponygame] failed to load image %s\n", path);
+		logf_error("failed to load image %s", path);
 	}
 
 	result.data = data;

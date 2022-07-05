@@ -12,6 +12,7 @@
 
 #include "pony_internal.h"
 #include "pony_render.h"
+#include "pony_log.h"
 
 /* Do we want multiple window support? */
 static SDL_Window *pony_main_window = NULL;
@@ -25,7 +26,6 @@ static void pony_render() {
 	//SDL_GetWindowSize(pony_main_window, &width, &height);
 #ifdef __EMSCRIPTEN__
 	//int ww = get_canvas_width();
-	//printf("width = %d\n", ww);
 	int js_width = js_get_window_width();
 	int js_height = js_get_window_height();
 	SDL_SetWindowSize(pony_main_window, js_width, js_height);
@@ -74,7 +74,7 @@ static void pony_event_loop(void *arg) {
 extern void test();
 
 int main(int argc, char **argv) {
-	puts("[ponygame] welcome to Untitled Game");
+	logf_info("welcome to Untitled Game");
 
 	pony_init_builtin_nodes();
 
@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
 	//return 0;
 
 	if(SDL_Init(SDL_INIT_VIDEO)) {
-		printf("Unable to initialize SDL: %s\n", SDL_GetError());
+		logf_error("unable to initialize SDL: %s", SDL_GetError());
 		fflush(stdout);
 		//puts("[ponygame] SDL_Init failure.");
 		exit(-1);
@@ -98,17 +98,17 @@ int main(int argc, char **argv) {
 		480,
 		SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_MAXIMIZED);
 
-	puts("[ponygame] initialized window.");
+	logf_info("initialized window.");
 		
 	if(!pony_main_window) {
-		puts("[ponygame] Could not create SDL window.");
+		logf_error("could not create SDL window.");
 		exit(-1);
 	}
 	
 	pony_main_context = SDL_GL_CreateContext(pony_main_window);
 	
 	if(!pony_main_context) {
-		puts("[ponygame] Could not create GL context.");
+		logf_error("could not create GL context.");
 		exit(-1);
 	}
 

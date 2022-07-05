@@ -1,6 +1,7 @@
 #include "pony_render.h"
 
 #include "pony_fs.h"
+#include "pony_log.h"
 #include "pony_opengl.h"
 
 #include <stdio.h>
@@ -24,7 +25,7 @@ GLuint gltex_load(const char *path) {
 	if(image.data) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width, image.height,
 			0, GL_RGBA, GL_UNSIGNED_BYTE, image.data);
-		printf("[ponygame] successfully loaded %s\n", path);
+		logf_verbose("successfully loaded GL texture %s", path);
 	}
 
 	fs_free_img_data(&image);
