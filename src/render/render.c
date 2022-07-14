@@ -39,13 +39,13 @@ static GLuint tex;
 
 
 float vertices[] = {
-	0.f,  0.f,  0.f,    0.f, 0.f,
-	0.f,  16.f, 0.f,    0.f, 1.f,
-	16.f, 16.f, 0.f,    1.f, 1.f,
+	1.f,  1.f,  1.f,    0.f, 0.f,
+	1.f,  17.f, 1.f,    0.f, 1.f,
+	17.f, 17.f, 1.f,    1.f, 1.f,
 
-	16.f, 16.f, 0.f,    1.f, 1.f,
-	0.f,  0.f,  0.f,    0.f, 0.f,
-	16.f, 0.f,  0.f,    1.f, 0.f
+	17.f, 17.f, 1.f,    1.f, 1.f,
+	1.f,  1.f,  1.f,    0.f, 0.f,
+	17.f, 1.f,  1.f,    1.f, 0.f
 };
 
 float fb_verts[] = {
@@ -151,25 +151,80 @@ void render_init() {
 	tex = gltex_load("res://test_sprite.png");
 }
 
+void compute_screen_vertices() {
+	// The idea here took some tinkering to nail down.
+	// Essentially, what we want to do is scale up the pixel-perfect framebuffer
+	// to cover the screen. We have previously ensured that the scaled framebuffer
+	// will be as big or bigger than the screen.
+	//
+	// So, first, we compute how many pixels the scaled up framebuffer "overextends"
+	// the real screen. Then, we can scale the vertices in the vertex buffer
+	// so that they match this overextension.
+	// 
+	// In particular, we can divide the "overextended"
+
+	float scale_x = (float)(frame_width * 4) / (float)(screen_width);
+	float scale_y = (float)(frame_height * 4) / (float)(screen_height);
+
+	scale_x = 1.0 + ((scale_x - 1.0) / 2.0);
+	scale_y = 1.0 + ((scale_y - 1.0) / 2.0);
+
+	logf_info("width: %d vs %d", frame_width * 4, screen_width);
+
+	float posx = scale_x;
+	float negx = -scale_x;
+	float posy = scale_y;
+	float negy = -scale_y;
+
+	// First triangle
+	fb_verts[0] = negx;
+	fb_verts[1] = negy;
+
+	fb_verts[4] = negx;
+	fb_verts[5] = posy;
+
+	fb_verts[8] = posx;
+	fb_verts[9] = posy;
+
+	logf_info("x scale, y scale: %f %f", scale_x, scale_y);
+
+	// Second triangle
+	fb_verts[12] = posx;
+	fb_verts[13] = posy;
+
+	fb_verts[16] = negx;
+	fb_verts[17] = negy;
+
+	fb_verts[20] = posx;
+	fb_verts[21] = negy;
+
+	// Upload buffer
+	glBindBuffer(GL_ARRAY_BUFFER, fb_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(fb_verts), fb_verts, GL_STATIC_DRAW);
+}
+
 void render_fit_window(int width, int height) {
+	if(width == screen_width && height == screen_height) return;
+
 	screen_width = width;
 	screen_height = height;
 
-	frame_width = width / 4;
-	frame_height = height / 4;
+
+	frame_width = (width + 3) / 4; // Need to effectively take ceiling of these
+	                               // dimensions, due to compute_screen_vertices, etc
+	frame_height = (height + 3) / 4;
 
 	resize_framebuffer();
+	compute_screen_vertices();
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//glViewport(0, 0, width, height);
 
 	float x = frame_width;//width;
 	float y = frame_height;//height;
-	x *= 0.5;
-	y *= 0.5;
 
 	mat4_ortho(&projection,
-		-x, x,
-		-y, y,
+		0, x,
+		0, y,
 		-10, 10); // TODO: Determine Z range
 }
 
@@ -181,7 +236,7 @@ void render() {
 	//glViewport(0, 0, 480, 360);
 
 
-	glClearColor(0.1, 0.1, 0.1, 1.0);
+	glClearColor(0.3, 0.3, 0.3, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glUseProgram(sprite_shader.shader);
