@@ -216,11 +216,9 @@ void render_fit_window(int width, int height) {
 
 	resize_framebuffer();
 	compute_screen_vertices();
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//glViewport(0, 0, width, height);
 
-	float x = frame_width;//width;
-	float y = frame_height;//height;
+	float x = frame_width;
+	float y = frame_height;
 
 	mat4_ortho(&projection,
 		0, x,
@@ -233,8 +231,6 @@ void render() {
 
 	glBindFramebuffer(GL_FRAMEBUFFER, ctx.pix_framebuffer);
 	glViewport(0, 0, frame_width, frame_height);
-	//glViewport(0, 0, 480, 360);
-
 
 	glClearColor(0.3, 0.3, 0.3, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -262,9 +258,6 @@ void render() {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, tex);
 
-	
-	
-	//glBindVertexArray(vao);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -283,9 +276,6 @@ void render() {
 
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-
-	
-
 	
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }

@@ -15,3 +15,7 @@ extern void shader_set_mat4(GLuint var, mat4 *mat);
 extern void shader_set_int(GLuint var, int what);
 
 extern GLuint gltex_load(const char *path);
+
+typedef struct {
+	
+} RenderCommand;
