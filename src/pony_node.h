@@ -12,6 +12,7 @@ struct NodePool64 {
 };
 
 typedef void (*NodeConstructor)(void *node);
+typedef void (*NodeProcess)(void *node, void *tree);
 
 typedef struct NodeHeader {
 	struct NodeHeader *base_class;
@@ -22,6 +23,7 @@ typedef struct NodeHeader {
 	size_t alloc_last_pool;
 
 	NodeConstructor construct;
+	NodeProcess process;
 } NodeHeader;
 
 #define node_header(Ty) macro_concat(node_header_for_, Ty)
@@ -30,12 +32,13 @@ typedef struct NodeHeader {
 struct_from_field_list(List) \
 extern NodeHeader node_header(List) ;
 
-#define node_meta_initialize(Ty, base_class_ptr, construct_f) \
+#define node_meta_initialize(Ty, base_class_ptr, construct_f, process_f) \
 node_header(Ty).base_class = base_class_ptr; \
 node_header(Ty).node_size = sizeof(Ty); \
 ls_init(node_header(Ty).alloc_pools); \
 node_header(Ty).alloc_last_pool = 0; \
-node_header(Ty).construct = construct_f;
+node_header(Ty).construct = construct_f; \
+node_header(Ty).process = process_f;
 
 #define node_meta_defines(Ty)\
 NodeHeader node_header(Ty);

@@ -39,8 +39,11 @@ static void *node_new_uninit_from_header(NodeHeader *header) {
 void *node_new_from_header(NodeHeader *header) {
 	void *node = node_new_uninit_from_header(header);
 
-	if(header->construct != NULL) {
-		header->construct(node);
+	while(header) {
+		if(header->construct != NULL) {
+			header->construct(node);
+		}
+		header = header->base_class;
 	}
 
 	return node;

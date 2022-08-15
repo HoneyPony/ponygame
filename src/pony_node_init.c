@@ -12,5 +12,5 @@ void construct_Node(void *node) {
 }
 
 void pony_init_builtin_nodes() {
-	node_meta_initialize(Node, NULL, construct_Node)
+	node_meta_initialize(Node, NULL, construct_Node, NULL)
 }
