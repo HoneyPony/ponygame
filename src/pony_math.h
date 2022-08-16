@@ -69,7 +69,7 @@ extern double deg2rad_d(double x);
 
 #define deg2rad(x) mathdef1(deg2rad, x)
 
-extern float sin_f(float x):
+extern float sin_f(float x);
 extern double sin_d(float x);
 
 #define sin(x) math_def_flt_1(sin, x)
