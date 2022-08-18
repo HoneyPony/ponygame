@@ -71,19 +71,21 @@ toplevel(6)
 toplevel(7)
 toplevel(8)
 
-#define BENCH_SIZE (1024 * 512)
+#define BENCH_SIZE (1024 * 128)
 
 Node *ptrs[BENCH_SIZE];
 
 void bench_node_construct_destruct() {
 	ty_init(1, Node)
-	ty_init(2, Node)
-	ty_init(3, Node)
-	ty_init(4, Node)
-	ty_init(5, Node)
-	ty_init(6, Node)
-	ty_init(7, Node)
-	ty_init(8, Node)
+	ty_init(2, Ty1)
+	ty_init(3, Ty2)
+	ty_init(4, Ty3)
+	ty_init(5, Ty4)
+	ty_init(6, Ty5)
+	ty_init(7, Ty6)
+	ty_init(8, Ty7)
+
+	printf("destruct ptr for Ty 8: %x\n\t(inside %x)\n", node_header(Ty8).destruct, &node_header(Ty8));
 
 	clock_t start, end;
 
@@ -97,17 +99,15 @@ void bench_node_construct_destruct() {
 	double time_create = (end - start) / (double)CLOCKS_PER_SEC;
 	double time_per_create_op = (time_create / BENCH_SIZE) * 1000000.0;
 
-	printf("create op = %f us", time_per_create_op);
-/*
 	puts("benchmarking node destruction.");
 	start = clock();
-	for(size_t i = 0; i < 1; ++i) {
+	for(size_t i = 0; i < BENCH_SIZE; ++i) {
 		node_destroy(ptrs[i]);
 	}
 	end = clock();
 
 	double time_destroy = (end - start) / (double)CLOCKS_PER_SEC;
-	double time_per_destroy_op = (time_create / BENCH_SIZE) * 1000000.0;
+	double time_per_destroy_op = (time_destroy / BENCH_SIZE) * 1000000.0;
 
-	printf("results:\n\tnode create  = %f us\n\tnode destroy = %f us\n", time_per_create_op, time_per_destroy_op);*/
+	printf("results:\n\tnode create  = %f us\n\tnode destroy = %f us\n", time_per_create_op, time_per_destroy_op);
 }

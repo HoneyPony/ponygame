@@ -18,6 +18,17 @@ static void *node_new_from_pool(struct NodePool64 *pool, size_t stride) {
 	return result_ptr;
 }
 
+// Thoughts on the non-linearity here...
+// It is still the case that going from 1024*512 nodes -> 1024*512 nodes results
+// in a significant slowdown.
+// I believe this is because we are still searching the entire list of pools
+// each time we run out of pools.
+// This would be allieviated with a linked-list approach.
+//
+// It still may make sense to allocate pools in blocks for better cache properties.
+//
+// Another interesting benchmark result... going from 1024 * 2 -> 1024 * 4 results
+// in time going from 0us to 0.97 us. This is pretty significant!!
 static void *node_new_uninit_from_header(NodeHeader *header) {
 	size_t index = header->alloc_last_pool;
 	size_t count = ls_length(header->alloc_pools);
@@ -67,6 +78,9 @@ void node_construct_recursively(void *node, NodeHeader *next) {
 void *node_new_from_header(NodeHeader *header) {
 	void *node = node_new_uninit_from_header(header);
 
+	// The header must be stored here as it is not stored elsewhere.
+	((Node*)node)->header = header;
+
 	node_construct_recursively(node, header);
 
 	return node;
@@ -78,9 +92,17 @@ void node_free_in_pool(Node *node, struct NodePool64 *pool, size_t stride) {
 	pool->mask &= ~(1 << index);
 }
 
-/*
+
 void node_free_in_header(Node *node, NodeHeader *header) {
 	// Linear search of pools...
+	// This is currently actually entirely necessary unfortunately.
+	// We *ARE* currently tracking the pool in source_pool...
+	//
+	// But this is totally wrong! Because pools can move around! They are
+	// stored as values in a list_of()!
+	//
+	// I think this really does need to be redesigned to use a linked list for
+	// much more speed.
 	for(size_t i = 0; i < ls_length(header->alloc_pools); ++i) {
 		struct NodePool64 *pool = &header->alloc_pools[i];
 
@@ -92,10 +114,11 @@ void node_free_in_header(Node *node, NodeHeader *header) {
 		}
 	}
 }
-*/
+
 
 static void node_free(Node *node) {
-	node_free_in_pool(node, node->source_pool, node->header->node_size);
+	node_free_in_header(node, node->header);
+	//node_free_in_pool(node, node->source_pool, node->header->node_size);
 }
 
 /* Some slighlty less internal functions... */
