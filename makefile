@@ -41,7 +41,8 @@ frame.vert
 
 TEST_SRC=\
 test_runner.c\
-test_list.c
+test_list.c\
+test_transforms.c
 
 CFLAGS:=$(CFLAGS) -Wall -Wextra -g -Isrc -Ivendor
 
