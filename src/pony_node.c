@@ -59,7 +59,7 @@ void reparent(AnyNode *child_ptr, AnyNode *new_parent_ptr) {
 		// Assumed invariant: Any child->parent ptr MUST have that child in
 		// its 'children' list.
 		size_t index = ls_find(child->parent->children, child);
-		ls_delete(child->parent->children, child);
+		ls_delete(child->parent->children, index);
 
 		child->parent = NULL;
 	}
