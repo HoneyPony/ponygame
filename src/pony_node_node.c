@@ -159,3 +159,17 @@ vec2 global_to_local(AnyNode *ptr, vec2 point) {
 
 	return raw_transform_inverse_xform(&node->raw_tform, point);
 }
+
+vec2 get_basis_x(AnyNode *ptr) {
+	Node *node = ptr;
+	node_update_transform(node);
+
+	return node->raw_tform.col0;
+}
+
+vec2 get_basis_y(AnyNode *ptr) {
+	Node *node = ptr;
+	node_update_transform(node);
+
+	return node->raw_tform.col1;
+}
