@@ -42,7 +42,8 @@ frame.vert
 TEST_SRC=\
 test_runner.c\
 test_list.c\
-test_transforms.c
+test_transforms.c\
+bench_node_construct_destruct.c
 
 CFLAGS:=$(CFLAGS) -Wall -Wextra -g -Isrc -Ivendor
 
@@ -120,6 +121,9 @@ install: $(BIN)
 
 run-tests: $(TEST_BIN)
 	./$(TEST_BIN)
+
+run-bench: $(TEST_BIN)
+	./$(TEST_BIN) bench
 
 web: $(SHADER_C)
 #	echo call $(EMSDK_ENV_BAT) > web-build.bat

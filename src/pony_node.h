@@ -26,6 +26,7 @@ typedef struct NodeHeader {
 
 	NodeConstructor construct;
 	NodeProcess process;
+	NodeConstructor destruct;
 } NodeHeader;
 
 #define node_header(Ty) macro_concat(node_header_for_, Ty)
@@ -34,24 +35,26 @@ typedef struct NodeHeader {
 struct_from_field_list(List) \
 extern NodeHeader node_header(List) ;
 
-#define node_meta_initialize(Ty, base_class_ptr, construct_f, process_f) \
+#define node_meta_initialize(Ty, base_class_ptr, construct_f, process_f, destruct_f) \
 node_header(Ty).base_class = base_class_ptr; \
 node_header(Ty).node_size = sizeof(Ty); \
 ls_init(node_header(Ty).alloc_pools); \
 node_header(Ty).alloc_last_pool = 0; \
 node_header(Ty).construct = construct_f; \
-node_header(Ty).process = process_f;
+node_header(Ty).process = process_f; \
+node_header(Ty).destruct = destruct_f;
 
 #define node_meta_defines(Ty)\
 NodeHeader node_header(Ty);
 
+typedef void AnyNode;
 
 extern void *node_new_from_header(NodeHeader *header);
 
 #define node_new(Ty) ((Ty*)node_new_from_header(&node_header(Ty)))
 #define new(Ty) node_new(Ty)
 
-
+extern void node_destroy(AnyNode *node);
 
 /* The raw Node type. This type is responsible for a lot of stuff, including
  * both the basic scene tree AND the transform heirarchy (as they are extremely
@@ -60,13 +63,14 @@ extern void *node_new_from_header(NodeHeader *header);
 
 #define FieldList_Node \
 NodeHeader *header; \
+struct NodePool64 *source_pool; \
 struct Node *parent; \
 list_of(struct Node*) children; \
 RawTransform raw_tform;
 
 node_from_field_list(Node)
 
-typedef void AnyNode;
+
 
 vec2 get_lpos(AnyNode *node);
 vec2 get_gpos(AnyNode *node);

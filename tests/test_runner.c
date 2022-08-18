@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 // Define all these variables that are needed for tracking tests.
 int tests_total;
@@ -30,6 +31,8 @@ void test_set_end(const char *name) {
 void test_set_list();
 void test_set_transforms();
 
+void bench_node_construct_destruct();
+
 // Other infrastructure
 extern void pony_init_builtin_nodes();
 
@@ -38,6 +41,11 @@ int main(int argc, char **argv) {
 	// TODO: Use fork() or something? So each test set could do its
 	// own initialization, to test internal node stuff?
 	pony_init_builtin_nodes();
+
+	if(argc > 1 && !strcmp(argv[1], "bench")) {
+		bench_node_construct_destruct();
+		return 0;
+	}
 
 	test_set_list();
 	test_set_transforms();
