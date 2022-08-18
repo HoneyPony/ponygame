@@ -24,6 +24,7 @@ static void *node_new_uninit_from_header(NodeHeader *header) {
 
 	for(size_t counter = 0; counter < count; ++counter) {
 		if(~header->alloc_pools[index].mask) {
+			header->alloc_last_pool = index;
 			return node_new_from_pool(&header->alloc_pools[index], header->node_size);
 		}
 
@@ -36,7 +37,11 @@ static void *node_new_uninit_from_header(NodeHeader *header) {
 
 	void *result = node_new_from_pool(&new_pool, header->node_size);
 
+	// We are pushing a new pool, so the new last_index is the number of pools
+	// right before we push the new pool.
+	header->alloc_last_pool = ls_length(header->alloc_pools);
 	ls_push(header->alloc_pools, new_pool);
+	
 
 	return result;
 }
