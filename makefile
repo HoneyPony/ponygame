@@ -11,6 +11,7 @@ SRC_DIR=src
 OBJ_DIR?=build
 
 BIN:=ponygame
+TEST_BIN:=ponygame-test
 
 PRIMARY_SRC:=$(addprefix $(SRC_DIR)/,$(PRIMARY_SRC))
 
@@ -38,6 +39,10 @@ sprite.vert\
 frame.frag\
 frame.vert
 
+TEST_SRC=\
+test_runner.c\
+test_list.c
+
 CFLAGS:=$(CFLAGS) -Wall -Wextra -g -Isrc -Ivendor
 
 OBJ:=$(addsuffix .o,$(SRC))
@@ -50,7 +55,14 @@ SRC_C:=$(addprefix $(SRC_DIR)/,$(SRC))
 
 SHADER_OBJ:=$(addsuffix .o,$(SHADER_C))
 
-.PHONY: all clean unity install lib
+TEST_OBJ:=$(addsuffix .o,$(TEST_SRC))
+TEST_OBJ:=$(addprefix $(OBJ_DIR)/tests/,$(TEST_OBJ))
+
+TEST_SRC_C:=$(addprefix tests/,$(TEST_SRC))
+
+OBJ_NO_MAIN:=$(filter-out build/pony_main.c.o,$(OBJ))
+
+.PHONY: all clean unity install lib run-tests
 .PRECIOUS: $(OBJ_DIR)/shaders/%.c
 
 # In order to ensure the build directory is created, we need a way to depend
@@ -72,12 +84,19 @@ $(OBJ_DIR)/%.c.o: $(SRC_DIR)/%.c $(DIR_LOCK)
 	$(CC) -MD -c $< -o $@ $(CFLAGS) -Iinclude -O2
 
 $(BIN): $(OBJ) $(SHADER_OBJ)
-	$(CC) -o $@ $^ $(CXXFLAGS) $(addprefix -l,$(LINK))
+	$(CC) -o $@ $^ $(addprefix -l,$(LINK))
+
+$(OBJ_DIR)/tests/%.c.o: tests/%.c $(DIR_LOCK)
+	$(CC) -MD -c $< -o $@ $(CFLAGS) -Iinclude -O2
+
+$(TEST_BIN): $(OBJ_NO_MAIN) $(TEST_OBJ) $(SHADER_OBJ)
+	$(CC) -o $@ $^ $(addprefix -l,$(LINK))
 
 $(DIR_LOCK):
 	mkdir -p build
 	mkdir -p build/shaders
 	mkdir -p build/render
+	mkdir -p build/tests
 	touch $@
 
 unity: $(SHADER_C)
@@ -98,6 +117,9 @@ clean:
 install: $(BIN)
 	cp $(BIN) /usr/bin/$(BIN)
 
+run-tests: $(TEST_BIN)
+	./$(TEST_BIN)
+
 web: $(SHADER_C)
 #	echo call $(EMSDK_ENV_BAT) > web-build.bat
 #	echo @echo on >> web-build.bat
@@ -111,3 +133,4 @@ web: $(SHADER_C)
 #	emcc -o html-build/index.html $(addprefix $(SRC_DIR)/,$(SRC))
 
 -include $(OBJ:.o=.d)
+-include $(TEST_OBJ:.o=.d)
