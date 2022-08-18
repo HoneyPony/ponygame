@@ -48,3 +48,25 @@ void *node_new_from_header(NodeHeader *header) {
 
 	return node;
 }
+
+/* Some slighlty less internal functions... */
+
+void reparent(AnyNode *child_ptr, AnyNode *new_parent_ptr) {
+	Node *child = child_ptr;
+	Node *new_parent = new_parent_ptr;
+
+	if(child->parent) {
+		// Assumed invariant: Any child->parent ptr MUST have that child in
+		// its 'children' list.
+		size_t index = ls_find(child->parent->children, child);
+		ls_delete(child->parent->children, child);
+
+		child->parent = NULL;
+	}
+
+	child->parent = new_parent;
+	ls_push(new_parent->children, child);
+
+	// TODO: Use matrix inverse to properly re-position, etc, child.
+	child->raw_tform.matrix_dirty = 1;
+}

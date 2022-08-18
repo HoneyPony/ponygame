@@ -11,6 +11,7 @@ void *ls_push_internal(void *list, size_t item_size, void *item_in);
 void ls_pop_internal(void *list, size_t item_size, void *item_out);
 void ls_delete_internal(void *list, size_t item_size, size_t index);
 bool ls_has_internal(void *list, size_t item_size, void *item);
+size_t ls_find_internal(void *list, size_t item_size, void *item);
 
 extern void ls_free(void *list);
 
@@ -46,6 +47,12 @@ do {\
 ({\
 	typeof(*list) genvar(tmp) = (item);\
 	ls_has_internal((list), sizeof(*(list)), & genvar(tmp));\
+})
+
+#define ls_find(list, item)\
+({\
+	typeof(*list) genvar(tmp) = (item);\
+	ls_find_internal((list), sizeof(*(list)), & genvar(tmp));\
 })
 
 //((*(typeof((list).at))(ls_pushing_ptr(&(list), sizeof(*(list).at)))) = (item))

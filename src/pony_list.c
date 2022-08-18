@@ -78,6 +78,16 @@ bool ls_has_internal(void *list, size_t item_size, void *cmp) {
 	return 0;
 }
 
+size_t ls_find_internal(void *list, size_t item_size, void *cmp) {
+	ListPrefix *prefix = prefix_ptr(list, ListPrefix);
+	
+	for(size_t i = 0; i < prefix->length; ++i) {
+		int check = memcmp(BASE(list) + item_size * i, cmp, item_size);
+		if(!check) return i;
+	}
+	return ~(size_t)(0);
+}
+
 void ls_delete_internal(void *list, size_t item_size, size_t index) {
 	ListPrefix *prefix = prefix_ptr(list, ListPrefix);
 	if(index >= prefix->length) return;
