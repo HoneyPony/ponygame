@@ -1,6 +1,7 @@
 #pragma once
 
 #include "pony_math.h"
+#include "pony_clib.h"
 
 typedef struct {
 	vec2 translate;
@@ -9,6 +10,8 @@ typedef struct {
 
 	union {
 		// Layout: column major. Lets us extract columns as vec2s.
+		float matrix[6];
+		
 		struct {
 			float a;
 			float d;
@@ -25,8 +28,6 @@ typedef struct {
 			vec2 col1;
 			vec2 col2;
 		};
-
-		float matrix[6];
 	};
 
 	//int8_t translate_dirty;
@@ -41,7 +42,7 @@ extern const RawTransform *raw_transform_identity();
 
 void raw_transform_compute(RawTransform *target, const RawTransform *parent);
 
-float raw_transform_determinant(RawTransform *tform);
+float raw_transform_determinant(const RawTransform *tform);
 
 extern vec2 raw_transform_xform(const RawTransform *tform, vec2 input);
 extern vec2 raw_transform_inverse_xform(const RawTransform *tform, vec2 input);

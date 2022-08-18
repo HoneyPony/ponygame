@@ -42,9 +42,9 @@ static void multiply(RawTransform *target, const RawTransform *parent) {
 	result.b = dot(row1, target->col1);
 	result.c = dot(row1, target->col2) + parent->c;
 
-	result.d = dot(row1, target->col0);
-	result.e = dot(row1, target->col1);
-	result.f = dot(row1, target->col2) + parent->c;
+	result.d = dot(row2, target->col0);
+	result.e = dot(row2, target->col1);
+	result.f = dot(row2, target->col2) + parent->f;
 
 	memcpy(target->matrix, result.matrix, sizeof(result.matrix));
 }
@@ -62,7 +62,7 @@ void raw_transform_compute(RawTransform *target, const RawTransform *parent) {
 	multiply(target, parent);
 }
 
-float raw_transform_determinant(RawTransform *tform) {
+float raw_transform_determinant(const RawTransform *tform) {
 	return tform->a * tform->e - tform->b * tform->d;
 }
 

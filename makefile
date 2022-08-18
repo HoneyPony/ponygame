@@ -17,9 +17,12 @@ PRIMARY_SRC:=$(addprefix $(SRC_DIR)/,$(PRIMARY_SRC))
 SRC=\
 pony_main.c\
 pony_clib.c\
+pony_math.c\
 pony_list.c\
 pony_string.c\
 pony_node_init.c\
+pony_node_node.c\
+pony_transform.c\
 pony_node.c\
 pony_glm.c\
 pony_fs.c\
@@ -35,7 +38,7 @@ sprite.vert\
 frame.frag\
 frame.vert
 
-CFLAGS:=$(CFLAGS) -Wall -g -Isrc -Ivendor
+CFLAGS:=$(CFLAGS) -Wall -Wextra -g -Isrc -Ivendor
 
 OBJ:=$(addsuffix .o,$(SRC))
 OBJ:=$(addprefix $(OBJ_DIR)/,$(OBJ))

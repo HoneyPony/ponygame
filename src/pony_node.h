@@ -92,5 +92,5 @@ vec2 get_basis_y(AnyNode *node);
 vec2 local_to_global(AnyNode *node, vec2 local);
 vec2 global_to_local(AnyNode *node, vec2 global);
 
-RawTransform *node_get_parent_transform(Node *node);
+const RawTransform *node_get_parent_transform(Node *node);
 bool node_update_transform(Node *node);

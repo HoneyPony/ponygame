@@ -4,14 +4,14 @@
 #define DET(x) raw_transform_determinant(x)
 #define TOO_SMALL(det) (abs(det) < 0.0000001)
 
-RawTransform *node_get_parent_transform(Node *node) {
+const RawTransform *node_get_parent_transform(Node *node) {
 	if(node && node->parent) return &node->parent->raw_tform;
 
 	return raw_transform_identity();
 }
 
 bool node_update_transform(Node *node) {
-	if(!node) return;
+	if(!node) return false;
 
 	// TODO: Is there a more efficient way to ensure everything is up to date?
 	// Obviously we could do the opposite... signal child nodes when their
@@ -103,7 +103,7 @@ void set_gpos(void *ptr, vec2 pos) {
 		return;
 	}
 	t->translate.x = -t->c * t->e + t->b * t->f;
-	t->translate.y - t->c * t->d - t->a * t->f;
+	t->translate.y = t->c * t->d - t->a * t->f;
 	t->translate.x /= denom;
 	t->translate.y /= denom;
 }
