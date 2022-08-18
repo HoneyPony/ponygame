@@ -35,7 +35,7 @@ const RawTransform *raw_transform_identity() {
 
 static void multiply(RawTransform *target, const RawTransform *parent) {
 	vec2 row1 = vxy(parent->a, parent->b);
-	vec2 row2 = vxy(parent->c, parent->d);
+	vec2 row2 = vxy(parent->d, parent->e);
 
 	RawTransform result;
 	result.a = dot(row1, target->col0);
