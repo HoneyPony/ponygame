@@ -32,6 +32,7 @@ void test() {
 }
 */
 
+/*
 void test() {
 	str my_str = str_fromf("%s%s", "ABC", " : ");
 
@@ -40,4 +41,20 @@ void test() {
 
 		printf("%2d [%s]\n", str_length(my_str), my_str);
 	}
+}
+*/
+
+void test() {
+	Node *node1 = node_new(Node);
+	Node *node2 = node_new(Node);
+
+	reparent(node2, node1);
+
+	ltranslate(node1, vxy(2.0, 0.0));
+	set_lrot(node1, 3.14 / 4.0);
+
+	ltranslate(node2, vxy(2.0, 0.0));
+
+	vec2 n2pos = get_gpos(node2);
+	printf("pos: %f %f\n", n2pos.x, n2pos.y);
 }

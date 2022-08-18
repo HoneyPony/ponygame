@@ -173,3 +173,17 @@ vec2 get_basis_y(AnyNode *ptr) {
 
 	return node->raw_tform.col1;
 }
+
+void ltranslate(AnyNode *node, vec2 offset) {
+	vec2 pos = get_lpos(node);
+	pos.x += offset.x; // TODO: Implement vector math...
+	pos.y += offset.y; 
+	set_lpos(node, pos);
+}
+
+void gtranslate(AnyNode *node, vec2 offset) {
+	vec2 pos = get_gpos(node);
+	pos.x += offset.x;
+	pos.y += offset.y;
+	set_gpos(node, offset);
+}

@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
 
 	pony_init_builtin_nodes();
 
-	//test();
+	test();
 
 	//puts("[ponygame] game is complete");
 

@@ -86,6 +86,9 @@ void set_grot(AnyNode *node, float rad);
 void set_lrot_deg(AnyNode *node, float deg);
 void set_grot_deg(AnyNode *node, float deg);
 
+void ltranslate(AnyNode *node, vec2 offset);
+void gtranslate(AnyNode *node, vec2 offset);
+
 vec2 get_basis_x(AnyNode *node);
 vec2 get_basis_y(AnyNode *node);
 
