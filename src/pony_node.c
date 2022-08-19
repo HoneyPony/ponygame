@@ -2,57 +2,63 @@
 
 #include <stdio.h>
 
-#define find_unset_index(input)\
-(__builtin_ctzll(~input))
+typedef struct NodeIntrusiveLinks Link;
 
-static void *node_new_from_pool(struct NodePool64 *pool, size_t stride) {
-	size_t index = find_unset_index(pool->mask);
+static void link_unlink(Link *target) {
+	if(!target) return;
 
-	pool->mask |= (1 << index);
-
-	void *result_ptr = pool->data + (stride * index);
-	Node *node = result_ptr;
-
-	// Need to track pool for freeing purposes.
-	node->source_pool = pool;
-	return result_ptr;
-}
-
-// Thoughts on the non-linearity here...
-// It is still the case that going from 1024*512 nodes -> 1024*512 nodes results
-// in a significant slowdown.
-// I believe this is because we are still searching the entire list of pools
-// each time we run out of pools.
-// This would be allieviated with a linked-list approach.
-//
-// It still may make sense to allocate pools in blocks for better cache properties.
-//
-// Another interesting benchmark result... going from 1024 * 2 -> 1024 * 4 results
-// in time going from 0us to 0.97 us. This is pretty significant!!
-static void *node_new_uninit_from_header(NodeHeader *header) {
-	size_t index = header->alloc_last_pool;
-	size_t count = ls_length(header->alloc_pools);
-
-	for(size_t counter = 0; counter < count; ++counter) {
-		if(~header->alloc_pools[index].mask) {
-			header->alloc_last_pool = index;
-			return node_new_from_pool(&header->alloc_pools[index], header->node_size);
-		}
-
-		index = (index + 1) % count;
+	if(target->last_node) {
+		target->last_node->next_node = target->next_node;
 	}
 
-	struct NodePool64 new_pool;
-	new_pool.data = pony_malloc(header->node_size * 64);
-	new_pool.mask = 0;
+	if(target->next_node) {
+		target->next_node->last_node = target->last_node;
+	}
 
-	void *result = node_new_from_pool(&new_pool, header->node_size);
+	target->last_node = NULL;
+	target->next_node = NULL;
+}
 
-	// We are pushing a new pool, so the new last_index is the number of pools
-	// right before we push the new pool.
-	header->alloc_last_pool = ls_length(header->alloc_pools);
-	ls_push(header->alloc_pools, new_pool);
-	
+static void link_insert_after(Link *link_to_insert, Link *new_previous) {
+	link_unlink(link_to_insert);
+
+	link_to_insert->next_node = new_previous->next_node;
+	link_to_insert->last_node = new_previous;
+
+	new_previous->next_node = link_to_insert;
+}
+
+static void ensure_free_list_exists(NodeHeader *header) {
+	if(header->list_free.next_node == NULL) {
+		// Allocate node links in blocks of 64
+		// This paremeter could be tuned based on benchmarks, etc...
+		//
+		// Need to use calloc() so that the links will be set to NULL to
+		// start with.
+		void *block = pony_calloc(header->node_size, 64);
+
+		for(size_t i = 0; i < 64; ++i) {
+			// When we call link_insert_after, this will cause all the nodes
+			// to be laid out in reverse order in memory.
+			//
+			// I believe this is generally fine because if there are two
+			// blocks allocated very close to each other, this will ensure
+			// better cache friendliness for the first allocation, which
+			// is the only one we can really control at this point.
+			size_t offset = i * header->node_size;
+
+			Link *link = (Link*)(block + offset);
+			link_insert_after(link, &header->list_free);
+		}
+	}
+}
+
+static void *node_new_uninit_from_header(NodeHeader *header) {
+	// Need to make sure there is at least one entry in the free list.
+	ensure_free_list_exists(header);
+
+	Node *result = (Node*)header->list_free.next_node;
+	link_insert_after(&result->alloc_info, &header->list_allocated);
 
 	return result;
 }
@@ -79,6 +85,8 @@ void *node_new_from_header(NodeHeader *header) {
 	void *node = node_new_uninit_from_header(header);
 
 	// The header must be stored here as it is not stored elsewhere.
+	// TODO: This can be optimized by storing the header when the node is
+	// first allocated, as its type will never change.
 	((Node*)node)->header = header;
 
 	node_construct_recursively(node, header);
@@ -86,39 +94,41 @@ void *node_new_from_header(NodeHeader *header) {
 	return node;
 }
 
-void node_free_in_pool(Node *node, struct NodePool64 *pool, size_t stride) {
-	uint8_t *ptr = (uint8_t*)(node);
-	size_t index = (ptr - pool->data) / stride;
-	pool->mask &= ~(1 << index);
-}
-
-
-void node_free_in_header(Node *node, NodeHeader *header) {
-	// Linear search of pools...
-	// This is currently actually entirely necessary unfortunately.
-	// We *ARE* currently tracking the pool in source_pool...
-	//
-	// But this is totally wrong! Because pools can move around! They are
-	// stored as values in a list_of()!
-	//
-	// I think this really does need to be redesigned to use a linked list for
-	// much more speed.
-	for(size_t i = 0; i < ls_length(header->alloc_pools); ++i) {
-		struct NodePool64 *pool = &header->alloc_pools[i];
-
-		if(node >= pool->data) {
-			if(node < pool->data + 64 * header->node_size) {
-				node_free_in_pool(node, pool, header->node_size);
-				return;
-			}
-		}
+static void node_destroy_recursive(Node *top) {
+	// Free all child trees.
+	for(size_t i = 0; i < ls_length(top->children); ++i) {
+		node_destroy_recursive(top->children[i]);
 	}
+
+	// Free the child list itself.
+	ls_free(top->children);
+
+	// Iterate through the class heirarchy to call destructors.
+	NodeHeader *destruct_header = top->header;
+	while(destruct_header) {
+		if(destruct_header->destruct) {
+			destruct_header->destruct(top);
+		}
+		destruct_header = destruct_header->base_class;
+	}
+
+	// Now, the node cannot yet be placed in the free list. It will now be
+	// placed in the destroyed list, and can be moved to the free list at
+	// the end of the frame.
+	//
+	// IMPORTANT: This must be the header for *this node*, not the header
+	// used for recursing.
+	NodeHeader *top_header = top->header;
+	link_insert_after(&top->alloc_info, &top_header->list_free);
 }
 
+void node_destroy(AnyNode *ptr) {
+	Node *node = ptr;
 
-static void node_free(Node *node) {
-	node_free_in_header(node, node->header);
-	//node_free_in_pool(node, node->source_pool, node->header->node_size);
+	// This node must be detached from the tree.
+	reparent(node, NULL);
+
+	node_destroy_recursive(node);
 }
 
 /* Some slighlty less internal functions... */
@@ -143,39 +153,4 @@ void reparent(AnyNode *child_ptr, AnyNode *new_parent_ptr) {
 
 	// TODO: Use matrix inverse to properly re-position, etc, child.
 	child->raw_tform.matrix_dirty = 1;
-}
-
-static void node_free_recursive(Node *top) {
-	// Free all child trees.
-	for(size_t i = 0; i < ls_length(top->children); ++i) {
-		node_free_recursive(top->children[i]);
-	}
-
-	// Free the child list itself.
-	ls_free(top->children);
-
-	NodeHeader *header = top->header;
-	while(header) {
-		if(header->destruct) {
-			header->destruct(top);
-		}
-		header = header->base_class;
-	}
-
-	// Free this node object.
-	node_free(top);
-
-	// TODO: Handle possible cycles? Seems mostly pointless. It would be
-	// very difficult to accidentally create a cycle.
-	// Like, the only way to create a cycle is to *detach* a node from the tree,
-	// and *then* create a cycle. So IDK. Maybe.
-}
-
-void node_destroy(AnyNode *ptr) {
-	Node *node = ptr;
-
-	// This node must be detached from the tree.
-	reparent(node, NULL);
-
-	node_free_recursive(node);
 }

@@ -71,7 +71,7 @@ toplevel(6)
 toplevel(7)
 toplevel(8)
 
-#define BENCH_SIZE (1024 * 128)
+#define BENCH_SIZE (1024 * 1024 * 4)
 
 Node *ptrs[BENCH_SIZE];
 

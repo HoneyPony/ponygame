@@ -8,6 +8,7 @@
 
 extern void *pony_realloc(void *old, size_t new_size);
 extern void *pony_malloc(size_t size);
+extern void *pony_calloc(size_t item_count, size_t item_size);
 extern void  pony_free(void *ptr);
 
 #define genvar(name)\

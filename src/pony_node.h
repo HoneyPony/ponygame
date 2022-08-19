@@ -8,9 +8,9 @@
 
 struct Node;
 
-struct NodePool64 {
-	uint8_t *data;
-	uint64_t mask;
+struct NodeIntrusiveLinks {
+	struct NodeIntrusiveLinks *last_node;
+	struct NodeIntrusiveLinks *next_node;
 };
 
 typedef void (*NodeConstructor)(void *node);
@@ -21,8 +21,24 @@ typedef struct NodeHeader {
 
 	size_t node_size;
 
-	list_of(struct NodePool64) alloc_pools;
-	size_t alloc_last_pool;
+	// The linked list of nodes of this type that are currently allocated.
+	// When a node is allocated, it is added to this list.
+	struct NodeIntrusiveLinks list_allocated;
+
+	// The linked list of nodes that have been destroyed. These nodes are not
+	// processed in the current frame. However, they are also not available
+	// for allocation, as there may still be references to them in the node
+	// process list. They will be made available for allocation at the end
+	// of the frame.
+	struct NodeIntrusiveLinks list_destroyed;
+
+	// The linked list of nodes that are available for allocation. If this
+	// list is completely empty, a new block of nodes will be allocated and
+	// linked together. This is to encourage some cache-friendly behavior,
+	// although the cache-friendliness will likely decrease over time as
+	// nodes from disparate blocks get linked together through multiple
+	// de-allocations and re-allocations.
+	struct NodeIntrusiveLinks list_free;
 
 	NodeConstructor construct;
 	NodeProcess process;
@@ -38,8 +54,9 @@ extern NodeHeader node_header(List) ;
 #define node_meta_initialize(Ty, base_class_ptr, construct_f, process_f, destruct_f) \
 node_header(Ty).base_class = base_class_ptr; \
 node_header(Ty).node_size = sizeof(Ty); \
-ls_init(node_header(Ty).alloc_pools); \
-node_header(Ty).alloc_last_pool = 0; \
+node_header(Ty).list_allocated = (struct NodeIntrusiveLinks){ NULL, NULL }; \
+node_header(Ty).list_destroyed = (struct NodeIntrusiveLinks){ NULL, NULL }; \
+node_header(Ty).list_free = (struct NodeIntrusiveLinks){ NULL, NULL }; \
 node_header(Ty).construct = construct_f; \
 node_header(Ty).process = process_f; \
 node_header(Ty).destruct = destruct_f;
@@ -62,8 +79,8 @@ extern void node_destroy(AnyNode *node);
  */
 
 #define FieldList_Node \
+struct NodeIntrusiveLinks alloc_info; \
 NodeHeader *header; \
-struct NodePool64 *source_pool; \
 struct Node *parent; \
 list_of(struct Node*) children; \
 RawTransform raw_tform;

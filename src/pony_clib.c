@@ -23,6 +23,12 @@ void *pony_malloc(size_t size) {
 	return pony_realloc(NULL, size);
 }
 
+// Not entirely sure why I'm doing this anymore... I guess to possibly have
+// some more game-tuned malloc functions...?
+void *pony_calloc(size_t item_count, size_t item_size) {
+	return calloc(item_count, item_size);
+}
+
 void pony_free(void *ptr) {
 	free(ptr);
 }
