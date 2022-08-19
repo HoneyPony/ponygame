@@ -32,6 +32,7 @@ void test_set_list();
 void test_set_transforms();
 
 void bench_node_construct_destruct();
+void bench_node_construct_destruct_small_batches();
 
 // Other infrastructure
 extern void pony_init_builtin_nodes();
@@ -43,7 +44,7 @@ int main(int argc, char **argv) {
 	pony_init_builtin_nodes();
 
 	if(argc > 1 && !strcmp(argv[1], "bench")) {
-		bench_node_construct_destruct();
+		bench_node_construct_destruct_small_batches();
 		return 0;
 	}
 
