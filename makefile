@@ -2,15 +2,17 @@
 
 CC?=gcc
 
-LINK=mingw32 SDL2main SDL2 opengl32 gdi32 glew32
+LINK=mingw32 SDL2main SDL2 glew32 opengl32 gdi32 
 
-#STATIC_SDL_FLAGS=-static -mwindows -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -static-libgcc -lsetupapi
-#shell32
+STATIC_SDL_FLAGS=-static -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -static-libgcc -lsetupapi
+# Note: add -mwindows for the final build of a game probably. Not actually related
+# to the static linking though.
 
 SRC_DIR=src
 OBJ_DIR?=build
 
 BIN:=ponygame
+STATIC_BIN:=ponygame-static
 TEST_BIN:=ponygame-test
 
 PRIMARY_SRC:=$(addprefix $(SRC_DIR)/,$(PRIMARY_SRC))
@@ -136,6 +138,9 @@ web: $(SHADER_C)
 
 #	cmd /c web-build.bat
 #	emcc -o html-build/index.html $(addprefix $(SRC_DIR)/,$(SRC))
+
+$(STATIC_BIN): $(OBJ) $(SHADER_OBJ)
+	$(CC) -o $@ $^ $(addprefix -l,$(LINK)) $(STATIC_SDL_FLAGS)
 
 -include $(OBJ:.o=.d)
 -include $(TEST_OBJ:.o=.d)
