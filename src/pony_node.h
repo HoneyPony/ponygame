@@ -68,6 +68,12 @@ typedef void AnyNode;
 
 extern void *node_new_from_header(NodeHeader *header);
 
+// This function should not be called by user-facing code generally.
+// 
+// Collects all the nodes from the destroyed list into the freed list, so
+// they can be re-used.
+extern void node_header_collect_destroyed_list(NodeHeader *header);
+
 #define node_new(Ty) ((Ty*)node_new_from_header(&node_header(Ty)))
 #define new(Ty) node_new(Ty)
 

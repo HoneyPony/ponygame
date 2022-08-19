@@ -102,6 +102,7 @@ static void node_destroy_recursive(Node *top) {
 
 	// Free the child list itself.
 	ls_free(top->children);
+	top->children = NULL;
 
 	// Iterate through the class heirarchy to call destructors.
 	NodeHeader *destruct_header = top->header;
@@ -119,7 +120,18 @@ static void node_destroy_recursive(Node *top) {
 	// IMPORTANT: This must be the header for *this node*, not the header
 	// used for recursing.
 	NodeHeader *top_header = top->header;
-	link_insert_after(&top->alloc_info, &top_header->list_free);
+
+	// Use the last_node pointer in the destroy list to keep track of the very
+	// last node in the list. That way, we can move all the nodes from
+	// the destroyed list to the free list extremely quickly.
+	//
+	// We may want to consider renaming last_node to prev_node because this
+	// double-use of the word "last" is a bit strange.
+	if(top_header->list_destroyed.last_node == NULL) {
+		top_header->list_destroyed.last_node = &top->alloc_info;
+	}
+
+	link_insert_after(&top->alloc_info, &top_header->list_destroyed);
 }
 
 void node_destroy(AnyNode *ptr) {
@@ -129,6 +141,33 @@ void node_destroy(AnyNode *ptr) {
 	reparent(node, NULL);
 
 	node_destroy_recursive(node);
+}
+
+void node_header_collect_destroyed_list(NodeHeader *header) {
+	Link *d_first = header->list_destroyed.next_node;
+	Link *d_last = header->list_destroyed.last_node;
+
+	// NULL list = nothing to collect
+	if(header->list_destroyed.next_node == NULL) {
+		return;
+	}
+
+	printf("first, last: %x %x\n", d_first, d_last);
+
+	// Point the nodes in the destroy list to where they need to be in the
+	// free list.
+	d_first->last_node = &header->list_free;
+	d_last->next_node = &header->list_free.next_node;
+
+	// Now that next_node has been tracked by d_last, we can re-point the
+	// next_node of the free list.
+	header->list_free.next_node = d_first;
+	if(d_last->next_node) {
+		d_last->next_node->last_node = d_last;
+	}
+
+	// Finally, we can completely clear out the destroyed list.
+	header->list_destroyed = (Link){ NULL, NULL };
 }
 
 /* Some slighlty less internal functions... */

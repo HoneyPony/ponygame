@@ -74,7 +74,7 @@ OBJ_NO_MAIN:=$(filter-out build/pony_main.c.o,$(OBJ))
 # remove those extra directory creations.
 DIR_LOCK=build/build.lock
 
-all: $(BIN)
+all: $(BIN) $(TEST_BIN)
 
 $(OBJ_DIR)/shaders/%.c.o: $(OBJ_DIR)/shaders/%.c $(DIR_LOCK)
 	$(CC) -c $< -o $@ -O2

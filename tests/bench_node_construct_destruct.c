@@ -71,7 +71,7 @@ toplevel(6)
 toplevel(7)
 toplevel(8)
 
-#define BENCH_SIZE (1024 * 1024 * 4)
+#define BENCH_SIZE (1024 * 1024 * 16)
 
 Node *ptrs[BENCH_SIZE];
 
@@ -101,13 +101,37 @@ void bench_node_construct_destruct() {
 
 	puts("benchmarking node destruction.");
 	start = clock();
-	for(size_t i = 0; i < BENCH_SIZE; ++i) {
-		node_destroy(ptrs[i]);
+	// Step through the nodes in a fashion that will cause them to be linked
+	// in a jump way when we re-create them.
+	for(size_t j = 0; j < 256; ++j) {
+		for(size_t i = 0; i < BENCH_SIZE / 256; i += 1) {
+			node_destroy(ptrs[j + (i * 256)]);
+		}
 	}
+	/*for(size_t i = 0; i < BENCH_SIZE; ++i) {
+		node_destroy(ptrs[i]);
+	}*/
 	end = clock();
 
 	double time_destroy = (end - start) / (double)CLOCKS_PER_SEC;
 	double time_per_destroy_op = (time_destroy / BENCH_SIZE) * 1000000.0;
 
-	printf("results:\n\tnode create  = %f us\n\tnode destroy = %f us\n", time_per_create_op, time_per_destroy_op);
+	node_header_collect_destroyed_list(&node_header(Node));
+	puts("benchmarking node re-creation, with more jumbled list.");
+	start = clock();
+	for(size_t i = 0; i < BENCH_SIZE; ++i) {
+		ptrs[i] = node_new(Ty8);
+	}
+	end = clock();
+
+	double time_create_again = (end - start) / (double)CLOCKS_PER_SEC;
+	double time_per_create_again_op = (time_create_again / BENCH_SIZE) * 1000000.0;
+
+	printf("results:\n"
+		"\tnode create  = %f us\n"
+		"\tnode destroy = %f us\n"
+		"\tnode create again = %f us\n",
+		time_per_create_op,
+		time_per_destroy_op,
+		time_per_create_again_op);
 }
