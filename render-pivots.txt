@@ -1,0 +1,8 @@
+Handling centered pivots:
+
+I think the simplest way to do this is as follows. Essentially, if a draw command wants to be rounded: take the fractional part of the pivot position. Then, compute the transformed pivot position. Round the transformed pivot position. Finally, add the fractional part back in. Then, compute the quad vertices based on the basis of the associated transform. (i.e. apply rotation and scale).
+
+This will work very well for centered pivots. In particular, if something is, say, 8x8... the pivot will be 4,4. And, the rounded pivot will be e.g. 6,3... putting the vertices at 2,-1, 2,7, etc.
+
+Then, for, say, 7x7, the pivot will be 3.5, 3.5. Then the rounded pivot will be, e.g, 1.5, 7.5, putting the vertices at -1.0,4.0, etc.
+
