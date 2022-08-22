@@ -30,6 +30,7 @@ void test_set_end(const char *name) {
 // Define the various test sets that will be run in the tester.
 void test_set_list();
 void test_set_transforms();
+void test_set_node_ref();
 
 void bench_node_construct_destruct();
 void bench_node_construct_destruct_small_batches();
@@ -50,6 +51,7 @@ int main(int argc, char **argv) {
 
 	test_set_list();
 	test_set_transforms();
+	test_set_node_ref();
 
 	puts("\nall tests completed.");
 	printf("overall:\n\ttotal tests: %d\n"

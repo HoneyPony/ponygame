@@ -44,6 +44,7 @@ frame.vert
 TEST_SRC=\
 test_runner.c\
 test_list.c\
+test_node_ref.c\
 test_transforms.c\
 bench_node_construct_destruct.c
 

@@ -8,9 +8,17 @@
 
 struct Node;
 
-struct NodeIntrusiveLinks {
-	struct NodeIntrusiveLinks *last_node;
-	struct NodeIntrusiveLinks *next_node;
+struct NodeInternal {
+	struct NodeInternal *last_node;
+	struct NodeInternal *next_node;
+
+	// Used to determine when a reference is stale.
+	uint32_t generation;
+
+	// Destroyed nodes are marked invalid. Nodes are allocated with calloc,
+	// so as soon as they are allocated they are marked invalid and they are
+	// not marked valid until specifically returned through node_new(), etc.
+	int8_t is_valid;
 };
 
 typedef void (*NodeConstructor)(void *node);
@@ -23,14 +31,14 @@ typedef struct NodeHeader {
 
 	// The linked list of nodes of this type that are currently allocated.
 	// When a node is allocated, it is added to this list.
-	struct NodeIntrusiveLinks list_allocated;
+	struct NodeInternal list_allocated;
 
 	// The linked list of nodes that have been destroyed. These nodes are not
 	// processed in the current frame. However, they are also not available
 	// for allocation, as there may still be references to them in the node
 	// process list. They will be made available for allocation at the end
 	// of the frame.
-	struct NodeIntrusiveLinks list_destroyed;
+	struct NodeInternal list_destroyed;
 
 	// The linked list of nodes that are available for allocation. If this
 	// list is completely empty, a new block of nodes will be allocated and
@@ -38,7 +46,7 @@ typedef struct NodeHeader {
 	// although the cache-friendliness will likely decrease over time as
 	// nodes from disparate blocks get linked together through multiple
 	// de-allocations and re-allocations.
-	struct NodeIntrusiveLinks list_free;
+	struct NodeInternal list_free;
 
 	NodeConstructor construct;
 	NodeProcess process;
@@ -54,9 +62,9 @@ extern NodeHeader node_header(List) ;
 #define node_meta_initialize(Ty, base_class_ptr, construct_f, process_f, destruct_f) \
 node_header(Ty).base_class = base_class_ptr; \
 node_header(Ty).node_size = sizeof(Ty); \
-node_header(Ty).list_allocated = (struct NodeIntrusiveLinks){ NULL, NULL }; \
-node_header(Ty).list_destroyed = (struct NodeIntrusiveLinks){ NULL, NULL }; \
-node_header(Ty).list_free = (struct NodeIntrusiveLinks){ NULL, NULL }; \
+node_header(Ty).list_allocated = (struct NodeInternal){ NULL, NULL, 0, 0 }; \
+node_header(Ty).list_destroyed = (struct NodeInternal){ NULL, NULL, 0, 0 }; \
+node_header(Ty).list_free = (struct NodeInternal){ NULL, NULL, 0, 0 }; \
 node_header(Ty).construct = construct_f; \
 node_header(Ty).process = process_f; \
 node_header(Ty).destruct = destruct_f;
@@ -85,15 +93,13 @@ extern void node_destroy(AnyNode *node);
  */
 
 #define FieldList_Node \
-struct NodeIntrusiveLinks alloc_info; \
+struct NodeInternal internal; \
 NodeHeader *header; \
 struct Node *parent; \
 list_of(struct Node*) children; \
 RawTransform raw_tform;
 
 node_from_field_list(Node)
-
-
 
 vec2 get_lpos(AnyNode *node);
 vec2 get_gpos(AnyNode *node);
@@ -126,3 +132,10 @@ const RawTransform *node_get_parent_transform(Node *node);
 bool node_update_transform(Node *node);
 
 void reparent(AnyNode *child, AnyNode *new_parent);
+
+extern bool node_ref_is_valid_internal(Node *ref_ptr, uint32_t ref_gen);
+
+#define Ref(NodeTy) struct { NodeTy *raw; uint32_t generation; }
+#define valid(ref) node_ref_is_valid_internal((ref).raw, (ref).generation)
+
+#define ref(ptr) { .raw = ptr, .generation = ptr->internal.generation }

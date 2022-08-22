@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-typedef struct NodeIntrusiveLinks Link;
+typedef struct NodeInternal Link;
 
 static void link_unlink(Link *target) {
 	if(!target) return;
@@ -58,7 +58,7 @@ static void *node_new_uninit_from_header(NodeHeader *header) {
 	ensure_free_list_exists(header);
 
 	Node *result = (Node*)header->list_free.next_node;
-	link_insert_after(&result->alloc_info, &header->list_allocated);
+	link_insert_after(&result->internal, &header->list_allocated);
 
 	return result;
 }
@@ -88,6 +88,12 @@ void *node_new_from_header(NodeHeader *header) {
 	// TODO: This can be optimized by storing the header when the node is
 	// first allocated, as its type will never change.
 	((Node*)node)->header = header;
+
+	// Increase the generation when a node is allocated.
+	((Node*)node)->internal.generation++;
+
+	// A node becomes valid once allocated.
+	((Node*)node)->internal.is_valid = 1;
 
 	node_construct_recursively(node, header);
 
@@ -128,13 +134,20 @@ static void node_destroy_recursive(Node *top) {
 	// We may want to consider renaming last_node to prev_node because this
 	// double-use of the word "last" is a bit strange.
 	if(top_header->list_destroyed.last_node == NULL) {
-		top_header->list_destroyed.last_node = &top->alloc_info;
+		top_header->list_destroyed.last_node = &top->internal;
 	}
 
-	link_insert_after(&top->alloc_info, &top_header->list_destroyed);
+	link_insert_after(&top->internal, &top_header->list_destroyed);
+
+	// Finally, the internal metadata in a destroyed node needs to be updated.
+	// This will invalidate any Refs to this node, as well as prevent the
+	// game loop from executing this node's tick functions.
+	top->internal.is_valid = 0;
 }
 
 void node_destroy(AnyNode *ptr) {
+	if(!ptr) return;
+
 	Node *node = ptr;
 
 	// This node must be detached from the tree.
@@ -152,12 +165,10 @@ void node_header_collect_destroyed_list(NodeHeader *header) {
 		return;
 	}
 
-	printf("first, last: %x %x\n", d_first, d_last);
-
 	// Point the nodes in the destroy list to where they need to be in the
 	// free list.
 	d_first->last_node = &header->list_free;
-	d_last->next_node = &header->list_free.next_node;
+	d_last->next_node = header->list_free.next_node;
 
 	// Now that next_node has been tracked by d_last, we can re-point the
 	// next_node of the free list.
@@ -167,7 +178,7 @@ void node_header_collect_destroyed_list(NodeHeader *header) {
 	}
 
 	// Finally, we can completely clear out the destroyed list.
-	header->list_destroyed = (Link){ NULL, NULL };
+	header->list_destroyed = (Link){ NULL, NULL, 0, 0 };
 }
 
 /* Some slighlty less internal functions... */
@@ -192,4 +203,13 @@ void reparent(AnyNode *child_ptr, AnyNode *new_parent_ptr) {
 
 	// TODO: Use matrix inverse to properly re-position, etc, child.
 	child->raw_tform.matrix_dirty = 1;
+}
+
+bool node_ref_is_valid_internal(Node *ptr, uint32_t generation) {
+	if(!ptr) return false;
+	if(!ptr->internal.is_valid) return false;
+
+	if(ptr->internal.generation != generation) return false;
+
+	return true;
 }

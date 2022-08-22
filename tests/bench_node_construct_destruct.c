@@ -137,9 +137,9 @@ void bench_node_construct_destruct() {
 static void clear_node_alloc_info() {
 	NodeHeader *h = &node_header(Ty8);
 
-	h->list_allocated = (struct NodeIntrusiveLinks){ NULL, NULL };
-	h->list_destroyed = (struct NodeIntrusiveLinks){ NULL, NULL };
-	h->list_free = (struct NodeIntrusiveLinks){ NULL, NULL };
+	h->list_allocated = (struct NodeInternal){ NULL, NULL, 0, 0 };
+	h->list_destroyed = (struct NodeInternal){ NULL, NULL, 0, 0 };
+	h->list_free = (struct NodeInternal){ NULL, NULL, 0, 0 };
 }
 
 #define BATCH_SIZE 512
