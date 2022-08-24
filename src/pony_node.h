@@ -8,9 +8,13 @@
 
 struct Node;
 
+struct NodeLinks {
+	struct NodeLinks *last_node;
+	struct NodeLinks *next_node;
+};
+
 struct NodeInternal {
-	struct NodeInternal *last_node;
-	struct NodeInternal *next_node;
+	struct NodeLinks links;
 
 	RawTransform transform;
 
@@ -46,19 +50,16 @@ typedef struct NodeHeader {
 
 	size_t node_size;
 
-	// TODO: Only use links for these lists, not use the whole NodeInternal
-	// struct
-
 	// The linked list of nodes of this type that are currently allocated.
 	// When a node is allocated, it is added to this list.
-	struct NodeInternal list_allocated;
+	struct NodeLinks list_allocated;
 
 	// The linked list of nodes that have been destroyed. These nodes are not
 	// processed in the current frame. However, they are also not available
 	// for allocation, as there may still be references to them in the node
 	// process list. They will be made available for allocation at the end
 	// of the frame.
-	struct NodeInternal list_destroyed;
+	struct NodeLinks list_destroyed;
 
 	// The linked list of nodes that are available for allocation. If this
 	// list is completely empty, a new block of nodes will be allocated and
@@ -66,7 +67,7 @@ typedef struct NodeHeader {
 	// although the cache-friendliness will likely decrease over time as
 	// nodes from disparate blocks get linked together through multiple
 	// de-allocations and re-allocations.
-	struct NodeInternal list_free;
+	struct NodeLinks list_free;
 
 	NodeConstructor construct;
 	NodeProcess process;
@@ -82,9 +83,9 @@ extern NodeHeader node_header(List) ;
 #define node_meta_initialize(Ty, base_class_ptr, construct_f, process_f, destruct_f) \
 node_header(Ty).base_class = base_class_ptr; \
 node_header(Ty).node_size = sizeof(Ty); \
-node_header(Ty).list_allocated = (struct NodeInternal){ NULL, NULL, 0, 0 }; \
-node_header(Ty).list_destroyed = (struct NodeInternal){ NULL, NULL, 0, 0 }; \
-node_header(Ty).list_free = (struct NodeInternal){ NULL, NULL, 0, 0 }; \
+node_header(Ty).list_allocated = (struct NodeLinks){ NULL, NULL }; \
+node_header(Ty).list_destroyed = (struct NodeLinks){ NULL, NULL }; \
+node_header(Ty).list_free = (struct NodeLinks){ NULL, NULL }; \
 node_header(Ty).construct = construct_f; \
 node_header(Ty).process = process_f; \
 node_header(Ty).destruct = destruct_f;

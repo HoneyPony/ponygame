@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-typedef struct NodeInternal Link;
+typedef struct NodeLinks Link;
 
 static void link_unlink(Link *target) {
 	if(!target) return;
@@ -58,7 +58,7 @@ static void *node_new_uninit_from_header(NodeHeader *header) {
 	ensure_free_list_exists(header);
 
 	Node *result = (Node*)header->list_free.next_node;
-	link_insert_after(&result->internal, &header->list_allocated);
+	link_insert_after(&result->internal.links, &header->list_allocated);
 
 	return result;
 }
@@ -134,10 +134,10 @@ static void node_destroy_recursive(Node *top) {
 	// We may want to consider renaming last_node to prev_node because this
 	// double-use of the word "last" is a bit strange.
 	if(top_header->list_destroyed.last_node == NULL) {
-		top_header->list_destroyed.last_node = &top->internal;
+		top_header->list_destroyed.last_node = &top->internal.links;
 	}
 
-	link_insert_after(&top->internal, &top_header->list_destroyed);
+	link_insert_after(&top->internal.links, &top_header->list_destroyed);
 
 	// Finally, the internal metadata in a destroyed node needs to be updated.
 	// This will invalidate any Refs to this node, as well as prevent the
@@ -178,7 +178,7 @@ void node_header_collect_destroyed_list(NodeHeader *header) {
 	}
 
 	// Finally, we can completely clear out the destroyed list.
-	header->list_destroyed = (Link){ NULL, NULL, 0, 0 };
+	header->list_destroyed = (Link){ NULL, NULL };
 }
 
 void *node_try_downcast_by_header(void *ptr, NodeHeader *header) {
