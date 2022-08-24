@@ -12,7 +12,11 @@ struct NodeInternal {
 	struct NodeInternal *last_node;
 	struct NodeInternal *next_node;
 
-	// Used to determine when a reference is stale.
+	// Used to determine when a reference is stale. Currently, this is a 4 byte
+	// integer, as although the references that use the generation number are
+	// generally 16 bytes anyways and so could use a 64 bit integer, inside the
+	// Node object we want to save as much space as possible so that nodes can
+	// be really lightweight.
 	uint32_t generation;
 
 	// Destroyed nodes are marked invalid. Nodes are allocated with calloc,
@@ -138,11 +142,26 @@ void reparent(AnyNode *child, AnyNode *new_parent);
 extern bool node_ref_is_valid_internal(Node *ref_ptr, uint32_t ref_gen);
 extern void *node_ref_unbox(Node *ref_ptr, uint32_t ref_gen);
 
+// Gets the generation associated with a Node pointer, or 0 if the pointer is
+// NULL.
+extern uint32_t node_ref_get_generation(void *ref_ptr);
+
 #define Ref(NodeTy) struct { NodeTy *raw; uint32_t generation; }
 #define valid(ref) node_ref_is_valid_internal((Node*)(ref).raw, (ref).generation)
 
 #define ref(ptr) { .raw = ptr, .generation = ptr->internal.generation }
+#define ref_null() { .raw = NULL, .generation = 0 }
 
+// Note: this could be made more efficient in cases where the compiler knows
+// that the 'ref_var' is NULL, using this code:
+//
+//    if((ref_var).raw) { (ref_var).generation = (ref_var).raw->internal.generation; }
+//
+// However, the problem is that if a reference is not intitialized any other way,
+// this results in an annoying warning.
+//
+// Actually, though, in those cases... the variable should just be initialized with
+// ref_null()...?
 #define set_ref(ref_var, target_ptr)\
 do {\
 	(ref_var).raw = (target_ptr);\

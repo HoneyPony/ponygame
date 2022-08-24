@@ -77,12 +77,13 @@ test_define(test_node_ref_unbox, {
 		Ref(Node) target;
 	} Enemy;
 
-	Enemy enemy;
+	Enemy enemy = { .target = ref_null() };
+
 	Node *example_target = new(Node);
 	set_ref(enemy.target, example_target);
 
 	Node *target;
-	if(target = unbox(enemy.target)) {
+	if(( target = unbox(enemy.target) )) {
 		test_assert(valid(enemy.target), "Reference should be valid after unboxing.");
 	}
 })
@@ -95,7 +96,8 @@ test_define(test_node_ref_using, {
 		Ref(Node) target;
 	} Enemy;
 
-	Enemy enemy;
+	Enemy enemy = { .target = ref_null() };
+
 	Node *example_target = new(Node);
 	set_ref(enemy.target, example_target);
 

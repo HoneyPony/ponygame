@@ -105,7 +105,7 @@ void set_gpos(void *ptr, vec2 pos) {
 
 	// Used for computing the new local translation. This is the most used
 	// matrix, so gets the 't' label.
-	RawTransform *t = node_get_parent_transform(node);
+	const RawTransform *t = node_get_parent_transform(node);
 
 	// Update the node global transform matrix with the new global data.
 	node->raw_tform.c = pos.x;

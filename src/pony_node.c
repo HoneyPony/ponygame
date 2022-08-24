@@ -202,6 +202,13 @@ void *node_try_downcast_by_header(void *ptr, NodeHeader *header) {
 	return NULL;
 }
 
+uint32_t node_ref_get_generation(void *ref_ptr) {
+	if(!ref_ptr) return 0;
+
+	Node *node = ref_ptr;
+	return node->internal.generation;
+}
+
 /* Some slighlty less internal functions... */
 
 void reparent(AnyNode *child_ptr, AnyNode *new_parent_ptr) {

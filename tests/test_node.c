@@ -60,8 +60,8 @@ test_define(test_node_constructor, {
 		test_assert(0, "List initialized with incorrect length");
 	}
 	else {
-		for(int i = 0; i < ls_length(cd->list_var); ++i) {
-			test_assert_eq(i * 2, cd->list_var[i], "Expected list member initialized to %d, got %d\n");
+		for(uint32_t i = 0; i < ls_length(cd->list_var); ++i) {
+			test_assert_eq(i * 2, (uint32_t)cd->list_var[i], "Expected list member initialized to %d, got %d\n");
 		}
 	}
 })

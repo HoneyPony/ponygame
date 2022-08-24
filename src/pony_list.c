@@ -71,7 +71,7 @@ void ls_pop_internal(void *list, size_t item_size, void *out) {
 bool ls_has_internal(void *list, size_t item_size, void *cmp) {
 	ListPrefix *prefix = prefix_ptr(list, ListPrefix);
 	
-	for(size_t i = 0; i < prefix->length; ++i) {
+	for(size_t i = 0; i < (size_t)prefix->length; ++i) {
 		int check = memcmp(BASE(list) + item_size * i, cmp, item_size);
 		if(!check) return 1;
 	}
@@ -81,7 +81,7 @@ bool ls_has_internal(void *list, size_t item_size, void *cmp) {
 size_t ls_find_internal(void *list, size_t item_size, void *cmp) {
 	ListPrefix *prefix = prefix_ptr(list, ListPrefix);
 	
-	for(size_t i = 0; i < prefix->length; ++i) {
+	for(size_t i = 0; i < (size_t)prefix->length; ++i) {
 		int check = memcmp(BASE(list) + item_size * i, cmp, item_size);
 		if(!check) return i;
 	}
@@ -90,7 +90,7 @@ size_t ls_find_internal(void *list, size_t item_size, void *cmp) {
 
 void ls_delete_internal(void *list, size_t item_size, size_t index) {
 	ListPrefix *prefix = prefix_ptr(list, ListPrefix);
-	if(index >= prefix->length) return;
+	if(index >= (size_t)prefix->length) return;
 	
 	size_t items_to_move = prefix->length - index - 1;
 	
