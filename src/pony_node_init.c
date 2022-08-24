@@ -1,6 +1,7 @@
 #include "pony_node.h"
 
 #include <stdio.h>
+#include <string.h>
 
 node_meta_defines(Node)
 
@@ -12,7 +13,15 @@ void construct_Node(void *node) {
 	ls_init(self->children);
 
 	// The transformation should be initialized to the identity.
-	raw_transform_copy(&self->raw_tform, raw_transform_identity());
+	memcpy(&self->internal.transform, raw_transform_identity(), sizeof(RawTransform));
+
+	// Initialize internal transform data to the identity as well.
+	self->internal.rotate = 0;
+	self->internal.translate = vxy(0.0, 0.0);
+	self->internal.scale = vxy(1.0, 1.0);
+
+	// Initialize flags
+	self->internal.matrix_dirty = 0;
 }
 
 void pony_init_builtin_nodes() {

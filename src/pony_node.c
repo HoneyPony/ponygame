@@ -230,7 +230,7 @@ void reparent(AnyNode *child_ptr, AnyNode *new_parent_ptr) {
 	}
 
 	// TODO: Use matrix inverse to properly re-position, etc, child.
-	child->raw_tform.matrix_dirty = 1;
+	child->internal.matrix_dirty = 1;
 }
 
 bool node_ref_is_valid_internal(Node *ptr, uint32_t generation) {

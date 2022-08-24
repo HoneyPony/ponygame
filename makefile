@@ -25,7 +25,7 @@ pony_list.c\
 pony_string.c\
 pony_node_init.c\
 pony_node_node.c\
-pony_transform.c\
+pony_raw_transform.c\
 pony_node.c\
 pony_glm.c\
 pony_fs.c\
@@ -68,7 +68,7 @@ TEST_SRC_C:=$(addprefix tests/,$(TEST_SRC))
 
 OBJ_NO_MAIN:=$(filter-out build/pony_main.c.o,$(OBJ))
 
-.PHONY: all clean unity install lib run-tests
+.PHONY: all clean unity install lib run-tests no-test
 .PRECIOUS: $(OBJ_DIR)/shaders/%.c
 
 # In order to ensure the build directory is created, we need a way to depend
@@ -79,6 +79,7 @@ OBJ_NO_MAIN:=$(filter-out build/pony_main.c.o,$(OBJ))
 DIR_LOCK=build/build.lock
 
 all: $(BIN) $(TEST_BIN)
+no-test: $(BIN)
 
 $(OBJ_DIR)/shaders/%.c.o: $(OBJ_DIR)/shaders/%.c $(DIR_LOCK)
 	$(CC) -c $< -o $@ -O2

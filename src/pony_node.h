@@ -4,13 +4,22 @@
 #include "pony_clib.h"
 #include "pony_list.h"
 
-#include "pony_transform.h"
+#include "pony_raw_transform.h"
 
 struct Node;
 
 struct NodeInternal {
 	struct NodeInternal *last_node;
 	struct NodeInternal *next_node;
+
+	RawTransform transform;
+
+	// Internal transform data. Used to store the local transformation. Should
+	// not be modified directly, as modifying these invalidates the transform
+	// matrix.
+	vec2 translate;
+	vec2 scale;
+	float rotate;
 
 	// Used to determine when a reference is stale. Currently, this is a 4 byte
 	// integer, as although the references that use the generation number are
@@ -23,6 +32,10 @@ struct NodeInternal {
 	// so as soon as they are allocated they are marked invalid and they are
 	// not marked valid until specifically returned through node_new(), etc.
 	int8_t is_valid;
+
+	// Stores whether the transform matrix is currently invalid and needs to
+	// be recomputed.
+	int8_t matrix_dirty;
 };
 
 typedef void (*NodeConstructor)(void *node);
@@ -32,6 +45,9 @@ typedef struct NodeHeader {
 	struct NodeHeader *base_class;
 
 	size_t node_size;
+
+	// TODO: Only use links for these lists, not use the whole NodeInternal
+	// struct
 
 	// The linked list of nodes of this type that are currently allocated.
 	// When a node is allocated, it is added to this list.
@@ -102,8 +118,7 @@ extern void *node_try_downcast_by_header(AnyNode *node, NodeHeader *new_type_hea
 struct NodeInternal internal; \
 NodeHeader *header; \
 struct Node *parent; \
-list_of(struct Node*) children; \
-RawTransform raw_tform;
+list_of(struct Node*) children;
 
 node_from_field_list(Node)
 

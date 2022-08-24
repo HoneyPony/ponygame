@@ -5,7 +5,7 @@
 #define TOO_SMALL(det) (abs(det) < 0.0000001)
 
 const RawTransform *node_get_parent_transform(Node *node) {
-	if(node && node->parent) return &node->parent->raw_tform;
+	if(node && node->parent) return &node->parent->internal.transform;
 
 	return raw_transform_identity();
 }
@@ -27,8 +27,11 @@ bool node_update_transform(Node *node) {
 	// Then we simply invalidate that node... there is extra space for another
 	// flag in the transform, so that might work.
 	bool parent_updated = node_update_transform(node->parent);
-	if(parent_updated || node->raw_tform.matrix_dirty) {
-		raw_transform_compute(&node->raw_tform, node_get_parent_transform(node));
+	if(parent_updated || node->internal.matrix_dirty) {
+		raw_transform_compute(
+			&node->internal,
+			&node->internal.transform,
+			node_get_parent_transform(node));
 		return true;
 	}
 	return false;
@@ -37,25 +40,25 @@ bool node_update_transform(Node *node) {
 vec2 get_lpos(void *ptr) {
 	Node *node = ptr;
 
-	return node->raw_tform.translate;	
+	return node->internal.translate;	
 }
 
 vec2 get_gpos(void *ptr) {
 	Node *node = ptr;
 	node_update_transform(node);
 
-	return node->raw_tform.col2;
+	return raw_transform_col2(node->internal.transform);
 }
 
 vec2 get_lscale(void *ptr) {
 	Node *node = ptr;
 
-	return node->raw_tform.scale;
+	return node->internal.scale;
 }
 //vec2 get_gscale(void *node);
 float get_lrot(void *ptr) {
 	Node *node = ptr;
-	return node->raw_tform.rotate;
+	return node->internal.rotate;
 }
 
 // Returns the arc-tangent of the first column of the global transform matrix.
@@ -64,7 +67,7 @@ float get_lrot(void *ptr) {
 float get_grot(void *ptr) {
 	Node *node = ptr;
 	node_update_transform(node);
-	RawTransform *t = &node->raw_tform;
+	RawTransform *t = &node->internal.transform;
 
 	float det = DET(t);
 	if(TOO_SMALL(det)) {
@@ -84,10 +87,8 @@ float get_grot_deg(void *ptr) {
 
 void set_lpos(void *ptr, vec2 pos) {
 	Node *node = ptr;
-	RawTransform *t = &node->raw_tform;
-
-	t->translate = pos;
-	t->matrix_dirty = 1;
+	node->internal.translate = pos;
+	node->internal.matrix_dirty = 1;
 }
 
 void set_gpos(void *ptr, vec2 pos) {
@@ -108,8 +109,8 @@ void set_gpos(void *ptr, vec2 pos) {
 	const RawTransform *t = node_get_parent_transform(node);
 
 	// Update the node global transform matrix with the new global data.
-	node->raw_tform.c = pos.x;
-	node->raw_tform.f = pos.y;
+	node->internal.transform.c = pos.x;
+	node->internal.transform.f = pos.y;
 
 	// Update local translation
 	// In this computation, we use our parent transform for almost everything.
@@ -131,37 +132,31 @@ void set_gpos(void *ptr, vec2 pos) {
 	translate.y /= denom;
 
 	// IMPORTANT: Update this value in the node.
-	node->raw_tform.translate = translate;
+	node->internal.translate = translate;
 }
 
 void set_lscale(void *ptr, vec2 scale) {
 	Node *node = ptr;
-	RawTransform *t = &node->raw_tform;
-
-	t->scale = scale;
-	t->matrix_dirty = 1;
+	node->internal.scale = scale;
+	node->internal.matrix_dirty = 1;
 }
 //vec2 set_gscale(void *node, vec2 scale);
 void set_lrot(void *ptr, float rad) {
 	Node *node = ptr;
-	RawTransform *t = &node->raw_tform;
-
-	t->rotate = rad;
-	t->matrix_dirty = 1;
+	node->internal.rotate = rad;
+	node->internal.matrix_dirty = 1;
 }
 
 void set_grot(void *ptr, float rad) {
 	Node *node = ptr;
-	RawTransform *t = &node->raw_tform;
-
 	// How much the local rotation needs to be increased by to set that global
 	// rotation.
 	// Will give strange results if the determinant is zero, but will not
 	// cause an immediate problem necessarily.
 	float difference = get_grot(ptr) - rad;
 
-	t->rotate += difference;
-	t->matrix_dirty = 1;
+	node->internal.rotate += difference;
+	node->internal.matrix_dirty = 1;
 }
 
 void set_lrot_deg(void *ptr, float deg) {
@@ -176,28 +171,28 @@ vec2 local_to_global(AnyNode *ptr, vec2 point) {
 	Node *node = ptr;
 	node_update_transform(node);
 
-	return raw_transform_xform(&node->raw_tform, point);
+	return raw_transform_xform(&node->internal.transform, point);
 }
 
 vec2 global_to_local(AnyNode *ptr, vec2 point) {
 	Node *node = ptr;
 	node_update_transform(node);
 
-	return raw_transform_inverse_xform(&node->raw_tform, point);
+	return raw_transform_inverse_xform(&node->internal.transform, point);
 }
 
 vec2 get_basis_x(AnyNode *ptr) {
 	Node *node = ptr;
 	node_update_transform(node);
 
-	return node->raw_tform.col0;
+	return raw_transform_col0(node->internal.transform);
 }
 
 vec2 get_basis_y(AnyNode *ptr) {
 	Node *node = ptr;
 	node_update_transform(node);
 
-	return node->raw_tform.col1;
+	return raw_transform_col1(node->internal.transform);
 }
 
 void ltranslate(AnyNode *node, vec2 offset) {

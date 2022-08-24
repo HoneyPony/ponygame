@@ -1,13 +1,9 @@
-#include "pony_transform.h"
+#include "pony_raw_transform.h"
 
 #include "pony_clib.h"
 #include "pony_math.h"
+#include "pony_node.h"
 #include <string.h>
-
-void raw_transform_copy(RawTransform *target, const RawTransform *from) {
-	memcpy(target, from, sizeof(RawTransform));
-	target->matrix_dirty = 1;
-}
 
 const RawTransform *raw_transform_identity() {
 	static RawTransform identity;
@@ -22,12 +18,6 @@ const RawTransform *raw_transform_identity() {
 		identity.d = 0;
 		identity.e = 1;
 		identity.f = 0;
-
-		identity.rotate = 0;
-		identity.scale = vxy(1, 1);
-		identity.translate = vxy(0, 0);
-
-		identity.matrix_dirty = 0;
 	}
 
 	return &identity;
@@ -37,27 +27,33 @@ static void multiply(RawTransform *target, const RawTransform *parent) {
 	vec2 row1 = vxy(parent->a, parent->b);
 	vec2 row2 = vxy(parent->d, parent->e);
 
+	vec2 col0 = raw_transform_col0(*target);
+	vec2 col1 = raw_transform_col1(*target);
+	vec2 col2 = raw_transform_col2(*target);
+
 	RawTransform result;
-	result.a = dot(row1, target->col0);
-	result.b = dot(row1, target->col1);
-	result.c = dot(row1, target->col2) + parent->c;
+	result.a = dot(row1, col0);
+	result.b = dot(row1, col1);
+	result.c = dot(row1, col2) + parent->c;
 
-	result.d = dot(row2, target->col0);
-	result.e = dot(row2, target->col1);
-	result.f = dot(row2, target->col2) + parent->f;
+	result.d = dot(row2, col0);
+	result.e = dot(row2, col1);
+	result.f = dot(row2, col2) + parent->f;
 
-	memcpy(target->matrix, result.matrix, sizeof(result.matrix));
+	memcpy(target, &result, sizeof(result));
 }
 
-void raw_transform_compute(RawTransform *target, const RawTransform *parent) {
-	float c = cos(target->rotate);
-	float s = sin(target->rotate);
+void raw_transform_compute(const struct NodeInternal *node_data, RawTransform *target, const RawTransform *parent) {
+	float c = cos(node_data->rotate);
+	float s = sin(node_data->rotate);
 
-	target->a = target->scale.x * c;
-	target->b = target->scale.y * -s;
-	target->d = target->scale.x * s;
-	target->e = target->scale.y * c;
-	target->col2 = target->translate;
+	target->a = node_data->scale.x * c;
+	target->b = node_data->scale.y * -s;
+	target->d = node_data->scale.x * s;
+	target->e = node_data->scale.y * c;
+	
+	target->c = node_data->translate.x;
+	target->f = node_data->translate.y;
 	
 	multiply(target, parent);
 }
