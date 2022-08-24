@@ -87,6 +87,8 @@ extern void node_header_collect_destroyed_list(NodeHeader *header);
 
 extern void node_destroy(AnyNode *node);
 
+extern void *node_try_downcast_by_header(AnyNode *node, NodeHeader *new_type_header);
+
 /* The raw Node type. This type is responsible for a lot of stuff, including
  * both the basic scene tree AND the transform heirarchy (as they are extremely
  * interconnected in this game engine.
@@ -156,4 +158,7 @@ if((name = node_ref_unbox((Node*)(ref).raw, (ref).generation)))
 using_ref_internal(__VA_ARGS__)
 
 #define as ,
+
+#define using_node_internal(node, new_var)\
+if((new_var = ))
 

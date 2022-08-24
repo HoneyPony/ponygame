@@ -181,6 +181,27 @@ void node_header_collect_destroyed_list(NodeHeader *header) {
 	header->list_destroyed = (Link){ NULL, NULL, 0, 0 };
 }
 
+void *node_try_downcast_by_header(void *ptr, NodeHeader *header) {
+	Node *node = ptr;
+	NodeHeader *check = node->header;
+
+	while(check) {
+		// If the header to downcast to is in our class heirarchy, the downcast
+		// will succeed.
+		//
+		// Note that downcasting to more specific types is faster than downcasting
+		// to less specific types.
+		if(check == header) {
+			return ptr;
+		}
+		check = check->base_class;
+	}
+
+	// If the type is not found, the downcast fails. Return null in that case,
+	// as that allows for nice if block patterns.
+	return NULL;
+}
+
 /* Some slighlty less internal functions... */
 
 void reparent(AnyNode *child_ptr, AnyNode *new_parent_ptr) {
