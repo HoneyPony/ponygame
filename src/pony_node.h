@@ -149,15 +149,11 @@ do {\
 
 #define unbox(ref) node_ref_unbox((Node*)(ref).raw, (ref).generation)
 
-/*
-This syntax unfortunatenly doesn't really work because it's not allowed to
-declare a new variable at the beginning of an if statement.
+#define using_ref_internal(ref, name)\
+if((name = node_ref_unbox((Node*)(ref).raw, (ref).generation)))
 
-#define using_internal(ref, name)\
-if(typeof((ref).raw) name = node_ref_unref((Node*)(ref).raw, (ref).generation))
-
-#define using(...)\
-using_internal(__VA_ARGS__)
+#define using_ref(...)\
+using_ref_internal(__VA_ARGS__)
 
 #define as ,
-*/
+

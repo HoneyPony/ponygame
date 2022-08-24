@@ -83,6 +83,24 @@ test_define(test_node_ref_unbox, {
 
 	Node *target;
 	if(target = unbox(enemy.target)) {
+		test_assert(valid(enemy.target), "Reference should be valid after unboxing.");
+	}
+})
+
+test_define(test_node_ref_using, {
+	// This test is the same as the unbox test, but with the using syntax.
+
+	// Example struct
+	typedef struct {
+		Ref(Node) target;
+	} Enemy;
+
+	Enemy enemy;
+	Node *example_target = new(Node);
+	set_ref(enemy.target, example_target);
+
+	Node *target;
+	using_ref(enemy.target as target) {
 		test_assert(valid(enemy.target), "Reference should be valid within using block.");
 	}
 })
@@ -92,4 +110,5 @@ test_set_define(test_set_node_ref, {
 	//test_node_ref_copy();
 	test_node_ref_generation();
 	test_node_ref_unbox();
+	test_node_ref_using();
 })
