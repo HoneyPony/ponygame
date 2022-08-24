@@ -159,6 +159,8 @@ using_ref_internal(__VA_ARGS__)
 
 #define as ,
 
-#define using_node_internal(node, new_var)\
-if((new_var = ))
+#define using_node_internal(node, Ty, var_name)\
+if((var_name = node_try_downcast_by_header(node, &node_header(Ty))))
 
+#define using_node(...)\
+using_node_internal(__VA_ARGS__)

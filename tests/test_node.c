@@ -54,6 +54,19 @@ test_define(test_node_cant_downcast, {
 	test_assert(!failed_downcast, "Expected failed downcast, but got %p\n", failed_downcast);
 })
 
+test_define(test_node_using_node, {
+	Child *test = new(Child);
+	void *node = test;
+
+	Child *child;
+	using_node(node as Child as child) {
+		test_assert(child->header == &node_header(Child), "Bad downcast in using block.");
+	}
+	else {
+		test_assert(0, "Using block incorrectly return null.");
+	}
+})
+
 test_set_define(test_set_node, {
 	// Need some setup for this test set.
 	node_meta_initialize(Child, &node_header(Node), NULL, NULL, NULL);
@@ -64,4 +77,5 @@ test_set_define(test_set_node, {
 	test_node_downcast_grandchild();
 	test_node_downcast_partway();
 	test_node_cant_downcast();
+	test_node_using_node();
 })
