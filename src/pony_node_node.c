@@ -92,20 +92,46 @@ void set_lpos(void *ptr, vec2 pos) {
 
 void set_gpos(void *ptr, vec2 pos) {
 	Node *node = ptr;
-	RawTransform *t = &node->raw_tform;
 
-	t->c = pos.x;
-	t->f = pos.y;
+	// Need to update the parent transform, if there is one. The parent
+	// transform is going to be used to compute how our new local translation
+	// will work to fulfill the proper global translation.
+	//
+	// Note that we don't care about our local matrix in this case, as our
+	// local scale and rotation do not affect our position.
+	if(node->parent) {
+		node_update_transform(node->parent);
+	}
+
+	// Used for computing the new local translation. This is the most used
+	// matrix, so gets the 't' label.
+	RawTransform *t = node_get_parent_transform(node);
+
+	// Update the node global transform matrix with the new global data.
+	node->raw_tform.c = pos.x;
+	node->raw_tform.f = pos.y;
 
 	// Update local translation
+	// In this computation, we use our parent transform for almost everything.
+	// In order to be careful about correctness, the parent transform is labeled
+	// 't' and no other variables are used; this should hopefully be clear.
 	float denom = DET(t);
 	if(TOO_SMALL(denom)) {
 		return;
 	}
-	t->translate.x = -t->c * t->e + t->b * t->f;
-	t->translate.y = t->c * t->d - t->a * t->f;
-	t->translate.x /= denom;
-	t->translate.y /= denom;
+	// The new translation.
+	// This math comes from:
+	// https://www.wolframalpha.com/input?i=%5B%5Ba%2Cb%2Cc%5D%2C%5Bd%2Ce%2Cf%5D%2C%5B0%2C0%2C1%5D%5D%5E-1*%5Bx%2Cy%2C1%5D
+	vec2 translate;
+	translate.x = (-t->c * t->e + t->b * t->f);
+	translate.x += t->e * pos.x - t->b * pos.y;
+	translate.y = (t->c * t->d - t->a * t->f);
+	translate.y += t->a * pos.y - t->d * pos.x;
+	translate.x /= denom;
+	translate.y /= denom;
+
+	// IMPORTANT: Update this value in the node.
+	node->raw_tform.translate = translate;
 }
 
 void set_lscale(void *ptr, vec2 scale) {
