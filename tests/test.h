@@ -28,7 +28,7 @@ do {\
 			tests_failed_in_set += 1;\
 		}\
 	}\
-} while(0);
+} while(0)
 
 #define test_assert_eq(left, right, fmt)\
 test_assert((left) == (right), fmt, left, right)

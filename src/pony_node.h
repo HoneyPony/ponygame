@@ -134,8 +134,30 @@ bool node_update_transform(Node *node);
 void reparent(AnyNode *child, AnyNode *new_parent);
 
 extern bool node_ref_is_valid_internal(Node *ref_ptr, uint32_t ref_gen);
+extern void *node_ref_unbox(Node *ref_ptr, uint32_t ref_gen);
 
 #define Ref(NodeTy) struct { NodeTy *raw; uint32_t generation; }
-#define valid(ref) node_ref_is_valid_internal((ref).raw, (ref).generation)
+#define valid(ref) node_ref_is_valid_internal((Node*)(ref).raw, (ref).generation)
 
 #define ref(ptr) { .raw = ptr, .generation = ptr->internal.generation }
+
+#define set_ref(ref_var, target_ptr)\
+do {\
+	(ref_var).raw = (target_ptr);\
+	if((ref_var).raw) { (ref_var).generation = (ref_var).raw->internal.generation; }\
+} while(0)
+
+#define unbox(ref) node_ref_unbox((Node*)(ref).raw, (ref).generation)
+
+/*
+This syntax unfortunatenly doesn't really work because it's not allowed to
+declare a new variable at the beginning of an if statement.
+
+#define using_internal(ref, name)\
+if(typeof((ref).raw) name = node_ref_unref((Node*)(ref).raw, (ref).generation))
+
+#define using(...)\
+using_internal(__VA_ARGS__)
+
+#define as ,
+*/

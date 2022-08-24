@@ -64,8 +64,32 @@ test_define(test_node_ref_generation, {
 	}
 })
 
+test_define(test_node_ref_unbox, {
+	// The main intended usage of the ref system is for tracking nodes over frames,
+	// such as which node an enemy is targeting.
+	// So for example, we can wrap the actual logic for the targeted enemy in an
+	// if with unbox to ensure that we don't accidentally dereference an invalid 
+	// pointer.
+	// As a bonus (?) we get an easier to type variable as well.
+
+	// Example struct
+	typedef struct {
+		Ref(Node) target;
+	} Enemy;
+
+	Enemy enemy;
+	Node *example_target = new(Node);
+	set_ref(enemy.target, example_target);
+
+	Node *target;
+	if(target = unbox(enemy.target)) {
+		test_assert(valid(enemy.target), "Reference should be valid within using block.");
+	}
+})
+
 test_set_define(test_set_node_ref, {
 	test_node_ref_deletion();
 	//test_node_ref_copy();
 	test_node_ref_generation();
+	test_node_ref_unbox();
 })

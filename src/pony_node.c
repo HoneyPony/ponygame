@@ -213,3 +213,8 @@ bool node_ref_is_valid_internal(Node *ptr, uint32_t generation) {
 
 	return true;
 }
+
+void *node_ref_unbox(Node *ptr, uint32_t generation) {
+	if(node_ref_is_valid_internal(ptr, generation)) return ptr;
+	return NULL;
+}
