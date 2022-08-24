@@ -13,6 +13,7 @@
 #include "pony_internal.h"
 #include "pony_render.h"
 #include "pony_log.h"
+#include "pony_compiler_features.h"
 
 /* Do we want multiple window support? */
 static SDL_Window *pony_main_window = NULL;
@@ -44,7 +45,7 @@ static void pony_quit() {
 	exit(0);
 }
 
-static void pony_event_loop(void *arg) {
+static void pony_event_loop(UNUSED void *arg) {
 	SDL_Event evt;
 	
 	uint32_t frame_time = SDL_GetTicks();
@@ -73,7 +74,7 @@ static void pony_event_loop(void *arg) {
 
 extern void test();
 
-int main(int argc, char **argv) {
+int main(UNUSED int argc, UNUSED char **argv) {
 	logf_info("welcome to Untitled Game");
 
 	pony_init_builtin_nodes();

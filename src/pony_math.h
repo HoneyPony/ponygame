@@ -1,7 +1,5 @@
 #pragma once
 
-#include "pony_link_features.h"
-
 #include <tgmath.h>
 
 typedef struct {
