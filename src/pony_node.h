@@ -40,6 +40,11 @@ struct NodeInternal {
 	// Stores whether the transform matrix is currently invalid and needs to
 	// be recomputed.
 	int8_t matrix_dirty;
+
+	// Stores whether this node cannot be destroyed. At the moment this is only
+	// used for the root node. If it becomes the case that we need more flags,
+	// this flag might be removed.
+	int8_t immortal;
 };
 
 typedef void (*NodeConstructor)(void *node);
@@ -110,6 +115,8 @@ extern void node_destroy(AnyNode *node);
 
 extern void *node_try_downcast_by_header(AnyNode *node, NodeHeader *new_type_header);
 
+extern void node_process_all();
+
 /* The raw Node type. This type is responsible for a lot of stuff, including
  * both the basic scene tree AND the transform heirarchy (as they are extremely
  * interconnected in this game engine.
@@ -121,7 +128,13 @@ NodeHeader *header; \
 struct Node *parent; \
 list_of(struct Node*) children;
 
+#define FieldList_PrinterNode \
+FieldList_Node
+
 node_from_field_list(Node)
+
+// Used for debugging
+node_from_field_list(PrinterNode)
 
 vec2 get_lpos(AnyNode *node);
 vec2 get_gpos(AnyNode *node);
@@ -199,3 +212,5 @@ if((var_name = node_try_downcast_by_header(node, &node_header(Ty))))
 
 #define using_node(...)\
 using_node_internal(__VA_ARGS__)
+
+extern Node* root;

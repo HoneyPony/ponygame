@@ -1,9 +1,12 @@
 #include "pony_node.h"
 
+#include "pony_log.h"
+
 #include <stdio.h>
 #include <string.h>
 
 node_meta_defines(Node)
+node_meta_defines(PrinterNode)
 
 void construct_Node(void *node) {
 	Node *self = node;
@@ -24,6 +27,16 @@ void construct_Node(void *node) {
 	self->internal.matrix_dirty = 0;
 }
 
+void process_PrinterNode(void *node, void *tree) {
+	logf_info("message from PrinterNode");
+}
+
 void pony_init_builtin_nodes() {
 	node_meta_initialize(Node, NULL, construct_Node, NULL, NULL)
+
+	// Initialize root immediately
+	root = new(Node);
+	root->internal.immortal = 1;
+
+	node_meta_initialize(PrinterNode, &node_header(Node), NULL, process_PrinterNode, NULL)
 }

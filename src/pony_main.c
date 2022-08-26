@@ -14,6 +14,7 @@
 #include "pony_render.h"
 #include "pony_log.h"
 #include "pony_compiler_features.h"
+#include "pony_node.h"
 
 /* Do we want multiple window support? */
 static SDL_Window *pony_main_window = NULL;
@@ -56,9 +57,10 @@ static void pony_event_loop(UNUSED void *arg) {
 		/* Handle other events */
 	}
 	
+	node_process_all();
+
 	pony_render();
 	SDL_GL_SwapWindow(pony_main_window);
-	
 	
 	frame_time = (SDL_GetTicks() - frame_time);
 	

@@ -109,3 +109,8 @@ uint32_t ls_length(void *list) {
 void ls_free(void *list) {
 	pony_free(prefix_ptr(list, ListPrefix));
 }
+
+void ls_clear(void *list) {
+	ListPrefix *prefix = prefix_ptr(list, ListPrefix);
+	prefix->length = 0;
+}

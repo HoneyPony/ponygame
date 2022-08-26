@@ -149,6 +149,7 @@ void node_destroy(AnyNode *ptr) {
 	if(!ptr) return;
 
 	Node *node = ptr;
+	if(node->internal.immortal) return;
 
 	// This node must be detached from the tree.
 	reparent(node, NULL);
@@ -245,4 +246,44 @@ bool node_ref_is_valid_internal(Node *ptr, uint32_t generation) {
 void *node_ref_unbox(Node *ptr, uint32_t generation) {
 	if(node_ref_is_valid_internal(ptr, generation)) return ptr;
 	return NULL;
+}
+
+static list_of(Node*) node_process_list = NULL;
+Node *root;
+
+void node_add_tree_to_process_list(Node *tree) {
+	// Question: do we instead simply want to iterate over all the node headers?
+	// That could be faster, as we could skip all nodes that don't have a process
+	// function at once.
+	//
+	// In fact... all the headers that have a process function could simply be
+	// added to a list of headers to process...
+
+	NodeHeader *header = tree->header;
+	if(header->process) {
+		ls_push(node_process_list, tree);
+	}
+
+	for(uint32_t i = 0; i < ls_length(tree->children); ++i) {
+		node_add_tree_to_process_list(tree->children[i]);
+	}
+}
+
+void node_process_all() {
+	if(!node_process_list) {
+		ls_init(node_process_list);
+	}
+
+	node_add_tree_to_process_list(root);
+
+	uint32_t len = ls_length(node_process_list);
+	for(uint32_t i = 0; i < len; ++i) {
+		Node *next = node_process_list[i];
+		if(next->internal.is_valid) {
+			NodeHeader *header = next->header;
+			header->process(next, NULL);
+		}
+	}
+
+	ls_clear(node_process_list);
 }

@@ -14,6 +14,7 @@ bool ls_has_internal(void *list, size_t item_size, void *item);
 size_t ls_find_internal(void *list, size_t item_size, void *item);
 
 extern void ls_free(void *list);
+extern void ls_clear(void *list);
 
 #define ls_init(list)\
 	((list) = ls_init_internal(sizeof(*(list))))
