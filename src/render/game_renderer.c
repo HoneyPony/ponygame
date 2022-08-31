@@ -89,8 +89,6 @@ void render_tex_on_node(Node *node, TexHandle *tex, vec2 tex_pivot, bool snap) {
 	cmd.sprite.bottom_left =  add(center, add(down, left));
 	cmd.sprite.bottom_right = add(center, add(down, right));
 
-	logf_info("bl = %f %f, tr = %f %f", cmd.sprite.bottom_left.x, cmd.sprite.bottom_left.y, cmd.sprite.top_right.x, cmd.sprite.top_right.y);
-
 	cmd.sprite.texture = tex->texture;
 
 	cmd.sprite.uv_bottom_left = tex->uv_bottom_left;
