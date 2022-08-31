@@ -224,6 +224,12 @@ push_vertices:
 			float uv_t = cmd->sprite.uv_top_right.y;
 			float uv_r = cmd->sprite.uv_top_right.x;
 
+
+			// NOTE: If a backslash is missing from these macros, very bad
+			// things happen, and it is very hard to tell what is wrong.
+			//
+			// Perhaps the macros should be moved somewhere else, where a 
+			// missing backslash will result in a compiler error.
 			#define PUSH_BL \
 				ls_push_var(vertex_list, cmd->sprite.bottom_left.x);\
 				ls_push_var(vertex_list, cmd->sprite.bottom_left.y);\
