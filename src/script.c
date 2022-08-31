@@ -45,6 +45,10 @@ void test() {
 */
 
 void test() {
-	PrinterNode *node = new(PrinterNode);
-	reparent(node, root);
+	Sprite *sprite = new(Sprite);
+	reparent(sprite, root);
+
+	set_gpos(sprite, vxy(20, 20));
+	//PrinterNode *node = new(PrinterNode);
+	//reparent(node, root);
 }

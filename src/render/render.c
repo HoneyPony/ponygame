@@ -20,6 +20,8 @@ typedef struct {
 		GLuint rect_vbo;
 	} pixel_fb;
 
+	GLuint sprite_vbo;
+
 	mat4 projection;
 
 	int32_t screen_width;
@@ -40,13 +42,7 @@ struct {
 	GLuint tex;
 } frame_shader;
 
-
-
-
 static RenderContext ctx;
-
-static GLuint tex;
-
 
 float vertices[] = {
 	1.f,  1.f,  1.f,    0.f, 0.f,
@@ -122,6 +118,10 @@ void resize_framebuffer() {
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, ctx.pixel_fb.depth_stencil_rbo);
 }
 
+// TODO: Properly modularize renderer.
+extern void render_init_lists();
+extern void render_lists(GLuint vbo);
+
 void render_init() {
 #ifndef __EMSCRIPTEN__
 	GLenum err = glewInit();
@@ -153,8 +153,22 @@ void render_init() {
 	glBufferData(GL_ARRAY_BUFFER, sizeof(pixel_fb_verts), pixel_fb_verts, GL_STATIC_DRAW);
 
 	init_ctx();
-	tex = gltex_load("res://test_sprite.png");
+
+	// TODO: REMOVE THIS!!! TEST CODE!!!
+
+	sprite_test_tex.texture = gltex_load("res://test_sprite.png");
+	sprite_test_tex.uv_bottom_left = vxy(0.0, 0.0);
+	sprite_test_tex.uv_top_right = vxy(1.0, 1.0);
+	sprite_test_tex.px_size = vxy(16.0, 16.0);
+
+	// END TEST CODE
+
+	render_init_lists();
 }
+
+// TODO: REMOVE THIS!!! TEST CODE!!!
+TexHandle sprite_test_tex;
+// END TEST CODE
 
 void compute_screen_vertices() {
 	// The idea here took some tinkering to nail down.
@@ -231,6 +245,7 @@ void render_fit_window(int width, int height) {
 		-10, 10); // TODO: Determine Z range
 }
 
+
 void render_game_objects() {
 	glBindFramebuffer(GL_FRAMEBUFFER, ctx.pixel_fb.framebuffer);
 	glViewport(0, 0, ctx.frame_width, ctx.frame_height);
@@ -245,23 +260,7 @@ void render_game_objects() {
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-	// TODO: Implement this more broadly
-	// Details: it appears that the minimal subset of WebGL supported by
-	// Emscripten does not support vertex array objects, e.g. glBindVertexArray
-	//
-	// We could use WebGL 2.0 as I understand, but I think it might make more sense
-	// to stick with a minimal subset for now, as the renderer is not going to be
-	// doing that much manipulation of the attributes anyways.
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0); 
-
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, tex);
-
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	render_lists(vbo);
 }
 
 void render_framebuffer_to_screen() {

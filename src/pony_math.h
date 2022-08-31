@@ -15,6 +15,18 @@ static inline float dot_v2(vec2 a, vec2 b) {
 	return a.x * b.x + a.y * b.y;
 }
 
+static inline vec2 round_v2(vec2 v) {
+	return vxy(roundf(v.x), roundf(v.y));
+}
+
+static inline vec2 mul(vec2 a, float c) {
+	return vxy(a.x * c, a.y * c);
+}
+
+static inline vec2 add(vec2 a, vec2 b) {
+	return vxy(a.x + b.x, a.y + b.y);
+}
+
 #define dot(a, b)\
 _Generic((a),\
 	vec2: dot_v2\
@@ -59,3 +71,14 @@ extern float deg2rad_f(float x);
 extern double deg2rad_d(double x);
 
 #define deg2rad(x) mathdef1(deg2rad, x)
+
+// Need to redefine round
+#undef round
+#define round(x)\
+_Generic((x),\
+	long: lround,\
+	float: roundf,\
+	double: round,\
+	vec2: round_v2\
+)(x)
+

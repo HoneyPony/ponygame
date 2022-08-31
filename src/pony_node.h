@@ -131,10 +131,15 @@ list_of(struct Node*) children;
 #define FieldList_PrinterNode \
 FieldList_Node
 
+#define FieldList_Sprite \
+FieldList_Node // TODO: Add other sprite fields
+
 node_from_field_list(Node)
 
 // Used for debugging
 node_from_field_list(PrinterNode)
+
+node_from_field_list(Sprite)
 
 vec2 get_lpos(AnyNode *node);
 vec2 get_gpos(AnyNode *node);

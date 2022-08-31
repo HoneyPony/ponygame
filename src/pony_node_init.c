@@ -1,12 +1,14 @@
 #include "pony_node.h"
 
 #include "pony_log.h"
+#include "pony_render.h"
 
 #include <stdio.h>
 #include <string.h>
 
 node_meta_defines(Node)
 node_meta_defines(PrinterNode)
+node_meta_defines(Sprite)
 
 void construct_Node(void *node) {
 	Node *self = node;
@@ -31,6 +33,12 @@ void process_PrinterNode(void *node, void *tree) {
 	logf_info("message from PrinterNode");
 }
 
+void process_Sprite(void *node, void *tree) {
+	Sprite *self = node;
+
+	render_tex_on_node(self, &sprite_test_tex, vxy(0, 0), true);
+}
+
 void pony_init_builtin_nodes() {
 	node_meta_initialize(Node, NULL, construct_Node, NULL, NULL)
 
@@ -39,4 +47,12 @@ void pony_init_builtin_nodes() {
 	root->internal.immortal = 1;
 
 	node_meta_initialize(PrinterNode, &node_header(Node), NULL, process_PrinterNode, NULL)
+
+	node_meta_initialize(
+		Sprite,
+		&node_header(Node),
+		NULL,
+		process_Sprite,
+		NULL
+	)
 }
