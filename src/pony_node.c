@@ -1,6 +1,6 @@
-#include "pony_node.h"
-
 #include <stdio.h>
+
+#include "pony_node.h"
 
 typedef struct NodeLinks Link;
 

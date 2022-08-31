@@ -1,5 +1,11 @@
 #pragma once
 
+// NOTE: For code to compile on the web, this file MUST be included AFTER
+// stdlib.h, and maybe other standard headers.
+//
+// In particular, the 'abs' macro that this file defines will cause all sorts
+// of chaos when it overrides parts of the standard library.
+
 #include <tgmath.h>
 
 typedef struct {

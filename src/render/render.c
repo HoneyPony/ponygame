@@ -1,9 +1,9 @@
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "pony_render.h"
 
 #include "pony_opengl.h"
-
-#include <stdio.h>
-#include <stdlib.h>
 
 #include "pony_log.h"
 #include "shader_src.h"

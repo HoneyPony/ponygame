@@ -1,10 +1,10 @@
+#include <stdio.h>
+#include <string.h>
+
 #include "pony_node.h"
 
 #include "pony_log.h"
 #include "pony_render.h"
-
-#include <stdio.h>
-#include <string.h>
 
 node_meta_defines(Node)
 node_meta_defines(PrinterNode)

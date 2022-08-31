@@ -1,6 +1,6 @@
-#include "pony_render.h"
-
 #include <stdlib.h>
+
+#include "pony_render.h"
 
 #include "pony_opengl.h"
 #include "pony_log.h"

@@ -1,9 +1,10 @@
+#include <string.h>
+
 #include "pony_raw_transform.h"
 
 #include "pony_clib.h"
 #include "pony_math.h"
 #include "pony_node.h"
-#include <string.h>
 
 const RawTransform *raw_transform_identity() {
 	static RawTransform identity;
