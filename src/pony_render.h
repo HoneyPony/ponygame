@@ -42,7 +42,7 @@ typedef struct {
  * @param tex 
  * @param tex_pivot 
  */
-extern void render_tex_on_node(Node *node, TexHandle *tex, vec2 tex_pivot, bool snap);
+extern void render_tex_on_node(AnyNode *node, TexHandle *tex, vec2 tex_pivot, bool snap);
 
 // TODO: REMOVE THIS!!! TEST CODE!!!
 extern TexHandle sprite_test_tex;

@@ -5,6 +5,7 @@
 
 #include "pony_log.h"
 #include "pony_render.h"
+#include "pony_compiler_features.h"
 
 node_meta_defines(Node)
 node_meta_defines(PrinterNode)
@@ -29,11 +30,11 @@ void construct_Node(void *node) {
 	self->internal.matrix_dirty = 0;
 }
 
-void process_PrinterNode(void *node, void *tree) {
+void process_PrinterNode(UNUSED void *node, UNUSED void *tree) {
 	logf_info("message from PrinterNode");
 }
 
-void process_Sprite(void *node, void *tree) {
+void process_Sprite(void *node, UNUSED void *tree) {
 	Sprite *self = node;
 
 	render_tex_on_node(self, &sprite_test_tex, vxy(8, 8), true);

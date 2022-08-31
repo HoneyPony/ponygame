@@ -62,7 +62,7 @@ void render_init_lists() {
 	ls_init(state_spec_list);
 }
 
-void render_tex_on_node(Node *node, TexHandle *tex, vec2 tex_pivot, bool snap) {
+void render_tex_on_node(AnyNode *node, TexHandle *tex, vec2 tex_pivot, bool snap) {
 	vec2 center = get_gpos(node);
 	// TODO: Transform by camera... or do we just want to snap the camera...?
 	
