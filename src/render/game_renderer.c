@@ -258,7 +258,7 @@ push_vertices:
 			PUSH_TR
 
 			// Second triangle
-			PUSH_BR
+			PUSH_BL
 			PUSH_TR
 			PUSH_TL
 
