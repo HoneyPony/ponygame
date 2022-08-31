@@ -242,14 +242,14 @@ push_vertices:
 				ls_push_var(vertex_list, cmd->sprite.top_right.x);\
 				ls_push_var(vertex_list, cmd->sprite.top_right.y);\
 				ls_push_var(vertex_list, z);\
-				ls_push_var(vertex_list, uv_l);\
+				ls_push_var(vertex_list, uv_r);\
 				ls_push_var(vertex_list, uv_t);
 
 			#define PUSH_TL \
 				ls_push_var(vertex_list, cmd->sprite.top_left.x);\
 				ls_push_var(vertex_list, cmd->sprite.top_left.y);\
 				ls_push_var(vertex_list, z);\
-				ls_push_var(vertex_list, uv_r);\
+				ls_push_var(vertex_list, uv_l);\
 				ls_push_var(vertex_list, uv_t);
 
 			// First triangle
