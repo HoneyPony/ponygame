@@ -45,10 +45,17 @@ void test() {
 */
 
 void test() {
-	Sprite *sprite = new(Sprite);
-	reparent(sprite, root);
+	
 
-	set_gpos(sprite, vxy(20, 20));
+	for(int x = 0; x < 100; ++x) {
+		for(int y = 0; y < 100; ++y) {
+			Sprite *sprite = new(Sprite);
+			reparent(sprite, root);
+
+			set_gpos(sprite, vxy(8 + x * 3, 8 + y * 3));
+		}
+	}
+	
 	//PrinterNode *node = new(PrinterNode);
 	//reparent(node, root);
 }

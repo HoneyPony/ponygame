@@ -46,6 +46,9 @@ static void pony_quit() {
 	exit(0);
 }
 
+double total_frame_time = 0.0;
+uint64_t frame_time_samples = 0;
+
 static void pony_event_loop(UNUSED void *arg) {
 	SDL_Event evt;
 	
@@ -63,6 +66,17 @@ static void pony_event_loop(UNUSED void *arg) {
 	SDL_GL_SwapWindow(pony_main_window);
 	
 	frame_time = (SDL_GetTicks() - frame_time);
+
+	total_frame_time += frame_time;
+	frame_time_samples += 1;
+
+	if(frame_time_samples == 60) {
+		double avg_frame_time = (total_frame_time / (double)frame_time_samples);
+		logf_info("average frame time = %f", avg_frame_time);
+
+		total_frame_time = 0;
+		frame_time_samples = 0;
+	}
 	
 #ifndef __EMSCRIPTEN__
 	// Perform manual FPS limiting if there is no vsync.
