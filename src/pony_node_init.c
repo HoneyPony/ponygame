@@ -45,7 +45,7 @@ void process_Sprite(void *node, UNUSED void *tree) {
 	};
 	render_tex_on_node(tr);
 
-	//set_lrot(self, get_lrot(self) + 0.02);
+	set_lrot(self, get_lrot(self) + 0.02);
 }
 
 void pony_init_builtin_nodes() {

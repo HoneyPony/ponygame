@@ -387,7 +387,6 @@ uint64_t buf_start = SDL_GetTicks64();
 		element_list.length * sizeof(uint32_t),
 		element_list.list,
 		GL_DYNAMIC_DRAW);
-logf_verbose("list info: %d, %d", vertex_list.length, element_list.length);
 
 uint64_t buf_time = SDL_GetTicks64() - buf_start;
 logf_verbose("time for buffer upload = %llu", buf_time);

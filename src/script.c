@@ -47,15 +47,15 @@ void test() {
 void test() {
 	
 
-	//for(int x = 0; x < 1000; ++x) {
-	//	for(int y = 0; y < 100; ++y) {
+	for(int x = 0; x < 300; ++x) {
+		for(int y = 0; y < 100; ++y) {
 			Sprite *sprite = new(Sprite);
 			reparent(sprite, root);
 
-			set_gpos(sprite, vxy(12, 12));
-			//set_gpos(sprite, vxy(8 + x * 3, 8 + y * 3));
-	//	}
-	//}
+			//set_gpos(sprite, vxy(12, 12));
+			set_gpos(sprite, vxy(8 + x * 3, 8 + y * 3));
+		}
+	}
 	
 	//PrinterNode *node = new(PrinterNode);
 	//reparent(node, root);
