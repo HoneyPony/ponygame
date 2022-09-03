@@ -37,9 +37,15 @@ void process_PrinterNode(UNUSED void *node, UNUSED void *tree) {
 void process_Sprite(void *node, UNUSED void *tree) {
 	Sprite *self = node;
 
-	render_tex_on_node(self, &sprite_test_tex, vxy(8, 8), true);
+	TexRenderer tr = {
+		self,
+		&sprite_test_tex,
+		vxy(8, 8),
+		true
+	};
+	render_tex_on_node(tr);
 
-	set_lrot(self, get_lrot(self) + 0.02);
+	//set_lrot(self, get_lrot(self) + 0.02);
 }
 
 void pony_init_builtin_nodes() {

@@ -1,18 +1,18 @@
 #include <stdlib.h>
 
+#include <SDL2/SDL.h>
+
 #include "pony_render.h"
 
 #include "pony_opengl.h"
 #include "pony_log.h"
 
+// Renderer lists
+static list_of(TexRenderer) tex_renderer_list;
+
 typedef struct {
-	vec2 top_left;
-	vec2 top_right;
-	vec2 bottom_left;
-	vec2 bottom_right;
 	GLuint texture;
-	vec2 uv_bottom_left;
-	vec2 uv_top_right;
+	uint32_t index;
 } SpriteRenderCommand;
 
 typedef struct {
@@ -41,7 +41,18 @@ typedef struct {
 static list_of(RenderCommand) opaque_list = NULL;
 static list_of(RenderCommand) transparent_list = NULL;
 
-static list_of(float) vertex_list = NULL;
+static struct {
+	float *list;
+	size_t alloc;
+	size_t length;
+} vertex_list;
+
+static struct {
+	uint32_t *list;
+	size_t alloc;
+	size_t length;
+} element_list;
+
 static list_of(RenderStateSpec) state_spec_list = NULL;
 
 #define PUSH_CMD_VAR(cmd)\
@@ -55,28 +66,54 @@ else {\
 } while(0)
 
 void render_init_lists() {
+	ls_init(tex_renderer_list);
+
 	ls_init(opaque_list);
 	ls_init(transparent_list);
 
-	ls_init(vertex_list);
+	vertex_list.list = pony_malloc(sizeof(float) * 1024);
+	vertex_list.alloc = 1024;
+	vertex_list.length = 0;
+
+	element_list.list = pony_malloc(sizeof(uint32_t) * 1024);
+	element_list.alloc = 1024;
+	element_list.length = 0;
+
 	ls_init(state_spec_list);
 }
 
-void render_tex_on_node(AnyNode *node, TexHandle *tex, vec2 tex_pivot, bool snap) {
-	vec2 center = get_gpos(node);
+void render_tex_on_node(TexRenderer tr) {
+	ls_push(tex_renderer_list, tr);
+}
+
+static uint32_t push_vertices(float vertices[20]) {
+	if(vertex_list.length + 20 > vertex_list.alloc) {
+		vertex_list.alloc *= 2;
+		vertex_list.list = pony_realloc(vertex_list.list, vertex_list.alloc * sizeof(float));
+	}
+
+	memcpy(vertex_list.list + vertex_list.length, vertices, sizeof(float) * 20);
+	uint32_t result = (uint32_t)(vertex_list.length / 5);
+
+	vertex_list.length += 20;
+	return result;
+}
+
+void render_tex_renderer(TexRenderer *tr) {
+	vec2 center = get_gpos(tr->node);
 	// TODO: Transform by camera... or do we just want to snap the camera...?
 	
-	if(snap) {
+	if(tr->snap) {
 		center = round(center);
 	}
 
-	vec2 basis_x = get_basis_x(node);
-	vec2 basis_y = get_basis_y(node);
+	vec2 basis_x = get_basis_x(tr->node);
+	vec2 basis_y = get_basis_y(tr->node);
 
-	vec2 left  = mul(basis_x,                 -tex_pivot.x);
-	vec2 right = mul(basis_x, tex->px_size.x - tex_pivot.x);
-	vec2 down  = mul(basis_y,                 -tex_pivot.y);
-	vec2 up    = mul(basis_y, tex->px_size.y - tex_pivot.y);
+	vec2 left  = mul(basis_x,                     -tr->tex_pivot.x);
+	vec2 right = mul(basis_x, tr->tex->px_size.x - tr->tex_pivot.x);
+	vec2 down  = mul(basis_y,                     -tr->tex_pivot.y);
+	vec2 up    = mul(basis_y, tr->tex->px_size.y - tr->tex_pivot.y);
 
 	RenderCommand cmd;
 
@@ -84,17 +121,52 @@ void render_tex_on_node(AnyNode *node, TexHandle *tex, vec2 tex_pivot, bool snap
 	cmd.type = CMD_SPRITE;
 	cmd.opaque = 1; // TODO: Support transparency computation
 
-	cmd.sprite.top_left =     add(center, add(up,   left));
-	cmd.sprite.top_right =    add(center, add(up,   right));
-	cmd.sprite.bottom_left =  add(center, add(down, left));
-	cmd.sprite.bottom_right = add(center, add(down, right));
+	union {
+		float array[20];
+		struct {
+			vec2 top_left;
+			float z1;
+			vec2 top_left_uv;
+			vec2 top_right;
+			float z2;
+			vec2 top_right_uv;
+			vec2 bottom_right;
+			float z3;
+			vec2 bottom_right_uv;
+			vec2 bottom_left;
+			float z4;
+			vec2 bottom_left_uv;
+		};
+	} vertex_data;
 
-	cmd.sprite.texture = tex->texture;
+	vertex_data.top_left =     add(center, add(up,   left));
+	vertex_data.top_right =    add(center, add(up,   right));
+	vertex_data.bottom_left =  add(center, add(down, left));
+	vertex_data.bottom_right = add(center, add(down, right));
 
-	cmd.sprite.uv_bottom_left = tex->uv_bottom_left;
-	cmd.sprite.uv_top_right = tex->uv_top_right;
+	vertex_data.bottom_left_uv = tr->tex->bottom_left_uv;
+	vertex_data.bottom_right_uv = tr->tex->bottom_right_uv;
+	vertex_data.top_left_uv = tr->tex->top_left_uv;
+	vertex_data.top_right_uv = tr->tex->top_right_uv;
+
+	// TODO: z-index
+	float z_index = 0;
+
+	vertex_data.z1 = z_index;
+	vertex_data.z2 = z_index;
+	vertex_data.z3 = z_index;
+	vertex_data.z4 = z_index;
+
+	cmd.sprite.texture = tr->tex->texture;
+	cmd.sprite.index = push_vertices(vertex_data.array);
 
 	PUSH_CMD_VAR(cmd);
+}
+
+void render_process_commands() {
+	for(uint32_t i = 0; i < ls_length(tex_renderer_list); ++i) {
+		render_tex_renderer(&tex_renderer_list[i]);
+	}
 }
 
 int compare_sprite_command_opaque(const RenderCommand *a, const RenderCommand *b) {
@@ -178,6 +250,16 @@ void render_sort_render_lists() {
 	);
 }
 
+void push_elements(uint32_t elements[6]) {
+	if(element_list.length + 6 > element_list.alloc) {
+		element_list.alloc *= 2;
+		element_list.list = pony_realloc(element_list.list, element_list.alloc * sizeof(uint32_t));
+	}
+
+	memcpy(element_list.list + element_list.length, elements, 6 * sizeof(uint32_t));
+	element_list.length += 6;
+}
+
 void render_build_state_spec_for_list(list_of(RenderCommand) list) {
 	RenderStateSpec next;
 	next.draw_start = 0;
@@ -215,56 +297,20 @@ push_vertices:
 		// For every single object we need to push vertex data.
 		
 		if(cmd->type == CMD_SPRITE) {
-			float z = cmd->z_index;
-
-			float uv_b = cmd->sprite.uv_bottom_left.y;
-			float uv_l = cmd->sprite.uv_bottom_left.x;
-			float uv_t = cmd->sprite.uv_top_right.y;
-			float uv_r = cmd->sprite.uv_top_right.x;
-
-
-			// NOTE: If a backslash is missing from these macros, very bad
-			// things happen, and it is very hard to tell what is wrong.
-			//
-			// Perhaps the macros should be moved somewhere else, where a 
-			// missing backslash will result in a compiler error.
-			#define PUSH_BL \
-				ls_push_var(vertex_list, cmd->sprite.bottom_left.x);\
-				ls_push_var(vertex_list, cmd->sprite.bottom_left.y);\
-				ls_push_var(vertex_list, z);\
-				ls_push_var(vertex_list, uv_l);\
-				ls_push_var(vertex_list, uv_b);
-
-			#define PUSH_BR \
-				ls_push_var(vertex_list, cmd->sprite.bottom_right.x);\
-				ls_push_var(vertex_list, cmd->sprite.bottom_right.y);\
-				ls_push_var(vertex_list, z);\
-				ls_push_var(vertex_list, uv_r);\
-				ls_push_var(vertex_list, uv_b);
-
-			#define PUSH_TR \
-				ls_push_var(vertex_list, cmd->sprite.top_right.x);\
-				ls_push_var(vertex_list, cmd->sprite.top_right.y);\
-				ls_push_var(vertex_list, z);\
-				ls_push_var(vertex_list, uv_r);\
-				ls_push_var(vertex_list, uv_t);
-
-			#define PUSH_TL \
-				ls_push_var(vertex_list, cmd->sprite.top_left.x);\
-				ls_push_var(vertex_list, cmd->sprite.top_left.y);\
-				ls_push_var(vertex_list, z);\
-				ls_push_var(vertex_list, uv_l);\
-				ls_push_var(vertex_list, uv_t);
+			uint32_t indices[6];
+			uint32_t base = cmd->sprite.index;
 
 			// First triangle
-			PUSH_BL
-			PUSH_BR
-			PUSH_TR
+			indices[0] = 0 + base;
+			indices[1] = 1 + base;
+			indices[2] = 2 + base;
 
 			// Second triangle
-			PUSH_BL
-			PUSH_TR
-			PUSH_TL
+			indices[3] = 0 + base;
+			indices[4] = 2 + base;
+			indices[5] = 3 + base;
+
+			push_elements(indices);
 
 			// 6 vertices per quad
 			next.draw_count += 6;
@@ -304,32 +350,66 @@ void render_state_spec_list() {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, spec->texture);
 
-		glDrawArrays(GL_TRIANGLES, spec->draw_start, spec->draw_count);
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements(GL_TRIANGLES, spec->draw_count, GL_UNSIGNED_INT, 
+			(void*)(spec->draw_start * sizeof(uint32_t)));
 	}
 }
 
 // Renders all the render lists.
-void render_lists(GLuint vbo) {
+void render_lists(GLuint vbo, GLuint ebo) {
+	// Actual first step: process all pushed commands.
+	render_process_commands();
+
+uint64_t total_start = SDL_GetTicks64();
+uint64_t sort_start = SDL_GetTicks64();
 	// First step: sort render lists.
 	render_sort_render_lists();
+uint64_t sort_time = SDL_GetTicks64() - sort_start;
+logf_verbose("time for sort = %llu", sort_time);
 
+uint64_t bss_start = SDL_GetTicks64();
 	// Second step: Build vertex list and state specification list.
 	render_build_state_spec();
+uint64_t bss_time = SDL_GetTicks64() - bss_start;
+logf_verbose("time for build state spec = %llu", bss_time);
 
+uint64_t buf_start = SDL_GetTicks64();
 	// Third step: Upload vertex data to GPU.
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER,
-		ls_length(vertex_list) * sizeof(*vertex_list),
-		vertex_list,
+		vertex_list.length * sizeof(float),
+		vertex_list.list,
 		GL_DYNAMIC_DRAW);
 
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+		element_list.length * sizeof(uint32_t),
+		element_list.list,
+		GL_DYNAMIC_DRAW);
+logf_verbose("list info: %d, %d", vertex_list.length, element_list.length);
+
+uint64_t buf_time = SDL_GetTicks64() - buf_start;
+logf_verbose("time for buffer upload = %llu", buf_time);
+
+uint64_t render_start = SDL_GetTicks64();
 	// Fourth step: Render state spec list.
 	render_state_spec_list();
+uint64_t render_time = SDL_GetTicks64() - render_start;
+logf_verbose("time for render = %llu", render_time);
+logf_verbose("state spec list length = %lu", ls_length(state_spec_list));
 
 	// Fifth step: Clear lists.
+	ls_clear(tex_renderer_list);
+
 	ls_clear(opaque_list);
 	ls_clear(transparent_list);
 
-	ls_clear(vertex_list);
+	//ls_clear(vertex_list);
 	ls_clear(state_spec_list);
+
+	vertex_list.length = 0;
+	element_list.length = 0;
+uint64_t total_time = SDL_GetTicks64() - total_start;
+logf_verbose("time to render lists = %llu", total_time);
 }

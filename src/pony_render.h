@@ -20,17 +20,20 @@ extern GLuint gltex_load(const char *path);
 typedef struct {
 	GLuint texture;
 
-	vec2 uv_bottom_left;
-	vec2 uv_top_right;
+	vec2 bottom_left_uv;
+	vec2 bottom_right_uv;
+	vec2 top_left_uv;
+	vec2 top_right_uv;
 
 	// Used to determine how the texture should be centered around a pivot point.
 	vec2 px_size;
 } TexHandle;
 
 typedef struct {
-	Node *source;
+	Node *node;
 	TexHandle *tex;
-	vec2 pivot;
+	vec2 tex_pivot;
+	bool snap;
 } TexRenderer;
 
 /**
@@ -42,7 +45,7 @@ typedef struct {
  * @param tex 
  * @param tex_pivot 
  */
-extern void render_tex_on_node(AnyNode *node, TexHandle *tex, vec2 tex_pivot, bool snap);
+extern void render_tex_on_node(TexRenderer renderer);
 
 // TODO: REMOVE THIS!!! TEST CODE!!!
 extern TexHandle sprite_test_tex;

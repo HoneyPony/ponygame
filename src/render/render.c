@@ -65,6 +65,7 @@ float pixel_fb_verts[] = {
 };
 
 static GLuint vbo;
+static GLuint ebo;
 
 static void init_ctx() {
 	glGenFramebuffers(1, &ctx.pixel_fb.framebuffer);
@@ -120,7 +121,7 @@ void resize_framebuffer() {
 
 // TODO: Properly modularize renderer.
 extern void render_init_lists();
-extern void render_lists(GLuint vbo);
+extern void render_lists(GLuint vbo, GLuint ebo);
 
 void render_init() {
 #ifndef __EMSCRIPTEN__
@@ -145,8 +146,9 @@ void render_init() {
 	//glBindVertexArray(vao);
 
 	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glGenBuffers(1, &ebo);
+	//glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	glGenBuffers(1, &ctx.pixel_fb.rect_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, ctx.pixel_fb.rect_vbo);
@@ -157,8 +159,10 @@ void render_init() {
 	// TODO: REMOVE THIS!!! TEST CODE!!!
 
 	sprite_test_tex.texture = gltex_load("res://test_sprite.png");
-	sprite_test_tex.uv_bottom_left = vxy(0.0, 0.0);
-	sprite_test_tex.uv_top_right = vxy(1.0, 1.0);
+	sprite_test_tex.bottom_left_uv = vxy(0.0, 0.0);
+	sprite_test_tex.bottom_right_uv = vxy(1.0, 0.0);
+	sprite_test_tex.top_left_uv = vxy(0.0, 1.0);
+	sprite_test_tex.top_right_uv = vxy(1.0, 1.0);
 	sprite_test_tex.px_size = vxy(16.0, 16.0);
 
 	// END TEST CODE
@@ -260,7 +264,7 @@ void render_game_objects() {
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-	render_lists(vbo);
+	render_lists(vbo, ebo);
 }
 
 void render_framebuffer_to_screen() {
@@ -274,6 +278,7 @@ void render_framebuffer_to_screen() {
 	glBindTexture(GL_TEXTURE_2D, ctx.pixel_fb.color_tex);
 
 	glBindBuffer(GL_ARRAY_BUFFER, ctx.pixel_fb.rect_vbo);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
