@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <SDL2/SDL.h>
+
 #include "pony_render.h"
 
 #include "pony_opengl.h"
@@ -290,6 +292,13 @@ void render_framebuffer_to_screen() {
 }
 
 void render() {
+uint64_t go_time = SDL_GetTicks64();
 	render_game_objects();
+go_time = SDL_GetTicks64() - go_time;
+
+uint64_t fb_time = SDL_GetTicks64();
 	render_framebuffer_to_screen();	
+fb_time = SDL_GetTicks64() - fb_time;
+
+	logf_info("render breakdown: game objects = %dms, framebuffer = %dms", go_time, fb_time);
 }

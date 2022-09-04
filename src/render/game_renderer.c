@@ -99,21 +99,21 @@ static uint32_t push_vertices(float vertices[20]) {
 	return result;
 }
 
-void render_tex_renderer(TexRenderer *tr) {
-	vec2 center = get_gpos(tr->node);
+void render_tex_renderer(TexRenderer tr) {
+	vec2 center = get_gpos(tr.node);
 	// TODO: Transform by camera... or do we just want to snap the camera...?
 	
-	if(tr->snap) {
+	if(tr.snap) {
 		center = round(center);
 	}
 
-	vec2 basis_x = get_basis_x(tr->node);
-	vec2 basis_y = get_basis_y(tr->node);
+	vec2 basis_x = get_basis_x(tr.node);
+	vec2 basis_y = get_basis_y(tr.node);
 
-	vec2 left  = mul(basis_x,                     -tr->tex_pivot.x);
-	vec2 right = mul(basis_x, tr->tex->px_size.x - tr->tex_pivot.x);
-	vec2 down  = mul(basis_y,                     -tr->tex_pivot.y);
-	vec2 up    = mul(basis_y, tr->tex->px_size.y - tr->tex_pivot.y);
+	vec2 left  = mul(basis_x,                     -tr.tex_pivot.x);
+	vec2 right = mul(basis_x, tr.tex->px_size.x - tr.tex_pivot.x);
+	vec2 down  = mul(basis_y,                     -tr.tex_pivot.y);
+	vec2 up    = mul(basis_y, tr.tex->px_size.y - tr.tex_pivot.y);
 
 	RenderCommand cmd;
 
@@ -144,10 +144,10 @@ void render_tex_renderer(TexRenderer *tr) {
 	vertex_data.bottom_left =  add(center, add(down, left));
 	vertex_data.bottom_right = add(center, add(down, right));
 
-	vertex_data.bottom_left_uv = tr->tex->bottom_left_uv;
-	vertex_data.bottom_right_uv = tr->tex->bottom_right_uv;
-	vertex_data.top_left_uv = tr->tex->top_left_uv;
-	vertex_data.top_right_uv = tr->tex->top_right_uv;
+	vertex_data.bottom_left_uv = tr.tex->bottom_left_uv;
+	vertex_data.bottom_right_uv = tr.tex->bottom_right_uv;
+	vertex_data.top_left_uv = tr.tex->top_left_uv;
+	vertex_data.top_right_uv = tr.tex->top_right_uv;
 
 	// TODO: z-index
 	float z_index = 0;
@@ -157,7 +157,7 @@ void render_tex_renderer(TexRenderer *tr) {
 	vertex_data.z3 = z_index;
 	vertex_data.z4 = z_index;
 
-	cmd.sprite.texture = tr->tex->texture;
+	cmd.sprite.texture = tr.tex->texture;
 	cmd.sprite.index = push_vertices(vertex_data.array);
 
 	PUSH_CMD_VAR(cmd);
@@ -165,7 +165,7 @@ void render_tex_renderer(TexRenderer *tr) {
 
 void render_process_commands() {
 	for(uint32_t i = 0; i < ls_length(tex_renderer_list); ++i) {
-		render_tex_renderer(&tex_renderer_list[i]);
+		render_tex_renderer(tex_renderer_list[i]);
 	}
 }
 
@@ -358,10 +358,12 @@ void render_state_spec_list() {
 
 // Renders all the render lists.
 void render_lists(GLuint vbo, GLuint ebo) {
+
+
+uint64_t total_start = SDL_GetTicks64();
 	// Actual first step: process all pushed commands.
 	render_process_commands();
 
-uint64_t total_start = SDL_GetTicks64();
 uint64_t sort_start = SDL_GetTicks64();
 	// First step: sort render lists.
 	render_sort_render_lists();

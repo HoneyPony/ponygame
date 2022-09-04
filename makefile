@@ -89,7 +89,7 @@ $(OBJ_DIR)/shaders/%.c: shader_src/% shader2c $(DIR_LOCK)
 	./shader2c $< $@
 
 $(OBJ_DIR)/%.c.o: $(SRC_DIR)/%.c $(DIR_LOCK)
-	$(CC) -MD -c $< -o $@ $(CFLAGS) -Iinclude -O2
+	$(CC) -MD -c $< -o $@ $(CFLAGS) -Iinclude -O3
 
 $(BIN): $(OBJ) $(SHADER_OBJ)
 	$(CC) -o $@ $^ $(addprefix -l,$(LINK))
