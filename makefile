@@ -32,7 +32,10 @@ pony_fs.c\
 render/render.c\
 render/shader.c\
 render/gltex.c\
-render/game_renderer.c\
+render/fb_renderer.c\
+render/object_renderer.c\
+render/sprite_renderer.c\
+render/shader.c\
 pony_log.c\
 script.c
 

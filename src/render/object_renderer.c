@@ -1,11 +1,7 @@
 #include <stdlib.h>
+#include <string.h>
 
-#include <SDL2/SDL.h>
-
-#include "pony_render.h"
-
-#include "pony_opengl.h"
-#include "pony_log.h"
+#include "render.h"
 
 // Renderer lists
 static list_of(TexRenderer) tex_renderer_list;
@@ -65,7 +61,7 @@ else {\
 }\
 } while(0)
 
-void render_init_lists() {
+void render_init_objects() {
 	ls_init(tex_renderer_list);
 
 	ls_init(opaque_list);
@@ -329,20 +325,8 @@ void render_build_state_spec() {
 	render_build_state_spec_for_list(transparent_list);
 }
 
-// Because we're using WebGL 1.0 (IIRC), we need to manually specify attribute
-// arrays each time... vao's are not supported.
-void attrib_array_sprites() {
-	// First attribute: Position: x, y, and z.
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0); 
-
-	// Second attribute: UV's.
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-}
-
 void render_state_spec_list() {
-	attrib_array_sprites();
+	render_bind_sprite();
 
 	for(uint32_t i = 0; i < ls_length(state_spec_list); ++i) {
 		RenderStateSpec *spec = &state_spec_list[i];
@@ -350,55 +334,37 @@ void render_state_spec_list() {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, spec->texture);
 
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
 		glDrawElements(GL_TRIANGLES, spec->draw_count, GL_UNSIGNED_INT, 
 			(void*)(spec->draw_start * sizeof(uint32_t)));
 	}
 }
 
 // Renders all the render lists.
-void render_lists(GLuint vbo, GLuint ebo) {
-
-
-uint64_t total_start = SDL_GetTicks64();
-	// Actual first step: process all pushed commands.
+void render_objects() {
+	// First step: process all pushed commands.
 	render_process_commands();
 
-uint64_t sort_start = SDL_GetTicks64();
-	// First step: sort render lists.
+	// Second step: sort render lists.
 	render_sort_render_lists();
-uint64_t sort_time = SDL_GetTicks64() - sort_start;
-logf_verbose("time for sort = %llu", sort_time);
 
-uint64_t bss_start = SDL_GetTicks64();
-	// Second step: Build vertex list and state specification list.
+	// Third step: Build vertex list and state specification list.
 	render_build_state_spec();
-uint64_t bss_time = SDL_GetTicks64() - bss_start;
-logf_verbose("time for build state spec = %llu", bss_time);
 
-uint64_t buf_start = SDL_GetTicks64();
 	// Third step: Upload vertex data to GPU.
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, ctx.sprite_render.vbo);
 	glBufferData(GL_ARRAY_BUFFER,
 		vertex_list.length * sizeof(float),
 		vertex_list.list,
 		GL_DYNAMIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ctx.sprite_render.ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
 		element_list.length * sizeof(uint32_t),
 		element_list.list,
 		GL_DYNAMIC_DRAW);
 
-uint64_t buf_time = SDL_GetTicks64() - buf_start;
-logf_verbose("time for buffer upload = %llu", buf_time);
-
-uint64_t render_start = SDL_GetTicks64();
 	// Fourth step: Render state spec list.
 	render_state_spec_list();
-uint64_t render_time = SDL_GetTicks64() - render_start;
-logf_verbose("time for render = %llu", render_time);
-logf_verbose("state spec list length = %lu", ls_length(state_spec_list));
 
 	// Fifth step: Clear lists.
 	ls_clear(tex_renderer_list);
@@ -411,6 +377,4 @@ logf_verbose("state spec list length = %lu", ls_length(state_spec_list));
 
 	vertex_list.length = 0;
 	element_list.length = 0;
-uint64_t total_time = SDL_GetTicks64() - total_start;
-logf_verbose("time to render lists = %llu", total_time);
 }
