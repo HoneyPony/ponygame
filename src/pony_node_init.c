@@ -38,7 +38,7 @@ void process_Sprite(void *node, UNUSED void *tree) {
 	Sprite *self = node;
 
 	TexRenderer tr = {
-		self,
+		(Node*)self,
 		&sprite_test_tex,
 		vxy(8, 8),
 		true
