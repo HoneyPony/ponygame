@@ -60,7 +60,7 @@ void destruct_Ty ## num (void *ptr) {\
 node_meta_defines(Ty ## num)
 
 #define ty_init(num, last)\
-node_meta_initialize(Ty ## num, &node_header(last), construct_Ty ## num, NULL, destruct_Ty ## num)
+node_meta_initialize(Ty ## num, &node_header(last), construct_Ty ## num, NULL, destruct_Ty ## num, BLOCKS_SMALL)
 
 toplevel(1)
 toplevel(2)

@@ -1,6 +1,8 @@
 #include <stdio.h>
+#include <SDL2/SDL.h>
 
 #include "pony_node.h"
+#include "pony_unsafe_transforms.h"
 
 typedef struct NodeLinks Link;
 
@@ -35,9 +37,9 @@ static void ensure_free_list_exists(NodeHeader *header) {
 		//
 		// Need to use calloc() so that the links will be set to NULL to
 		// start with.
-		void *block = pony_calloc(header->node_size, 64);
+		void *block = pony_calloc(header->node_size, header->alloc_block_size);
 
-		for(size_t i = 0; i < 64; ++i) {
+		for(size_t i = 0; i < header->alloc_block_size; ++i) {
 			// When we call link_insert_after, this will cause all the nodes
 			// to be laid out in reverse order in memory.
 			//
@@ -269,11 +271,20 @@ void node_add_tree_to_process_list(Node *tree) {
 	}
 }
 
+void node_compute_transform_tree(Node *tree) {
+	node_force_compute_transform(tree);
+
+	for(uint32_t i = 0; i < ls_length(tree->children); ++i) {
+		node_compute_transform_tree(tree->children[i]);
+	}
+}
+
 void node_process_all() {
 	if(!node_process_list) {
 		ls_init(node_process_list);
 	}
 
+uint64_t time0 = SDL_GetTicks64();
 	node_add_tree_to_process_list(root);
 
 	uint32_t len = ls_length(node_process_list);
@@ -285,5 +296,14 @@ void node_process_all() {
 		}
 	}
 
+
+uint64_t time = SDL_GetTicks64();
+	node_compute_transform_tree(root);
+time = SDL_GetTicks64() - time;
+printf("time to compute tree: %lu\n", time);
+
 	ls_clear(node_process_list);
+
+	uint64_t time1 = SDL_GetTicks64();
+	//printf("time to process nodes: %llu -> %llu\n", time0, time1);
 }

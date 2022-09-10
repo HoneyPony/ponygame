@@ -28,6 +28,7 @@ bool node_update_transform(Node *node) {
 	// flag in the transform, so that might work.
 	bool parent_updated = node_update_transform(node->parent);
 	if(parent_updated || node->internal.matrix_dirty) {
+		node->internal.matrix_dirty = 0;
 		raw_transform_compute(
 			&node->internal,
 			&node->internal.transform,
@@ -35,6 +36,14 @@ bool node_update_transform(Node *node) {
 		return true;
 	}
 	return false;
+}
+
+void node_force_compute_transform(Node *node) {
+	node->internal.matrix_dirty = 0;
+	raw_transform_compute(
+		&node->internal,
+		&node->internal.transform,
+		node_get_parent_transform(node));
 }
 
 vec2 get_lpos(void *ptr) {
@@ -188,10 +197,20 @@ vec2 get_basis_x(AnyNode *ptr) {
 	return raw_transform_col0(node->internal.transform);
 }
 
+vec2 get_basis_x_fast(AnyNode *ptr) {
+	Node *node = ptr;
+	return raw_transform_col0(node->internal.transform);
+}
+
 vec2 get_basis_y(AnyNode *ptr) {
 	Node *node = ptr;
 	node_update_transform(node);
 
+	return raw_transform_col1(node->internal.transform);
+}
+
+vec2 get_basis_y_fast(AnyNode *ptr) {
+	Node *node = ptr;
 	return raw_transform_col1(node->internal.transform);
 }
 

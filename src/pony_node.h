@@ -77,6 +77,8 @@ typedef struct NodeHeader {
 	NodeConstructor construct;
 	NodeProcess process;
 	NodeConstructor destruct;
+
+	size_t alloc_block_size;
 } NodeHeader;
 
 #define node_header(Ty) macro_concat(node_header_for_, Ty)
@@ -85,7 +87,11 @@ typedef struct NodeHeader {
 struct_from_field_list(List) \
 extern NodeHeader node_header(List) ;
 
-#define node_meta_initialize(Ty, base_class_ptr, construct_f, process_f, destruct_f) \
+#define BLOCKS_TINY  8
+#define BLOCKS_SMALL 64
+#define BLOCKS_LARGE 1024
+
+#define node_meta_initialize(Ty, base_class_ptr, construct_f, process_f, destruct_f, block_size) \
 node_header(Ty).base_class = base_class_ptr; \
 node_header(Ty).node_size = sizeof(Ty); \
 node_header(Ty).list_allocated = (struct NodeLinks){ NULL, NULL }; \
@@ -93,7 +99,8 @@ node_header(Ty).list_destroyed = (struct NodeLinks){ NULL, NULL }; \
 node_header(Ty).list_free = (struct NodeLinks){ NULL, NULL }; \
 node_header(Ty).construct = construct_f; \
 node_header(Ty).process = process_f; \
-node_header(Ty).destruct = destruct_f;
+node_header(Ty).destruct = destruct_f; \
+node_header(Ty).alloc_block_size = block_size;
 
 #define node_meta_defines(Ty)\
 NodeHeader node_header(Ty);

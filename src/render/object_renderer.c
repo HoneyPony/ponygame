@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "render.h"
+#include "pony_unsafe_transforms.h"
 
 // Renderer lists
 static list_of(TexRenderer) tex_renderer_list;
@@ -103,8 +104,8 @@ void render_tex_renderer(TexRenderer tr) {
 		center = round(center);
 	}
 
-	vec2 basis_x = get_basis_x(tr.node);
-	vec2 basis_y = get_basis_y(tr.node);
+	vec2 basis_x = get_basis_x_fast(tr.node);
+	vec2 basis_y = get_basis_y_fast(tr.node);
 
 	vec2 left  = mul(basis_x,                     -tr.tex_pivot.x);
 	vec2 right = mul(basis_x, tr.tex->px_size.x - tr.tex_pivot.x);

@@ -47,8 +47,8 @@ void test() {
 void test() {
 	
 
-	for(int x = 0; x < 100; ++x) {
-		for(int y = 0; y < 100; ++y) {
+	for(int x = 0; x < 32; ++x) {
+		for(int y = 0; y < 16; ++y) {
 			Sprite *sprite = new(Sprite);
 			reparent(sprite, root);
 

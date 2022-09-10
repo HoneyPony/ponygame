@@ -49,19 +49,20 @@ void process_Sprite(void *node, UNUSED void *tree) {
 }
 
 void pony_init_builtin_nodes() {
-	node_meta_initialize(Node, NULL, construct_Node, NULL, NULL)
+	node_meta_initialize(Node, NULL, construct_Node, NULL, NULL, BLOCKS_SMALL)
 
 	// Initialize root immediately
 	root = new(Node);
 	root->internal.immortal = 1;
 
-	node_meta_initialize(PrinterNode, &node_header(Node), NULL, process_PrinterNode, NULL)
+	node_meta_initialize(PrinterNode, &node_header(Node), NULL, process_PrinterNode, NULL, BLOCKS_TINY)
 
 	node_meta_initialize(
 		Sprite,
 		&node_header(Node),
 		NULL,
 		process_Sprite,
-		NULL
+		NULL,
+		BLOCKS_LARGE
 	)
 }

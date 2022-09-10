@@ -60,6 +60,8 @@ static void pony_event_loop(UNUSED void *arg) {
 		
 		/* Handle other events */
 	}
+
+	uint64_t something_time = SDL_GetTicks64() - non_render_time;
 	
 	node_process_all();
 
@@ -69,7 +71,7 @@ static void pony_event_loop(UNUSED void *arg) {
 	SDL_GL_SwapWindow(pony_main_window);
 	render_time = SDL_GetTicks64() - render_time;
 
-	logf_info("frame breakdown: %dms process, %dms render", non_render_time, render_time);
+	logf_info("frame breakdown: %dms process, %dms render [%dms event polling]", non_render_time, render_time, something_time);
 
 	frame_time = (SDL_GetTicks() - frame_time);
 

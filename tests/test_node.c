@@ -121,13 +121,14 @@ test_define(test_node_using_node, {
 
 test_set_define(test_set_node, {
 	// Need some setup for this test set.
-	node_meta_initialize(Child, &node_header(Node), NULL, NULL, NULL);
-	node_meta_initialize(Grandchild, &node_header(Child), NULL, NULL, NULL);
-	node_meta_initialize(UnrelatedChild, &node_header(Node), NULL, NULL, NULL);
+	node_meta_initialize(Child, &node_header(Node), NULL, NULL, NULL, BLOCKS_TINY);
+	node_meta_initialize(Grandchild, &node_header(Child), NULL, NULL, NULL, BLOCKS_TINY);
+	node_meta_initialize(UnrelatedChild, &node_header(Node), NULL, NULL, NULL, BLOCKS_TINY);
 	node_meta_initialize(ConstructDestruct, &node_header(Node),
 		construct_ConstructDestruct,
 		NULL,
-		destruct_ConstructDestruct)
+		destruct_ConstructDestruct,
+		BLOCKS_TINY)
 
 	test_node_constructor();
 	test_node_destructor();
