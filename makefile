@@ -15,6 +15,8 @@ BIN:=ponygame
 STATIC_BIN:=ponygame-static
 TEST_BIN:=ponygame-test
 
+PONY_BIN:=pony
+
 PRIMARY_SRC:=$(addprefix $(SRC_DIR)/,$(PRIMARY_SRC))
 
 SRC=\
@@ -29,6 +31,7 @@ pony_raw_transform.c\
 pony_node.c\
 pony_glm.c\
 pony_fs.c\
+pony_benchtime.c\
 render/render.c\
 render/shader.c\
 render/gltex.c\
@@ -38,6 +41,13 @@ render/sprite_renderer.c\
 render/shader.c\
 pony_log.c\
 script.c
+
+PONY_SRC=\
+main.c\
+scan.c\
+directories.c\
+path_list.c\
+config.c
 
 SHADER_SRC=\
 sprite.frag\
@@ -72,6 +82,9 @@ TEST_SRC_C:=$(addprefix tests/,$(TEST_SRC))
 
 OBJ_NO_MAIN:=$(filter-out build/pony_main.c.o,$(OBJ))
 
+PONY_OBJ:=$(addsuffix .o,$(PONY_SRC))
+PONY_OBJ:=$(addprefix $(OBJ_DIR)/pony/,$(PONY_OBJ))
+
 .PHONY: all clean unity install lib run-tests no-test
 .PRECIOUS: $(OBJ_DIR)/shaders/%.c
 
@@ -82,7 +95,7 @@ OBJ_NO_MAIN:=$(filter-out build/pony_main.c.o,$(OBJ))
 # remove those extra directory creations.
 DIR_LOCK=build/build.lock
 
-all: $(BIN) $(TEST_BIN)
+all: $(BIN) $(TEST_BIN) $(PONY_BIN)
 no-test: $(BIN)
 
 $(OBJ_DIR)/shaders/%.c.o: $(OBJ_DIR)/shaders/%.c $(DIR_LOCK)
@@ -97,8 +110,14 @@ $(OBJ_DIR)/%.c.o: $(SRC_DIR)/%.c $(DIR_LOCK)
 $(BIN): $(OBJ) $(SHADER_OBJ)
 	$(CC) -o $@ $^ $(addprefix -l,$(LINK))
 
+$(PONY_BIN): $(PONY_OBJ) $(OBJ_NO_MAIN) $(SHADER_OBJ)
+	$(CC) -o $@ $^ $(addprefix -l,$(LINK))
+
 $(OBJ_DIR)/tests/%.c.o: tests/%.c $(DIR_LOCK)
 	$(CC) -MD -c $< -o $@ $(CFLAGS) -Iinclude -O0
+
+$(OBJ_DIR)/pony/%.c.o: pony_src/%.c $(DIR_LOCK)
+	$(CC) -MD -c $< -o $@ $(CFLAGS) -Iinclude -O2
 
 $(TEST_BIN): $(OBJ_NO_MAIN) $(TEST_OBJ) $(SHADER_OBJ)
 	$(CC) -o $@ $^ $(addprefix -l,$(LINK))
@@ -108,6 +127,7 @@ $(DIR_LOCK):
 	mkdir -p build/shaders
 	mkdir -p build/render
 	mkdir -p build/tests
+	mkdir -p build/pony
 	touch $@
 
 unity: $(SHADER_C)

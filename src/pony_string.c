@@ -47,6 +47,19 @@ str str_from(const char *source) {
 	return result;
 }
 
+str str_dupe(const str other) {
+	StrPrefix *src = prefix_ptr(other, StrPrefix);
+
+	size_t alloc = src->alloc;
+	
+	StrPrefix *prefix = alloc_prefix(alloc, src->length);
+
+	str result = prefix_obj_ptr(prefix, StrPrefix);
+	memcpy(result, other, src->length + 1);
+
+	return result;
+}
+
 uint32_t str_length(str string) {
 	StrPrefix *prefix = prefix_ptr(string, StrPrefix);
 	return prefix->length;
@@ -68,6 +81,7 @@ static StrPrefix *str_ensure(str *string, size_t needed_alloc) {
 	while(actual_alloc < needed_alloc) actual_alloc <<= 1;
 
 	prefix = pony_realloc(prefix, prefix_alloc_size(actual_alloc, StrPrefix));
+	prefix->alloc = actual_alloc; // TODO: Test??
 	*string = prefix_obj_ptr(prefix, StrPrefix);
 
 	return prefix;
@@ -130,6 +144,18 @@ char str_pop(str string) {
 	prefix->length -= 1;
 
 	return result;
+}
+
+void str_rewind(str string, int count) {
+	StrPrefix *prefix = prefix_ptr(string, StrPrefix);
+
+	if(count >= prefix->length) {
+		prefix->length = 0;
+	}
+	else {
+		prefix->length -= count;
+	}
+	string[prefix->length] = '\0';
 }
 
 void str_writef_by_ptr(str *string, const char* format, ...) {
@@ -197,4 +223,39 @@ bool cstr_has_prefix(const char *str, const char *prefix) {
 		if(*str == '\0') return false;
 	}
 	return false;
+}
+
+bool cstr_has_suffix(const char *str, const char *suffix) {
+	int str_len = strlen(str);
+	int suf_len = strlen(suffix);
+
+	int index = 0;
+	for(;;) {
+		if(index >= str_len || index >= suf_len) return true;
+
+		char str_char = str[str_len - 1 - index];
+		char suf_char = suffix[suf_len - 1 - index];
+
+		if(str_char != suf_char) return false;
+		index += 1;
+	}
+	return false;
+}
+
+bool str_eq_cstr(const str str, const char *cstr) {
+	// Strcmp will still likely be faster here, as we don't know the length of
+	// cstr so will have to iterate anyways.
+	return !strcmp(str, cstr);
+}
+
+void str_trim_front(str s, size_t count) {
+	StrPrefix *prefix = prefix_ptr(s, StrPrefix);
+	if(count > prefix->length) {
+		prefix->length = 0;
+	}
+	else {
+		prefix->length -= count;
+	}
+	// Must copy the null terminator as well.
+	memmove(s, s + count, (1 + prefix->length) * sizeof(*s));
 }

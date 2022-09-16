@@ -59,3 +59,9 @@ do {\
 //((*(typeof((list).at))(ls_pushing_ptr(&(list), sizeof(*(list).at)))) = (item))
 
 
+#define foreach(name, list, ...)\
+for(uint32_t genvar(list_index) = 0; genvar(list_index) < ls_length(list); ++genvar(list_index)) {\
+	typeof(*list) name = list[genvar(list_index)];\
+	__VA_ARGS__\
+}
+
