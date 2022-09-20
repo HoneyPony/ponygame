@@ -47,7 +47,10 @@ main.c\
 scan.c\
 directories.c\
 path_list.c\
-config.c
+config.c\
+tex_file.c\
+image_pack.c\
+stb.c
 
 SHADER_SRC=\
 sprite.frag\
@@ -105,7 +108,7 @@ $(OBJ_DIR)/shaders/%.c: shader_src/% shader2c $(DIR_LOCK)
 	./shader2c $< $@
 
 $(OBJ_DIR)/%.c.o: $(SRC_DIR)/%.c $(DIR_LOCK)
-	$(CC) -MD -c $< -o $@ $(CFLAGS) -Iinclude -O3
+	$(CC) -MD -c $< -o $@ $(CFLAGS) -Iinclude -O0
 
 $(BIN): $(OBJ) $(SHADER_OBJ)
 	$(CC) -o $@ $^ $(addprefix -l,$(LINK))
@@ -117,7 +120,7 @@ $(OBJ_DIR)/tests/%.c.o: tests/%.c $(DIR_LOCK)
 	$(CC) -MD -c $< -o $@ $(CFLAGS) -Iinclude -O0
 
 $(OBJ_DIR)/pony/%.c.o: pony_src/%.c $(DIR_LOCK)
-	$(CC) -MD -c $< -o $@ $(CFLAGS) -Iinclude -O2
+	$(CC) -MD -c $< -o $@ $(CFLAGS) -Iinclude -O0
 
 $(TEST_BIN): $(OBJ_NO_MAIN) $(TEST_OBJ) $(SHADER_OBJ)
 	$(CC) -o $@ $^ $(addprefix -l,$(LINK))

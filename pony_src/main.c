@@ -18,6 +18,12 @@ void build() {
 	system("ninja");
 }
 
+void texpack(int argc, char **argv) {
+	pack_images(argv + 2, argc - 2);
+}
+
+extern void test_tex(const char *path);
+
 int main(int argc, char **argv) {
 	if(argc < 2) {
 		puts("please put 'scan' or 'build'");
@@ -32,5 +38,14 @@ int main(int argc, char **argv) {
 		build();
 	}
 
+	if(!strcmp(argv[1], "print-tex")) {
+		test_tex(argv[2]);
+	}
+
+	if(!strcmp(argv[1], "texpack")) {
+		texpack(argc, argv);
+	}
+
 	return 0;
 }
+
