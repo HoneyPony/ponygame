@@ -15,6 +15,7 @@
 #include "pony_log.h"
 #include "pony_compiler_features.h"
 #include "pony_node.h"
+#include "pony.main.h"
 
 /* Do we want multiple window support? */
 static SDL_Window *pony_main_window = NULL;
@@ -62,8 +63,10 @@ static void pony_event_loop(UNUSED void *arg) {
 	}
 
 	uint64_t something_time = SDL_GetTicks64() - non_render_time;
-	
+
+    pony_tick_start(); // User can define some code that happens around the pony loop
 	node_process_all();
+    pony_tick_end();
 
 	non_render_time = SDL_GetTicks64() - non_render_time;
 	uint64_t render_time = SDL_GetTicks64();
@@ -71,7 +74,7 @@ static void pony_event_loop(UNUSED void *arg) {
 	SDL_GL_SwapWindow(pony_main_window);
 	render_time = SDL_GetTicks64() - render_time;
 
-	logf_info("frame breakdown: %dms process, %dms render [%dms event polling]", non_render_time, render_time, something_time);
+	//logf_info("frame breakdown: %dms process, %dms render [%dms event polling]", non_render_time, render_time, something_time);
 
 	frame_time = (SDL_GetTicks() - frame_time);
 
@@ -80,7 +83,8 @@ static void pony_event_loop(UNUSED void *arg) {
 
 	if(frame_time_samples == 60) {
 		double avg_frame_time = (total_frame_time / (double)frame_time_samples);
-		logf_info("average frame time = %f", avg_frame_time);
+        int fps = (int)(1 / (avg_frame_time / 1000.0));
+		logf_info("FPS: %d | Average frame time: %f ms", fps, avg_frame_time);
 
 		total_frame_time = 0;
 		frame_time_samples = 0;
@@ -103,7 +107,7 @@ int main(UNUSED int argc, UNUSED char **argv) {
 
 	pony_init_builtin_nodes();
 
-	test();
+	//test();
 
 	//puts("[ponygame] game is complete");
 
@@ -147,6 +151,9 @@ int main(UNUSED int argc, UNUSED char **argv) {
 #else
 	SDL_GL_SetSwapInterval(1);
 	is_vsync = SDL_GL_GetSwapInterval();
+
+    // Run user initialization code after all of the engine initialization code.
+    pony_begin();
 
 	for(;;) {
 		pony_event_loop(NULL);

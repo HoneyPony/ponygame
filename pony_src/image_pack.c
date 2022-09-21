@@ -90,5 +90,8 @@ void pack_images(const char **tex_paths, size_t path_count) {
 			break;
 		}
 	}
-	
+
+    // Touch the lock file, as that's what the build system expects.
+    FILE *lock = fopen(".ponygame/tex.lock", "w");
+    fclose(lock);
 }

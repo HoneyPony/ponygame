@@ -17,6 +17,8 @@ extern PathList scan_for_files();
 
 typedef struct {
 	list_of(str) include_paths;
+    list_of(str) lib_paths;
+    str lib_file;
 } Config;
 
 void save_path_list(PathList *list);

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "pony.h"
 
@@ -26,7 +27,7 @@ extern void test_tex(const char *path);
 
 int main(int argc, char **argv) {
 	if(argc < 2) {
-		puts("please put 'scan' or 'build'");
+		puts("please put 'scan' or 'build', or 'go'");
 		return -1;
 	}
 
@@ -37,6 +38,11 @@ int main(int argc, char **argv) {
 	if(!strcmp(argv[1], "build")) {
 		build();
 	}
+
+    if(!strcmp(argv[1], "go")) {
+        build();
+        system("game.exe");
+    }
 
 	if(!strcmp(argv[1], "print-tex")) {
 		test_tex(argv[2]);

@@ -98,7 +98,11 @@ PONY_OBJ:=$(addprefix $(OBJ_DIR)/pony/,$(PONY_OBJ))
 # remove those extra directory creations.
 DIR_LOCK=build/build.lock
 
-all: $(BIN) $(TEST_BIN) $(PONY_BIN)
+# Due to pony.main.h, it is currently not possible to build the previous $(BIN)
+# this can be re-enabled with a little bit more configuration.
+# As it stands though, it is nice to work on getting this stuff all usable
+# with a real game project.
+all: lib $(PONY_BIN)
 no-test: $(BIN)
 
 $(OBJ_DIR)/shaders/%.c.o: $(OBJ_DIR)/shaders/%.c $(DIR_LOCK)
@@ -120,7 +124,7 @@ $(OBJ_DIR)/tests/%.c.o: tests/%.c $(DIR_LOCK)
 	$(CC) -MD -c $< -o $@ $(CFLAGS) -Iinclude -O0
 
 $(OBJ_DIR)/pony/%.c.o: pony_src/%.c $(DIR_LOCK)
-	$(CC) -MD -c $< -o $@ $(CFLAGS) -Iinclude -O0
+	$(CC) -MD -g -c $< -o $@ $(CFLAGS) -Iinclude -O0
 
 $(TEST_BIN): $(OBJ_NO_MAIN) $(TEST_OBJ) $(SHADER_OBJ)
 	$(CC) -o $@ $^ $(addprefix -l,$(LINK))
@@ -137,8 +141,7 @@ unity: $(SHADER_C)
 	$(CC) $(SRC_C) $(SHADER_C) -o $(addsuffix _unity,$(BIN)) -O2 $(addprefix -l,$(LINK))
 
 lib: $(OBJ) $(SHADER_OBJ)
-	$(CC) -o ponygame.o $^ $(addprefix -l,$(LINK))
-	ar rcs libponygame.a ponygame.o 
+	ar rcs libponygame.a $(OBJ) $(SHADER_OBJ)
 
 shader2c: tools/shader2c.c
 	$(CC) $< -o $@ -O2

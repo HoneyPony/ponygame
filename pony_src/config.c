@@ -5,6 +5,8 @@
 Config load_config() {
 	Config result;
 	ls_init(result.include_paths);
+    ls_init(result.lib_paths);
+    result.lib_file = NULL;
 
 	FILE *in = fopen(".ponygame/my.ponyconfig", "r");
 	if(!in) return result;
@@ -36,6 +38,14 @@ next_line:
 		if(str_eq_cstr(var_name, "include_path")) {
 			ls_push(result.include_paths, str_dupe(var_val));
 		}
+
+        if(str_eq_cstr(var_name, "lib_path")) {
+            ls_push(result.lib_paths, str_dupe(var_val));
+        }
+
+        if(str_eq_cstr(var_name, "lib_file")) {
+            result.lib_file = str_dupe(var_val);
+        }
 	}
 done_reading:
 	str_free(var_name);

@@ -297,10 +297,10 @@ uint64_t time0 = SDL_GetTicks64();
 	}
 
 
-uint64_t time = SDL_GetTicks64();
+//uint64_t time = SDL_GetTicks64();
 	node_compute_transform_tree(root);
-time = SDL_GetTicks64() - time;
-printf("time to compute tree: %lu\n", time);
+//time = SDL_GetTicks64() - time;
+//printf("time to compute tree: %lu\n", time);
 
 	ls_clear(node_process_list);
 
