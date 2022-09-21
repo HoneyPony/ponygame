@@ -259,3 +259,21 @@ void str_trim_front(str s, size_t count) {
 	// Must copy the null terminator as well.
 	memmove(s, s + count, (1 + prefix->length) * sizeof(*s));
 }
+
+int str_rfind(str s, char c) {
+    StrPrefix *prefix = prefix_ptr(s, StrPrefix);
+    for(int i = prefix->length - 1; i >= 0; --i) {
+        if(s[i] == c) return i;
+    }
+    // Use ints so that -1 can mean "not found"
+    return -1;
+}
+
+void str_replace(str s, char old, char new) {
+    StrPrefix *prefix = prefix_ptr(s, StrPrefix);
+    for(uint32_t i = 0; i < prefix->length; ++i) {
+        if(s[i] == old) {
+            s[i] = new;
+        }
+    }
+}

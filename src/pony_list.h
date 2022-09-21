@@ -65,6 +65,12 @@ for(uint32_t genvar(list_index) = 0; genvar(list_index) < ls_length(list); ++gen
 	__VA_ARGS__\
 }
 
+#define foreach_r(name, list, ...)\
+for(uint32_t genvar(list_index) = 0; genvar(list_index) < ls_length(list); ++genvar(list_index)) {\
+	typeof(list) name = &(list)[genvar(list_index)];\
+	__VA_ARGS__\
+}
+
 #define foreach_l(name, list, length, ...)\
 for(size_t genvar(list_index) = 0; genvar(list_index) < length; ++genvar(list_index)) {\
 	typeof(*list) name = (list)[genvar(list_index)];\

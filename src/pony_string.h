@@ -49,3 +49,7 @@ extern bool cstr_has_suffix(const char *str, const char *suffix);
 extern bool str_eq_cstr(const str str, const char *cstr);
 
 extern void str_trim_front(str string, size_t count);
+
+extern int str_rfind(str s, char c);
+
+void str_replace(str s, char old, char new);

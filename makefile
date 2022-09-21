@@ -50,6 +50,8 @@ path_list.c\
 config.c\
 tex_file.c\
 image_pack.c\
+resources.c\
+dir_tree.c\
 stb.c
 
 SHADER_SRC=\

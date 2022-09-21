@@ -30,9 +30,6 @@ Config load_config();
 // Directory tree
 void ensure_directory_tree_exists();
 
-// Image processing
-void pack_images(const char **tex_paths, size_t path_count);
-
 typedef struct {
 	unsigned char *data;
 
@@ -50,11 +47,23 @@ typedef struct {
 	str anim_name;
 	int anim_frame;
 	int anim_length;
+
+    int spritesheet_index;
+
+    struct {
+        uint16_t sx;
+        uint16_t sy;
+        uint16_t ex;
+        uint16_t ey;
+    } coords;
 } TexFileInfo;
 
 typedef struct {
 	str name;
 	int frame_count;
+
+    int index_first;
+    int index_last;
 } AnimInfo;
 
 typedef struct {
@@ -64,3 +73,48 @@ typedef struct {
 
 void load_tex_file(const char *path, list_of(TexFileInfo) *output, list_of(AnimInfo) *anim_output);
 TexBuildInfo load_tex_build_info(const char *path);
+
+
+
+#define DIR_TREE_UNKNOWN 0
+#define DIR_TREE_DIRECTORY 1
+#define DIR_TREE_TEX 2
+
+typedef struct DirTree {
+    list_of(struct DirTree) children;
+    str name;
+
+    int type;
+
+    list_of(TexFileInfo) tex_infos;
+    list_of(AnimInfo) anim_infos;
+} DirTree;
+
+typedef struct {
+	// This is weird... we basically want the canonoical value of each of these
+	// lists to be in the DirTree's, but those are kind of used as value types.
+	//
+	// This should be fine though.
+    list_of(TexFileInfo*) tex_list;
+    list_of(AnimInfo*)    anim_list;
+
+    PathList path_list;
+    Config config;
+
+    DirTree tree;
+
+    int spritesheet_count;
+
+	int anim_frame_ptr;
+} ProjectFiles;
+
+void get_dir_tree(ProjectFiles *output);
+
+// Image processing and resource processing
+void pack_images(ProjectFiles *pf);
+void build_resource_loader(ProjectFiles *output);
+void build_resource_header(ProjectFiles *output);
+void rebuild_resources();
+
+#define FILE_NAME_RES_H ".ponygame/my.res.h"
+#define FILE_NAME_RES_LOADER ".ponygame/res_loader.c"

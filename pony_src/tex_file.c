@@ -42,6 +42,8 @@ void load_tex_file(const char *path, list_of(TexFileInfo) *tex_out, list_of(Anim
 	AnimInfo next;
 	next.name = NULL;
 	next.frame_count = 0;
+    next.index_first = 0;
+    next.index_last = -1;
 
 	str image_source = NULL;
 	str aseprite_source = NULL;
@@ -57,11 +59,33 @@ void load_tex_file(const char *path, list_of(TexFileInfo) *tex_out, list_of(Anim
 		if(sscanf(line, "@from-aseprite %s", arg) == 1) {
 			aseprite_source = str_from(arg);
 		}
+        else if(cstr_has_prefix(line, "@static")) {
+            TexFileInfo info;
+            if(sscanf(line, "@static %llu %llu %llu %llu", &info.x, &info.y, &info.width, &info.height) == 4) {
+                info.anim_length = 0;
+
+                info.anim_name = str_from("NULL");
+                info.anim_frame = 0;
+
+                info.data_stride = x_stride;
+                info.data = image_data;
+
+                info.image_source = image_source;
+                info.aseprite_source = aseprite_source;
+
+                ls_push(*tex_out, info);
+                return; // Static = only image
+            }
+        }
 		else if(sscanf(line, "@anim %s", arg) == 1) {
 			if(next.frame_count) {
 				ls_push(*anim_out, next);
 				next.frame_count = 0;
 				next.name = NULL;
+                next.index_first = next.index_last + 1;
+                // The index last is equal to index_first - 1 (see 0 and -1), so
+                // does not need to be changed.
+                //next.index_last = next.index_last;
 			}
 			next.name = str_from(arg);
 		}
@@ -82,6 +106,9 @@ void load_tex_file(const char *path, list_of(TexFileInfo) *tex_out, list_of(Anim
 
 				// Keep track of frame count for current animation info
 				next.frame_count += 1;
+
+                // Increment index
+                next.index_last += 1;
 
 				ls_push(*tex_out, info);
 			}

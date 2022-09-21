@@ -36,6 +36,16 @@ typedef struct {
 	bool snap;
 } TexRenderer;
 
+typedef struct {
+    TexHandle texture;
+    int time_ms;
+} AnimFrame;
+
+typedef struct {
+    size_t frame_count;
+    AnimFrame *frames;
+} AnimHandle;
+
 /**
  * Pushes a new render command that renders a rectangular texture at the given
  * node. The texture is rendered with the node transform. The specific pivot

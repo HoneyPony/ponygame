@@ -20,10 +20,11 @@ void build() {
 }
 
 void texpack(int argc, char **argv) {
-	pack_images(argv + 2, argc - 2);
+	//pack_images(argv + 2, argc - 2);
 }
 
 extern void test_tex(const char *path);
+extern void test_dir_tree();
 
 int main(int argc, char **argv) {
 	if(argc < 2) {
@@ -48,9 +49,19 @@ int main(int argc, char **argv) {
 		test_tex(argv[2]);
 	}
 
+    if(!strcmp(argv[1], "print-dir")) {
+        test_dir_tree();
+    }
+
 	if(!strcmp(argv[1], "texpack")) {
 		texpack(argc, argv);
 	}
+
+    if(!strcmp(argv[1], "build-res")) {
+        puts("Rebuilding resources....");
+        rebuild_resources();
+        puts("Done!");
+    }
 
 	return 0;
 }
