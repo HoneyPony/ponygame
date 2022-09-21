@@ -7,9 +7,9 @@ bool tex_file_is_static(DirTree *file) {
 }
 
 void build_tex_handle_statement(TexFileInfo *tf, FILE *out) {
-    fprintf(out, "(TexHandle) {\n\t\tspritesheet%04d.\n", tf->spritesheet_index);
+    fprintf(out, "(TexHandle) {\n\t\tspritesheet%04d,\n", tf->spritesheet_index);
 
-	printf("[%s] generated coords: %d, %d, %d, %d\n", tf->anim_name, tf->coords.sx, tf->coords.sy, tf->coords.ex, tf->coords.ey);
+	//printf("[%s] generated coords: %d, %d, %d, %d\n", tf->anim_name, tf->coords.sx, tf->coords.sy, tf->coords.ex, tf->coords.ey);
 
     float sx, sy, ex, ey;
 
@@ -49,6 +49,20 @@ void build_tex_loader(ProjectFiles *pf, DirTree *tree, str prefix, FILE *out) {
 			fprintf(out, "\t\t%d,\n", anim.frame_count);
 			fprintf(out, "\t\tframe_memory + %d\n", pf->anim_frame_ptr);
 			fprintf(out, "\t};\n");
+
+			// Which frame to write data into.
+			int frame = pf->anim_frame_ptr;
+
+			for(int i = anim.index_first; i <= anim.index_last; ++i) {
+				// These indices are for this list in particular.
+				TexFileInfo *tf = &tree->tex_infos[i];
+
+				fprintf(out, "\tframe_memory[%d].time_ms = %d;\n", frame, tf->anim_length);
+				fprintf(out, "\tframe_memory[%d].texture = ", frame);
+				build_tex_handle_statement(tf, out);
+
+				frame += 1;
+			}
 
 			// Consume that many animation frames.
 			pf->anim_frame_ptr += anim.frame_count;
@@ -96,7 +110,7 @@ void resource_loader_allocate_frame_list(ProjectFiles *pf, FILE *out) {
 		frame_count += anim->frame_count;
 	})
 
-	fprintf(out, "static AnimFrame frame_memory[%d]\n\n", frame_count);
+	fprintf(out, "static AnimFrame frame_memory[%d];\n\n", frame_count);
 }
 
 void build_resource_loader(ProjectFiles *pf) {
