@@ -17,8 +17,8 @@ void build_tex_handle_statement(TexFileInfo *tf, FILE *out) {
     ex = (float)tf->coords.ex / 1024.0;
 
     // Vertical flip..?
-    sy = (1024.0 - (float)tf->coords.ey) / 1024.0;
-    ey = (1024.0 - (float)tf->coords.sy) / 1024.0;
+    sy = (1024.0 - (float)tf->coords.sy) / 1024.0;
+    ey = (1024.0 - (float)tf->coords.ey) / 1024.0;
 
 	printf("%s uvs = %f, %f -> %f, %f\n", tf->anim_name, sx, sy, ex, ey);
 
@@ -45,7 +45,7 @@ void build_tex_loader(ProjectFiles *pf, DirTree *tree, str prefix, FILE *out) {
     }
     else {
 		foreach(anim, tree->anim_infos, {
-			fprintf(out, "\t%s%s.%s = (AnimFrame) {\n", prefix, sname, anim.name);
+			fprintf(out, "\t%s%s.%s = (AnimHandle) {\n", prefix, sname, anim.name);
 			fprintf(out, "\t\t%d,\n", anim.frame_count);
 			fprintf(out, "\t\tframe_memory + %d\n", pf->anim_frame_ptr);
 			fprintf(out, "\t};\n");
@@ -118,6 +118,9 @@ void build_resource_loader(ProjectFiles *pf) {
     FILE *out = fopen(FILE_NAME_RES_LOADER, "w");
 
     fputs("#include \"my.ponygame.h\"\n\n", out);
+
+	// Must declare the global res structure
+	fputs("struct res res;\n", out);
 
 	resource_loader_allocate_frame_list(pf, out);
 	pf->anim_frame_ptr = 0;
@@ -203,7 +206,9 @@ void build_resource_header(ProjectFiles *pf) {
         build_resource_header_tree(pf, &dt, 1, out);
     })
 
-    fputs("} res;\n", out);
+    fputs("};\n", out);
+
+	fputs("\nextern struct res res;\n", out);
 
     fclose(out);
 }

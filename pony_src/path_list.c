@@ -64,22 +64,31 @@ void make_ninja_file(PathList *list, Config *config) {
 	// Build the pre-compiled header
 	fputs("build .ponygame/my.ponygame.h.pch: cc .ponygame/my.ponygame.h\n\n", out);
 
+	// Build the resource loader file
+	fputs("build .ponygame/res_loader.c.o: cc .ponygame/res_loader.c\n", out);
+	// Build user C files
 	foreach(cfile, list->c_paths, {
 		fprintf(out, "build $builddir/%s.o: cc %s\n", cfile, cfile);
 	})
 
 	fputs("\nbuild game.exe: link ", out);
-    foreach(cfile, list->c_paths, {
+	// Include res loader object file
+    fputs(".ponygame/res_loader.c.o ", out);
+	// Include user object files
+	foreach(cfile, list->c_paths, {
         fprintf(out, "$builddir/%s.o ", cfile);
     })
+	
     fputs("| ", out);
     if(config->lib_file) {
         fprintf(out, "%s ", config->lib_file);
     }
     // Library paths...
-    fputs("\n  libs = -lmingw32 -lSDL2main -lponygame -lSDL2 -lglew32 -lopengl32 -lgdi32", out);
+    fputs("\n  libs = -lmingw32 -lSDL2main -lponygame -lSDL2 -lglew32 -lopengl32 -lgdi32\n", out);
 	
-	fputs("\n\nbuild .ponygame/tex.lock: tex ", out);
+
+
+	/*fputs("\n\nbuild .ponygame/tex.lock: tex ", out);
 	foreach(path, list->tex_paths, {
 		fprintf(out, "%s ", path);
 	})
@@ -90,5 +99,5 @@ void make_ninja_file(PathList *list, Config *config) {
 		if(info.image_source) fprintf(out, "%s ", info.image_source);
 		if(info.aseprite_source) fprintf(out, "%s ", info.aseprite_source);
 	})
-    fputs("\n", out); // Need a newline at the end of the ninja file
+    fputs("\n", out);*/ // Need a newline at the end of the ninja file
 }

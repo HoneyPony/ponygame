@@ -101,6 +101,7 @@ static void pony_event_loop(UNUSED void *arg) {
 }
 
 extern void test();
+extern void pony_load_resources();
 
 int main(UNUSED int argc, UNUSED char **argv) {
 	logf_info("welcome to Untitled Game");
@@ -151,6 +152,8 @@ int main(UNUSED int argc, UNUSED char **argv) {
 #else
 	SDL_GL_SetSwapInterval(1);
 	is_vsync = SDL_GL_GetSwapInterval();
+
+	pony_load_resources();
 
     // Run user initialization code after all of the engine initialization code.
     pony_begin();

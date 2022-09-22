@@ -6,5 +6,9 @@
 #include "pony_list.h"
 #include "pony_render.h"
 
-#define tree_instance(tree)
-#define instance(tree) tree_instance(tree)
+// Builtin Nodes
+#include "node_sprite.h"
+
+
+//#define tree_instance(tree)
+//#define instance(tree) tree_instance(tree)

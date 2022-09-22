@@ -7,9 +7,12 @@
 #include "pony_render.h"
 #include "pony_compiler_features.h"
 
+#include "node_sprite.h"
+
 node_meta_defines(Node)
 node_meta_defines(PrinterNode)
 node_meta_defines(Sprite)
+node_meta_defines(StaticSprite)
 
 void construct_Node(void *node) {
 	Node *self = node;
@@ -48,6 +51,22 @@ void process_Sprite(void *node, UNUSED void *tree) {
 	set_lrot(self, get_lrot(self) + 0.02);
 }
 
+void process_StaticSprite(void *node, UNUSED void *tree) {
+	StaticSprite *self = node;
+
+	vec2 center = self->texture->px_size;
+	center = mul(center, 0.5);
+
+	TexRenderer tr = {
+		(Node*)node,
+		self->texture,
+		center,
+		true
+	};
+
+	render_tex_on_node(tr);
+}
+
 void pony_init_builtin_nodes() {
 	node_meta_initialize(Node, NULL, construct_Node, NULL, NULL, BLOCKS_SMALL)
 
@@ -62,6 +81,15 @@ void pony_init_builtin_nodes() {
 		&node_header(Node),
 		NULL,
 		process_Sprite,
+		NULL,
+		BLOCKS_LARGE
+	)
+
+	node_meta_initialize(
+		StaticSprite,
+		&node_header(Node),
+		NULL,
+		process_StaticSprite,
 		NULL,
 		BLOCKS_LARGE
 	)
