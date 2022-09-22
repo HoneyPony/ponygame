@@ -9,6 +9,7 @@
 // Builtin Nodes
 #include "node_sprite.h"
 
+float get_dt();
 
 //#define tree_instance(tree)
 //#define instance(tree) tree_instance(tree)
