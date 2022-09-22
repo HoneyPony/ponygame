@@ -4,13 +4,22 @@
 #include "pony_list.h"
 #include "pony_benchtime.h"
 
+typedef struct {
+	str image_source;
+	str aseprite_source;
+	str tex_path;
+} TexBuildInfo;
+
 // File scanning
 typedef struct {
 	list_of(str) c_paths;
 	list_of(str) h_paths;
 	list_of(str) png_paths;
+	list_of(str) aseprite_paths;
 	list_of(str) tex_paths;
 	list_of(str) pony_paths;
+
+	list_of(TexBuildInfo) tex_infos;
 } PathList;
 
 extern PathList scan_for_files();
@@ -66,11 +75,7 @@ typedef struct {
     int index_last;
 } AnimInfo;
 
-typedef struct {
-	str image_source;
-	str aseprite_source;
-	str tex_path;
-} TexBuildInfo;
+
 
 void load_tex_file(const char *path, list_of(TexFileInfo) *output, list_of(AnimInfo) *anim_output);
 TexBuildInfo load_tex_build_info(const char *path);
