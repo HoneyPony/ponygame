@@ -20,6 +20,7 @@ PONY_BIN:=pony
 PRIMARY_SRC:=$(addprefix $(SRC_DIR)/,$(PRIMARY_SRC))
 
 SRC=\
+node_sprite.c\
 pony_main.c\
 pony_clib.c\
 pony_math.c\
