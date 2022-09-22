@@ -119,3 +119,6 @@ void rebuild_resources();
 
 #define FILE_NAME_RES_H ".ponygame/my.res.h"
 #define FILE_NAME_RES_LOADER ".ponygame/res_loader.c"
+
+// Process aseprite
+void process_aseprite_from_tex(const char*);

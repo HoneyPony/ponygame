@@ -124,20 +124,3 @@ void load_tex_file(const char *path, list_of(TexFileInfo) *tex_out, list_of(Anim
 
 	fclose(in);
 }
-
-void test_tex(const char *path) {
-	list_of(TexFileInfo) tex_list;
-	list_of(AnimInfo) anim_list;
-
-	ls_init(tex_list);
-	ls_init(anim_list);
-
-	load_tex_file(path, &tex_list, &anim_list);
-	foreach(tex, tex_list, {
-		printf("got texture at %d,%d in %s, frame %d\n", tex.x, tex.y, tex.anim_name, tex.anim_frame);
-	})
-
-	foreach(anim, anim_list, {
-		printf("anim %s has %d frames\n", anim.name, anim.frame_count);
-	})
-}

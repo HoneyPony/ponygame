@@ -58,8 +58,11 @@ void make_ninja_file(PathList *list, Config *config) {
 	fputs("rule link\n", out);
 	fputs("  command = $cc $ldflags -o $out $in $libs\n\n", out);
 
-	fputs("rule tex\n", out);
-	fputs("  command = pony texpack $in\n\n", out);
+	fputs("rule aseprite\n", out);
+	fputs("  command = pony tex-from-aseprite $out\n\n", out);
+
+	fputs("rule scan\n", out);
+	fputs("  command = pony scan\n\n", out);
 
 	// Build the pre-compiled header
 	fputs("build .ponygame/my.ponygame.h.pch: cc .ponygame/my.ponygame.h\n\n", out);
@@ -85,9 +88,27 @@ void make_ninja_file(PathList *list, Config *config) {
     }
     // Library paths...
     fputs("\n  libs = -lmingw32 -lSDL2main -lponygame -lSDL2 -lglew32 -lopengl32 -lgdi32\n", out);
-	
 
+	foreach(info, tex_build, {
+		// TODO: Figure out if there needs to be some special handling for nested
+		// tex paths...?
+		if(info.aseprite_source && info.tex_path) {
+			fprintf(out, "build %s: aseprite %s\n", info.tex_path, info.aseprite_source);
+		}
+	})
 
+	// The build.ninja file is rebuilt whenever we scan. As such, we don't need
+	// any additional outputs.. Also, ninja (probably?) needs to know that this
+	// command affects its build file...
+	//
+	// Also, the my.res.h file depends on this stuff as well...
+	fputs("\n\nbuild build.ninja .ponygame/my.res.h: scan | ", out);
+	foreach(path, list->tex_paths, {
+		fprintf(out, "%s ", path);
+	})
+	foreach(info, tex_build, {
+		if(info.image_source) fprintf(out, "%s ", info.image_source);
+	})
 	/*fputs("\n\nbuild .ponygame/tex.lock: tex ", out);
 	foreach(path, list->tex_paths, {
 		fprintf(out, "%s ", path);
@@ -98,6 +119,6 @@ void make_ninja_file(PathList *list, Config *config) {
 	foreach(info, tex_build, {
 		if(info.image_source) fprintf(out, "%s ", info.image_source);
 		if(info.aseprite_source) fprintf(out, "%s ", info.aseprite_source);
-	})
-    fputs("\n", out);*/ // Need a newline at the end of the ninja file
+	})*/
+    fputs("\n", out); // Need a newline at the end of the ninja file
 }

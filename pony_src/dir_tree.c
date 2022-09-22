@@ -83,21 +83,3 @@ void get_dir_tree(ProjectFiles *output) {
 
     output->tree = actual_root;
 }
-
-// test code
-
-void test_2(DirTree dt, int depth) {
-    for(int i = 0; i < depth; ++i)
-        printf("    ");
-    printf("[%s] has type %d\n", dt.name, dt.type);
-    if(dt.type == DIR_TREE_DIRECTORY) {
-        foreach(child, dt.children, {
-            test_2(child, depth + 1);
-        })
-    }
-}
-
-void test_dir_tree() {
-    //DirTree dt = get_dir_tree();
-    //test_2(dt, 0);
-}

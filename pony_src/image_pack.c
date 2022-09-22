@@ -95,8 +95,4 @@ void pack_images(ProjectFiles *pf) {
 	}
 
     pf->spritesheet_count = image_index;
-
-    // Touch the lock file, as that's what the build system expects.
-    FILE *lock = fopen(".ponygame/tex.lock", "w");
-    fclose(lock);
 }

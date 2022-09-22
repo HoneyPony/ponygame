@@ -39,8 +39,10 @@ void scan_path(const char *path, PathList *result) {
 	
 	dir = opendir(path);
 
+	// Do not scan '.' paths.
+	if(cstr_has_prefix(path, "./.")) return;
     // Do not scan the ponygame path.
-    if(cstr_has_prefix(path, "./.ponygame") || cstr_has_prefix(path, ".ponygame")) return;
+    //if(cstr_has_prefix(path, "./.ponygame") || cstr_has_prefix(path, ".ponygame")) return;
 	// If the path is a directory, scan for files inside the directory.
 	if (dir) {
 		scan_dir(path, dir, result);

@@ -214,6 +214,11 @@ void build_resource_header(ProjectFiles *pf) {
 }
 
 void rebuild_resources() {
+	BTime time = bt_start();
+
+	puts("pony: scan & rebuild resources");
+
+	
     ProjectFiles pf;
 
     pf.path_list = scan_for_files();
@@ -222,6 +227,9 @@ void rebuild_resources() {
     ls_init(pf.tex_list);
     ls_init(pf.anim_list);
 
+	puts("building ninja file...");
+	save_path_list(&pf.path_list);
+	make_ninja_file(&pf.path_list, &pf.config);
     //foreach(path, list.tex_paths, {
     //    load_tex_file(path, &tex_list, &anim_list);
     //})
@@ -230,11 +238,13 @@ void rebuild_resources() {
 	// TODO: Make this also generate the path list.
     get_dir_tree(&pf);
 
-    puts("Packing textures...");
+    puts("packing textures...");
     pack_images(&pf);
 
-    puts("Building resource header...");
+    puts("building resource header...");
     build_resource_header(&pf);
-    puts("Building resource loader...");
+    puts("building resource loader...");
     build_resource_loader(&pf);
+
+	printf("done! in %fms", bt_passed_ms(time));
 }

@@ -4,28 +4,9 @@
 
 #include "pony.h"
 
-void scan() {
-	BTime time = bt_start();
-
-	PathList sr = scan_for_files();
-	Config config = load_config();
-	save_path_list(&sr);
-	make_ninja_file(&sr, &config);
-
-	printf("scan completed in %fms\n", bt_passed_ms(time));
-}
-
 void build() {
 	system("ninja");
 }
-
-void texpack(int argc, char **argv) {
-	//pack_images(argv + 2, argc - 2);
-}
-
-extern void test_tex(const char *path);
-extern void test_dir_tree();
-extern void process_aseprite_from_tex(const char *path);
 
 int main(int argc, char **argv) {
 	if(argc < 2) {
@@ -34,7 +15,7 @@ int main(int argc, char **argv) {
 	}
 
 	if(!strcmp(argv[1], "scan")) {
-		scan();
+		rebuild_resources();
 	}
 
 	if(!strcmp(argv[1], "build")) {
@@ -46,27 +27,9 @@ int main(int argc, char **argv) {
         system("game.exe");
     }
 
-	if(!strcmp(argv[1], "print-tex")) {
-		test_tex(argv[2]);
-	}
-
-    if(!strcmp(argv[1], "print-dir")) {
-        test_dir_tree();
-    }
-
-	if(!strcmp(argv[1], "texpack")) {
-		texpack(argc, argv);
-	}
-
-    if(!strcmp(argv[1], "build-res")) {
-        puts("Rebuilding resources....");
-        rebuild_resources();
-        puts("Done!");
-    }
-
-	if(!strcmp(argv[1], "test-aseprite")) {
+	if(!strcmp(argv[1], "tex-from-aseprite")) {
 		if(argc > 2) {
-			printf("pony: test-aseprite %s\n", argv[2]);
+			printf("pony: tex-from-aseprite %s ", argv[2]);
 			process_aseprite_from_tex(argv[2]);
 			puts("done!");
 		}
