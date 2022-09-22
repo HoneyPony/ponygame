@@ -8,5 +8,5 @@ double bt_passed_ms(BTime start) {
 	clock_t elapsed = clock() - start.time;
 
 	double sec = elapsed / (double)CLOCKS_PER_SEC;
-	return (sec / 1000.0);
+	return (sec * 1000.0);
 }
