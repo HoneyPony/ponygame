@@ -227,6 +227,7 @@ void rebuild_resources() {
     //})
 
     // Load the directory tree...
+	// TODO: Make this also generate the path list.
     get_dir_tree(&pf);
 
     puts("Packing textures...");

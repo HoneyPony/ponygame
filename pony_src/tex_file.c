@@ -11,7 +11,7 @@ unsigned char *load_image_data(const char *arg, int *x, int *y) {
 TexBuildInfo load_tex_build_info(const char *path) {
 	FILE *in = fopen(path, "r");
 
-	TexBuildInfo info = { NULL, NULL };
+	TexBuildInfo info = { NULL, NULL, NULL };
 
 	char line[1024];
 	char arg[1024];
@@ -26,6 +26,8 @@ TexBuildInfo load_tex_build_info(const char *path) {
 			info.aseprite_source = str_from(arg);
 		}
 	}
+
+	info.tex_path = str_from(path);
 
 	fclose(in);
 

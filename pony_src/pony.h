@@ -69,6 +69,7 @@ typedef struct {
 typedef struct {
 	str image_source;
 	str aseprite_source;
+	str tex_path;
 } TexBuildInfo;
 
 void load_tex_file(const char *path, list_of(TexFileInfo) *output, list_of(AnimInfo) *anim_output);

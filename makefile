@@ -53,6 +53,7 @@ tex_file.c\
 image_pack.c\
 resources.c\
 dir_tree.c\
+aseprite_to_tex.c\
 stb.c
 
 SHADER_SRC=\
@@ -121,7 +122,8 @@ $(BIN): $(OBJ) $(SHADER_OBJ)
 	$(CC) -o $@ $^ $(addprefix -l,$(LINK))
 
 $(PONY_BIN): $(PONY_OBJ) $(OBJ_NO_MAIN) $(SHADER_OBJ)
-	$(CC) -o $@ $^ $(addprefix -l,$(LINK))
+# The 'pony' tool requires cJSON in order to parse aseprite files
+	$(CC) -o $@ $^ $(addprefix -l,$(LINK)) -lcjson
 
 $(OBJ_DIR)/tests/%.c.o: tests/%.c $(DIR_LOCK)
 	$(CC) -MD -c $< -o $@ $(CFLAGS) -Iinclude -O0

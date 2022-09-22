@@ -25,6 +25,7 @@ void texpack(int argc, char **argv) {
 
 extern void test_tex(const char *path);
 extern void test_dir_tree();
+extern void process_aseprite_from_tex(const char *path);
 
 int main(int argc, char **argv) {
 	if(argc < 2) {
@@ -62,6 +63,14 @@ int main(int argc, char **argv) {
         rebuild_resources();
         puts("Done!");
     }
+
+	if(!strcmp(argv[1], "test-aseprite")) {
+		if(argc > 2) {
+			printf("pony: test-aseprite %s\n", argv[2]);
+			process_aseprite_from_tex(argv[2]);
+			puts("done!");
+		}
+	}
 
 	return 0;
 }
