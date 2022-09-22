@@ -64,6 +64,27 @@ void make_ninja_file(PathList *list, Config *config) {
 	fputs("rule scan\n", out);
 	fputs("  command = pony scan\n\n", out);
 
+	// The build.ninja file is rebuilt whenever we scan. As such, we don't need
+	// any additional outputs.. Also, ninja (probably?) needs to know that this
+	// command affects its build file...
+	//
+	// Also, we need to do this *before* building any affected C files.
+	//
+	// However, adding my.res.h as an output causes an infinite loop, because
+	// ninja thinks it is always out of date (when the whole point is that sometimes
+	// it is out of date...)
+	//
+	// So it isn't clear what the best solution is. Perhaps, just put this task
+	// at the top of the file and hope that it works out?
+	fputs("\n\nbuild build.ninja: scan | ", out);
+	foreach(path, list->tex_paths, {
+		fprintf(out, "%s ", path);
+	})
+	foreach(info, tex_build, {
+		if(info.image_source) fprintf(out, "%s ", info.image_source);
+	})
+	fputs("\n", out); // Need a newline at the end of the ninja file
+
 	// Build the pre-compiled header
 	fputs("build .ponygame/my.ponygame.h.pch: cc .ponygame/my.ponygame.h\n\n", out);
 
@@ -92,23 +113,12 @@ void make_ninja_file(PathList *list, Config *config) {
 	foreach(info, tex_build, {
 		// TODO: Figure out if there needs to be some special handling for nested
 		// tex paths...?
-		if(info.aseprite_source && info.tex_path) {
-			fprintf(out, "build %s: aseprite %s\n", info.tex_path, info.aseprite_source);
+		if(info.aseprite_source && info.image_source && info.tex_path) {
+			fprintf(out, "build %s | %s: aseprite %s\n", info.tex_path, info.image_source, info.aseprite_source);
 		}
 	})
 
-	// The build.ninja file is rebuilt whenever we scan. As such, we don't need
-	// any additional outputs.. Also, ninja (probably?) needs to know that this
-	// command affects its build file...
-	//
-	// Also, the my.res.h file depends on this stuff as well...
-	fputs("\n\nbuild build.ninja .ponygame/my.res.h: scan | ", out);
-	foreach(path, list->tex_paths, {
-		fprintf(out, "%s ", path);
-	})
-	foreach(info, tex_build, {
-		if(info.image_source) fprintf(out, "%s ", info.image_source);
-	})
+	
 	/*fputs("\n\nbuild .ponygame/tex.lock: tex ", out);
 	foreach(path, list->tex_paths, {
 		fprintf(out, "%s ", path);
@@ -120,5 +130,5 @@ void make_ninja_file(PathList *list, Config *config) {
 		if(info.image_source) fprintf(out, "%s ", info.image_source);
 		if(info.aseprite_source) fprintf(out, "%s ", info.aseprite_source);
 	})*/
-    fputs("\n", out); // Need a newline at the end of the ninja file
+    
 }

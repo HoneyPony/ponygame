@@ -195,7 +195,7 @@ void build_resource_header_tree(ProjectFiles *pf, DirTree *tree, int depth, FILE
 }
 
 void build_resource_header(ProjectFiles *pf) {
-    FILE *out = fopen(".ponygame/my.res.h", "w");
+    FILE *out = fopen(".ponygame/my.res.h.tmp", "w");
     fputs("#pragma once\n\n#include <ponygame.h>\n\n", out);
 
     fputs("struct res {\n", out);
@@ -209,6 +209,37 @@ void build_resource_header(ProjectFiles *pf) {
 	fputs("\nextern struct res res;\n", out);
 
     fclose(out);
+}
+
+// Checks if the new resource header is different from the old one.
+// If so, replaces it and returns true.
+// Otherwise, does not replace it, and returns false.
+bool check_and_replace_resource_header() {
+	FILE *old = fopen(".ponygame/my.res.h", "r");
+	FILE *new = fopen(".ponygame/my.res.h.tmp", "r");
+
+	for(;;) {
+		int a = fgetc(old);
+		int b = fgetc(new);
+
+		if(a != b) {
+			fclose(old);
+			fclose(new);
+
+			remove(".ponygame/my.res.h");
+			rename(".ponygame/my.res.h.tmp", ".ponygame/my.res.h");
+
+			return true;
+		}
+
+		if(a == EOF) break; // Redundant? Shouldn't we know a==b at this point and return false?
+		if(b == EOF) break;
+	}
+
+	fclose(old);
+	fclose(new);
+
+	return false;
 }
 
 void rebuild_resources() {
@@ -241,8 +272,15 @@ void rebuild_resources() {
 
     puts("building resource header...");
     build_resource_header(&pf);
-    puts("building resource loader...");
+    printf("building resource loader...");
     build_resource_loader(&pf);
+	bool used = check_and_replace_resource_header();
+	if(used) {
+		puts("wrote my.res.h");
+	}
+	else {
+		puts("no change");
+	}
 
 	printf("done! in %fms", bt_passed_ms(time));
 }

@@ -5,7 +5,7 @@
 #include "pony.h"
 
 void build() {
-	system("ninja");
+	system("ninja -v");
 }
 
 int main(int argc, char **argv) {
