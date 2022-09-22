@@ -20,8 +20,6 @@ void build_tex_handle_statement(TexFileInfo *tf, FILE *out) {
     sy = (1024.0 - (float)tf->coords.sy) / 1024.0;
     ey = (1024.0 - (float)tf->coords.ey) / 1024.0;
 
-	printf("%s uvs = %f, %f -> %f, %f\n", tf->anim_name, sx, sy, ex, ey);
-
     // Output UV's
     fprintf(out, "\t\tvxy(%.9g,%.9g),\n", sx, ey);
     fprintf(out, "\t\tvxy(%.9g,%.9g),\n", ex, ey);

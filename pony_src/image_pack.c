@@ -49,7 +49,7 @@ void build_image(int number, list_of(struct stbrp_rect) *rects, list_of(TexFileI
 		}
 	})
 
-	printf("Packed %d images\n", packed_total);
+	printf("spritesheet: packed %d frames\n", packed_total);
 
 	char file_path[1024] = { 0 };
 	snprintf(file_path, 1024, ".ponygame/spritesheet%04d.png", number);
