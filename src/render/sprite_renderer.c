@@ -11,8 +11,8 @@ void render_init_sprite() {
 	sprite_shader.mat = shader_name(sprite_shader.shader, "transform");
 	sprite_shader.tex = shader_name(sprite_shader.shader, "tex");
 
-	glGenFramebuffers(1, &ctx.sprite_render.vbo);
-	glGenFramebuffers(1, &ctx.sprite_render.ebo);
+	glGenBuffers(1, &ctx.sprite_render.vbo);
+	glGenBuffers(1, &ctx.sprite_render.ebo);
 }
 
 void render_refresh_sprite() {
