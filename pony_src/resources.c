@@ -256,9 +256,12 @@ void rebuild_resources() {
     ls_init(pf.tex_list);
     ls_init(pf.anim_list);
 
-	puts("building ninja file...");
+	puts("building ninja files...");
 	save_path_list(&pf.path_list);
-	make_ninja_file(&pf.path_list, &pf.config);
+	make_ninja_file(&pf.path_list, &pf.config, false, false);
+	make_ninja_file(&pf.path_list, &pf.config, false, true);
+	make_ninja_file(&pf.path_list, &pf.config, true, false);
+	make_ninja_file(&pf.path_list, &pf.config, true, true);
     //foreach(path, list.tex_paths, {
     //    load_tex_file(path, &tex_list, &anim_list);
     //})

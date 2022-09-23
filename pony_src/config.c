@@ -8,6 +8,8 @@ Config load_config() {
     ls_init(result.lib_paths);
     result.lib_file = NULL;
 
+	result.emcc = str_from("emcc");
+
 	FILE *in = fopen(".ponygame/my.ponyconfig", "r");
 	if(!in) return result;
 
@@ -46,6 +48,11 @@ next_line:
         if(str_eq_cstr(var_name, "lib_file")) {
             result.lib_file = str_dupe(var_val);
         }
+
+		if(str_eq_cstr(var_name, "emcc")) {
+			str_free(result.emcc);
+			result.emcc = str_dupe(var_name);
+		}
 	}
 done_reading:
 	str_free(var_name);

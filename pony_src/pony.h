@@ -28,10 +28,12 @@ typedef struct {
 	list_of(str) include_paths;
     list_of(str) lib_paths;
     str lib_file;
+
+	str emcc;
 } Config;
 
 void save_path_list(PathList *list);
-void make_ninja_file(PathList *list, Config *config);
+void make_ninja_file(PathList *list, Config *config, bool is_release, bool is_web);
 PathList load_path_list();
 
 Config load_config();
