@@ -23,7 +23,11 @@ static SDL_GLContext pony_main_context;
 
 static uint32_t is_vsync = 0;
 
+
+int has_started_loop = 0;
+
 static void pony_render() {
+	logf_verbose("render: has started loop: %d\n", has_started_loop);
 	//puts("rendering");
 	//int width, height;
 	//SDL_GetWindowSize(pony_main_window, &width, &height);
@@ -50,7 +54,7 @@ static void pony_quit() {
 double total_frame_time = 0.0;
 uint64_t frame_time_samples = 0;
 
-static void pony_event_loop(UNUSED void *arg) {
+static void pony_event_loop() {
 	uint64_t non_render_time = SDL_GetTicks64();
 	SDL_Event evt;
 	
@@ -103,6 +107,7 @@ static void pony_event_loop(UNUSED void *arg) {
 extern void test();
 extern void pony_load_resources();
 
+
 int main(UNUSED int argc, UNUSED char **argv) {
 	logf_info("welcome to Untitled Game");
 
@@ -143,13 +148,7 @@ int main(UNUSED int argc, UNUSED char **argv) {
 	}
 
 	render_init();
-	
-#ifdef __EMSCRIPTEN__
-	is_vsync = 1;
-	emscripten_set_main_loop_arg(pony_event_loop, NULL, 0, 1);
 
-	return 0;
-#else
 	SDL_GL_SetSwapInterval(1);
 	is_vsync = SDL_GL_GetSwapInterval();
 
@@ -157,6 +156,16 @@ int main(UNUSED int argc, UNUSED char **argv) {
 
     // Run user initialization code after all of the engine initialization code.
     pony_begin();
+
+#ifdef __EMSCRIPTEN__
+	is_vsync = 1;
+	has_started_loop = 1;
+	emscripten_set_main_loop(pony_event_loop, 0, 1);
+
+	
+
+	return 0;
+#else
 
 	for(;;) {
 		pony_event_loop(NULL);

@@ -18,25 +18,15 @@ void render_init() {
 	ctx.frame_width = 480; // TODO: Do initial computation with window size...?
 	ctx.frame_height = 360;
 
-	// TODO: REMOVE THIS!!! TEST CODE!!!
-
-	sprite_test_tex.texture = gltex_load("res://test_sprite.png");
-	sprite_test_tex.bottom_left_uv = vxy(0.0, 0.0);
-	sprite_test_tex.bottom_right_uv = vxy(1.0, 0.0);
-	sprite_test_tex.top_left_uv = vxy(0.0, 1.0);
-	sprite_test_tex.top_right_uv = vxy(1.0, 1.0);
-	sprite_test_tex.px_size = vxy(16.0, 16.0);
-
-	// END TEST CODE
-
 	render_init_framebuffer();
 	render_init_objects();
 	render_init_sprite();
-}
 
-// TODO: REMOVE THIS!!! TEST CODE!!!
-TexHandle sprite_test_tex;
-// END TEST CODE
+	logf_info("generated GL buffers: [error = %d]", glGetError());
+	logf_info("         framebuffer: %d", ctx.pixel_fb.rect_vbo);
+	logf_info("       sprite render: %d", ctx.sprite_render.vbo);
+	logf_info(" sprite render [ebo]: %d", ctx.sprite_render.ebo);
+}
 
 void render_game_objects() {
 	glBindFramebuffer(GL_FRAMEBUFFER, ctx.pixel_fb.framebuffer);

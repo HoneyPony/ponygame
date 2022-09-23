@@ -56,6 +56,3 @@ typedef struct {
  * @param tex_pivot 
  */
 extern void render_tex_on_node(TexRenderer renderer);
-
-// TODO: REMOVE THIS!!! TEST CODE!!!
-extern TexHandle sprite_test_tex;

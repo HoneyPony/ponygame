@@ -10,6 +10,7 @@ STATIC_SDL_FLAGS=-static -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinm
 
 SRC_DIR=src
 OBJ_DIR?=build
+WEB_OBJ_DIR=$(OBJ_DIR)/web
 
 BIN:=ponygame
 STATIC_BIN:=ponygame-static
@@ -82,6 +83,9 @@ SRC_C:=$(addprefix $(SRC_DIR)/,$(SRC))
 
 SHADER_OBJ:=$(addsuffix .o,$(SHADER_C))
 
+WEB_OBJ:=$(OBJ) $(SHADER_OBJ)
+WEB_OBJ:=$(subst build/,build/web/,$(WEB_OBJ))
+
 TEST_OBJ:=$(addsuffix .o,$(TEST_SRC))
 TEST_OBJ:=$(addprefix $(OBJ_DIR)/tests/,$(TEST_OBJ))
 
@@ -118,6 +122,12 @@ $(OBJ_DIR)/shaders/%.c: shader_src/% shader2c $(DIR_LOCK)
 $(OBJ_DIR)/%.c.o: $(SRC_DIR)/%.c $(DIR_LOCK)
 	$(CC) -MD -c $< -o $@ $(CFLAGS) -Iinclude -O0
 
+$(WEB_OBJ_DIR)/shaders/%.c.o: $(OBJ_DIR)/shaders/%.c $(DIR_LOCK)
+	$(EMCC) -c $< -o $@ -O2
+
+$(WEB_OBJ_DIR)/%.c.o: $(SRC_DIR)/%.c $(DIR_LOCK)
+	$(EMCC) -MD -c $< -o $@ $(CFLAGS) -Iinclude -O0
+
 $(BIN): $(OBJ) $(SHADER_OBJ)
 	$(CC) -o $@ $^ $(addprefix -l,$(LINK))
 
@@ -140,6 +150,11 @@ $(DIR_LOCK):
 	mkdir -p build/render
 	mkdir -p build/tests
 	mkdir -p build/pony
+
+	mkdir -p build/web
+	mkdir -p build/web/shaders
+	mkdir -p build/web/render
+	mkdir -p build/web/tests
 	touch $@
 
 unity: $(SHADER_C)
@@ -165,14 +180,17 @@ run-tests: $(TEST_BIN)
 run-bench: $(TEST_BIN)
 	./$(TEST_BIN) bench
 
-web: $(SHADER_C)
+web: $(WEB_OBJ)
+	$(EMAR) rcs libponygame_web.a $(WEB_OBJ)
 #	echo call $(EMSDK_ENV_BAT) > web-build.bat
 #	echo @echo on >> web-build.bat
 #	echo $(EMCC) --preload-file test_sprite.png -Isrc -Ivendor -sUSE_SDL=2 -o html-build/index.js $(SRC_C) $(SHADER_C) > web-build.bat
-	mkdir -p html-build
-	cp web_src/basic_shell.html html-build/index.html
+#	mkdir -p html-build
+#	cp web_src/basic_shell.html html-build/index.html
 
-	$(EMCC) --preload-file test_sprite.png -Isrc -Ivendor -sUSE_SDL=2 -o html-build/index.js $(SRC_C) $(SHADER_C)
+#	$(EMCC) --preload-file test_sprite.png -Isrc -Ivendor -sUSE_SDL=2 -o html-build/index.js $(SRC_C) $(SHADER_C)
+
+	
 
 #	cmd /c web-build.bat
 #	emcc -o html-build/index.html $(addprefix $(SRC_DIR)/,$(SRC))

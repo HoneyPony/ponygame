@@ -10,3 +10,5 @@
 
 EMCC=
 #EMCC=/c/emsdk/upstream/emscripten/emcc
+
+EMAR=
