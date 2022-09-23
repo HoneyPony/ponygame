@@ -351,26 +351,14 @@ void render_objects() {
 	// Third step: Build vertex list and state specification list.
 	render_build_state_spec();
 
-	//logf_verbose("before bind vbo [%d] error = %d", ctx.sprite_render.vbo, glGetError());
-
 	// Third step: Upload vertex data to GPU.
 	glBindBuffer(GL_ARRAY_BUFFER, ctx.sprite_render.vbo);
-	GLint abb;
-	glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &abb);
-	//logf_verbose("before upload vbo [glGet = %d] %d", abb, glGetError());
 	glBufferData(GL_ARRAY_BUFFER,
 		vertex_list.length * sizeof(float),
 		vertex_list.list,
 		GL_DYNAMIC_DRAW);
 
-	//GLint abb;
-	glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &abb);
-	//logf_verbose("before bind ebo [glGet = %d] %d", abb, glGetError());
-
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ctx.sprite_render.ebo);
-
-	//logf_verbose("before upload ebo %d", glGetError());
-
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
 		element_list.length * sizeof(uint32_t),
 		element_list.list,

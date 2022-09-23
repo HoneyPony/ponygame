@@ -2,12 +2,15 @@
 #include <SDL2/SDL_opengl.h>
 
 #include <stdio.h>
+#include "pony_clib.h"
 
 #ifdef __EMSCRIPTEN__
 	#include <emscripten.h>
 
 	EM_JS(int, js_get_window_width, (), { return window.innerWidth; });
 	EM_JS(int, js_get_window_height, (), { return window.innerHeight; });
+
+	static bool has_setup_main_loop_timing = false;
 #endif
 
 #include "pony_internal.h"
@@ -17,14 +20,12 @@
 #include "pony_node.h"
 #include "pony.main.h"
 
+
 /* Do we want multiple window support? */
 static SDL_Window *pony_main_window = NULL;
 static SDL_GLContext pony_main_context;
 
 static uint32_t is_vsync = 0;
-
-
-int has_started_loop = 0;
 
 static void pony_render() {
 	//puts("rendering");
@@ -54,6 +55,17 @@ double total_frame_time = 0.0;
 uint64_t frame_time_samples = 0;
 
 static void pony_event_loop() {
+// Annoyingly, the emscripten_set_main_loop function seems to never return.
+// This means that there's really no way to call single one-shot functions after
+// it besides using a flag.
+#ifdef __EMSCRIPTEN__
+	if(!has_setup_main_loop_timing) {
+		int success = emscripten_set_main_loop_timing(EM_TIMING_RAF, 1);
+		has_setup_main_loop_timing = true;
+		//logf_info("setup main loop. success = %d", success);
+	}
+#endif
+
 	uint64_t non_render_time = SDL_GetTicks64();
 	SDL_Event evt;
 	
@@ -161,10 +173,8 @@ int main(UNUSED int argc, UNUSED char **argv) {
 
 #ifdef __EMSCRIPTEN__
 	is_vsync = 1;
-	has_started_loop = 1;
-	emscripten_set_main_loop(pony_event_loop, 0, 1);
 
-	
+	emscripten_set_main_loop(pony_event_loop, 0, 1);
 
 	return 0;
 #else

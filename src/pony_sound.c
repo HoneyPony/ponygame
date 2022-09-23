@@ -7,26 +7,37 @@
 #include "pony_sound.h"
 #include "pony_log.h"
 #include "pony_string.h"
+#include "pony_fs.h"
 
-SoundHandle fs_load_sound(const char *path) {
+static SDL_RWops *from_path(const char *path) {
 	if(cstr_has_prefix(path, "res://")) {
-		/* TODO: Implement loading from memory in final builds */
-		path += 6;
+		if(pony_resources_are_packed) {
+			FSPackedMem mem = fs_find_packed_resource(path);
+			return SDL_RWFromConstMem(mem.ptr, (int)mem.length);
+		}
+		else {
+			path += 6;
+			return SDL_RWFromFile(path, "r");
+		}
 	}
 
-	return (SoundHandle){Mix_LoadWAV(path)};
+	return SDL_RWFromFile(path, "r");
+}
+
+SoundHandle fs_load_sound(const char *path) {
+	SDL_RWops *ops = from_path(path);
+	
+	SoundHandle result = {Mix_LoadWAV_RW(ops, true)};
+	
+	return result;
 }
 
 MusicHandle fs_load_music(const char *path) {
-	const char *src_path = path;
-	if(cstr_has_prefix(path, "res://")) {
-		/* TODO: Implement loading from memory in final builds */
-		path += 6;
-	}
+	SDL_RWops *ops = from_path(path);
 
-	MusicHandle result = {Mix_LoadMUS(path)};
+	MusicHandle result = {Mix_LoadMUS_RW(ops, true)};
 	if(!result.music) {
-		logf_error("failed to load music file: %s", src_path);
+		logf_error("failed to load music file: %s", path);
 	}
 	return result;
 }

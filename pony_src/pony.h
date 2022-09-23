@@ -127,3 +127,5 @@ void rebuild_resources();
 
 // Process aseprite
 void process_aseprite_from_tex(const char*);
+
+void generate_file_res_debug_c();

@@ -10,19 +10,25 @@
 #include "pony_string.h"
 
 FSImg fs_load_png(const char *path, bool flip) {
-	if(cstr_has_prefix(path, "res://")) {
-		/* TODO: Implement loading from memory in final builds */
+	int width, height;
+	uint8_t *data;
 
-		// For debug builds: remove the prefix, use the working directory to
-		// load resources
-		path += 6;
+	if(cstr_has_prefix(path, "res://")) {
+		if(pony_resources_are_packed) {
+			FSPackedMem mem = fs_find_packed_resource(path);
+			data = stbi_load_from_memory(mem.ptr, mem.length, &width, &height, NULL, 4);
+		}
+		else {
+			// For debug builds: remove the prefix, use the working directory to
+			// load resources
+			data = stbi_load(path + 6, &width, &height, NULL, 4);
+		}
+	}
+	else {
+		data = stbi_load(path, &width, &height, NULL, 4);
 	}
 
 	FSImg result = { 0 };
-
-	int width, height;
-	stbi_set_flip_vertically_on_load(flip);
-	uint8_t *data = stbi_load(path, &width, &height, NULL, 4);
 
 	if(!data) {
 		logf_error("failed to load image %s", path);

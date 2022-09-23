@@ -56,6 +56,8 @@ image_pack.c\
 resources.c\
 dir_tree.c\
 aseprite_to_tex.c\
+dummy_functions.c\
+generated_files.c\
 stb.c
 
 SHADER_SRC=\

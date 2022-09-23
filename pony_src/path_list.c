@@ -64,11 +64,15 @@ void make_ninja_file(PathList *list, Config *config) {
 	fputs("rule scan\n", out);
 	fputs("  command = pony scan\n  restat = true\n\n", out);
 
-	
+	fputs("rule gen\n", out);
+	fputs("  command = pony generate:$fname\n\n", out);
 
 	// Build the pre-compiled header
 	fputs("build .ponygame/my.ponygame.h.pch: cc .ponygame/my.ponygame.h\n\n", out);
 
+	// Build resource debug file
+	fputs("build .ponygame/res_debug.c.o: cc .ponygame/res_debug.c\n", out);
+	fputs("build .ponygame/res_debug.c: gen\n  fname = res_debug.c\n", out);
 	// Build the resource loader file
 	fputs("build .ponygame/res_loader.c.o: cc .ponygame/res_loader.c\n", out);
 	// Build user C files
@@ -77,8 +81,8 @@ void make_ninja_file(PathList *list, Config *config) {
 	})
 
 	fputs("\nbuild game.exe: link ", out);
-	// Include res loader object file
-    fputs(".ponygame/res_loader.c.o ", out);
+	// Include res loader object files
+    fputs(".ponygame/res_loader.c.o .ponygame/res_debug.c.o ", out);
 	// Include user object files
 	foreach(cfile, list->c_paths, {
         fprintf(out, "$builddir/%s.o ", cfile);

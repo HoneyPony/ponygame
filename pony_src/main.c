@@ -27,6 +27,10 @@ int main(int argc, char **argv) {
         system("game.exe");
     }
 
+	if(!strcmp(argv[1], "generate:res_debug.c")) {
+		generate_file_res_debug_c();
+	}
+
 	if(!strcmp(argv[1], "tex-from-aseprite")) {
 		if(argc > 2) {
 			printf("pony: tex-from-aseprite %s ", argv[2]);
