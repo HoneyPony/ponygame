@@ -2,7 +2,7 @@
 
 CC?=gcc
 
-LINK=mingw32 SDL2main SDL2 glew32 opengl32 gdi32 
+LINK=mingw32 SDL2main SDL2 SDL2_mixer glew32 opengl32 gdi32 
 
 STATIC_SDL_FLAGS=-static -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -static-libgcc -lsetupapi
 # Note: add -mwindows for the final build of a game probably. Not actually related
@@ -33,6 +33,7 @@ pony_raw_transform.c\
 pony_node.c\
 pony_glm.c\
 pony_fs.c\
+pony_sound.c\
 pony_benchtime.c\
 render/render.c\
 render/shader.c\
@@ -126,7 +127,7 @@ $(WEB_OBJ_DIR)/shaders/%.c.o: $(OBJ_DIR)/shaders/%.c $(DIR_LOCK)
 	$(EMCC) -c $< -o $@ -O2
 
 $(WEB_OBJ_DIR)/%.c.o: $(SRC_DIR)/%.c $(DIR_LOCK)
-	$(EMCC) -MD -c $< -o $@ $(CFLAGS) -Iinclude -O0
+	$(EMCC) -MD -c $< -o $@ $(CFLAGS) -Iinclude -O0 -sUSE_SDL_MIXER=2
 
 $(BIN): $(OBJ) $(SHADER_OBJ)
 	$(CC) -o $@ $^ $(addprefix -l,$(LINK))

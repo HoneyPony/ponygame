@@ -5,6 +5,8 @@
 #include "pony_string.h"
 #include "pony_list.h"
 #include "pony_render.h"
+#include "pony_sound.h"
+#include "pony_log.h"
 
 // Builtin Nodes
 #include "node_sprite.h"

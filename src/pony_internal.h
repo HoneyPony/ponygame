@@ -6,3 +6,5 @@
  * 
  */
 extern void pony_init_builtin_nodes();
+
+extern void pony_init_sound();

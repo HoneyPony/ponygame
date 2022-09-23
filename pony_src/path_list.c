@@ -89,7 +89,7 @@ void make_ninja_file(PathList *list, Config *config) {
         fprintf(out, "%s ", config->lib_file);
     }
     // Library paths...
-    fputs("\n  libs = -lmingw32 -lSDL2main -lponygame -lSDL2 -lglew32 -lopengl32 -lgdi32\n", out);
+    fputs("\n  libs = -lmingw32 -lSDL2main -lponygame -lSDL2 -lSDL2_mixer -lglew32 -lopengl32 -lgdi32\n", out);
 
 	foreach(info, tex_build, {
 		// TODO: Figure out if there needs to be some special handling for nested

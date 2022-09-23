@@ -27,7 +27,6 @@ static uint32_t is_vsync = 0;
 int has_started_loop = 0;
 
 static void pony_render() {
-	logf_verbose("render: has started loop: %d\n", has_started_loop);
 	//puts("rendering");
 	//int width, height;
 	//SDL_GetWindowSize(pony_main_window, &width, &height);
@@ -151,6 +150,9 @@ int main(UNUSED int argc, UNUSED char **argv) {
 
 	SDL_GL_SetSwapInterval(1);
 	is_vsync = SDL_GL_GetSwapInterval();
+
+	// Initialize sound before loading resources
+	pony_init_sound();
 
 	pony_load_resources();
 

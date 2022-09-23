@@ -76,8 +76,6 @@ static void compute_screen_vertices() {
 	pixel_fb_verts[20] = posx;
 	pixel_fb_verts[21] = negy;
 
-	logf_verbose("upload framebuffer vbo!");
-
 	// Upload buffer
 	glBindBuffer(GL_ARRAY_BUFFER, ctx.pixel_fb.rect_vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(pixel_fb_verts), pixel_fb_verts, GL_STATIC_DRAW);
