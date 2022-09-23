@@ -242,7 +242,7 @@ bool check_and_replace_resource_header() {
 	return false;
 }
 
-void rebuild_resources() {
+void rebuild_resources(bool pack) {
 	BTime time = bt_start();
 
 	puts("pony: scan & rebuild resources");
@@ -283,6 +283,11 @@ void rebuild_resources() {
 	}
 	else {
 		puts("no change");
+	}
+
+	if(pack) {
+		puts("generating res_release.c...");
+		generate_file_res_release_c(&pf);
 	}
 
 	printf("done! in %fms", bt_passed_ms(time));

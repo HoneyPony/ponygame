@@ -18,4 +18,4 @@ typedef struct {
 	size_t length;
 } FSPackedMem;
 
-extern FSPackedMem fs_find_packed_resource(const char *res_path);
+extern FSPackedMem fs_find_packed_resource(const char *path_without_res_prefix);

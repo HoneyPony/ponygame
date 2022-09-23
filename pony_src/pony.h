@@ -122,7 +122,7 @@ void get_dir_tree(ProjectFiles *output);
 void pack_images(ProjectFiles *pf);
 void build_resource_loader(ProjectFiles *output);
 void build_resource_header(ProjectFiles *output);
-void rebuild_resources();
+void rebuild_resources(bool pack);
 
 #define FILE_NAME_RES_H ".ponygame/my.res.h"
 #define FILE_NAME_RES_LOADER ".ponygame/res_loader.c"
@@ -131,3 +131,4 @@ void rebuild_resources();
 void process_aseprite_from_tex(const char*);
 
 void generate_file_res_debug_c();
+void generate_file_res_release_c(ProjectFiles *pf);

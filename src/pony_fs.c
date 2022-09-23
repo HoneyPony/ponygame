@@ -17,7 +17,7 @@ FSImg fs_load_png(const char *path, bool flip) {
 
 	if(cstr_has_prefix(path, "res://")) {
 		if(pony_resources_are_packed) {
-			FSPackedMem mem = fs_find_packed_resource(path);
+			FSPackedMem mem = fs_find_packed_resource(path + 6);
 			data = stbi_load_from_memory(mem.ptr, mem.length, &width, &height, NULL, 4);
 		}
 		else {

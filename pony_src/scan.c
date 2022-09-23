@@ -94,6 +94,8 @@ void scan_path(const char *path, PathList *result) {
 
 bool already_has_png(PathList *result, const char *name) {
 	foreach_r(tb, result->tex_infos, {
+		if(!tb->image_source) continue;
+
 		// If this image is already in a source, we already have it
 		if(!strcmp(name, tb->image_source)) {
 			return true;
@@ -105,6 +107,8 @@ bool already_has_png(PathList *result, const char *name) {
 
 bool already_has_aseprite(PathList *result, const char *name) {
 	foreach_r(tb, result->tex_infos, {
+		if(!tb->aseprite_source) continue;
+
 		// If this image is already in a source, we already have it
 		if(!strcmp(name, tb->aseprite_source)) {
 			return true;

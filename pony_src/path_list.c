@@ -86,7 +86,12 @@ void make_ninja_file(PathList *list, Config *config, bool is_release, bool is_we
 	fputs("  command = pony tex-from-aseprite $out\n\n", out);
 
 	fputs("rule scan\n", out);
-	fputs("  command = pony scan\n  restat = true\n\n", out);
+	if(is_release) {
+		fputs("  command = pony scan --pack\n  restat = true\n\n", out);
+	}
+	else {
+		fputs("  command = pony scan\n  restat = true\n\n", out);
+	}
 
 	fputs("rule gen\n", out);
 	fputs("  command = pony generate:$fname\n\n", out);
@@ -99,7 +104,7 @@ void make_ninja_file(PathList *list, Config *config, bool is_release, bool is_we
 	// Build resource debug file
 	if(is_release) {
 		ninja_c_to_o(out, ".ponygame/res_release.c");
-		fputs("build .ponygame/res_release.c: gen\n  fname = res_release.c\n", out);
+		fputs("build .ponygame/res_release.c: scan\n", out);
 	}
 	else {
 		ninja_c_to_o(out, ".ponygame/res_debug.c");
@@ -132,10 +137,23 @@ void make_ninja_file(PathList *list, Config *config, bool is_release, bool is_we
     }
     // Library paths...
 	if(is_web) {
-		fputs("\n  libs = -sUSE_SDL=2 -sUSE_SDL_MIXER=2 -lponygame_web", out);
+		fputs("\n  libs = -sUSE_SDL=2 -sUSE_SDL_MIXER=2 -lponygame_web\n", out);
 	}
 	else {
-   		fputs("\n  libs = -lmingw32 -lSDL2main -lponygame -lSDL2 -lSDL2_mixer -lglew32 -lopengl32 -lgdi32\n", out);
+		if(is_release) {
+			// Build a statically linked executable
+			fputs("\n  libs = "
+			"-lmingw32 -lSDL2main -lponygame -lSDL2 -lSDL2_mixer -lglew32 -lopengl32 "
+
+			"-static -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm "
+			"-limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -static-libgcc -lsetupapi "
+			"-lmpg123 -lopusfile -lopus -logg -lssp "
+			"-lshlwapi "
+			"\n", out);
+		}
+		else {
+   			fputs("\n  libs = -lmingw32 -lSDL2main -lponygame -lSDL2 -lSDL2_mixer -lglew32 -lopengl32 -lgdi32\n", out);
+		}
 	}
 
 	foreach(info, tex_build, {

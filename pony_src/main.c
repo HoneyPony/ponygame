@@ -4,8 +4,10 @@
 
 #include "pony.h"
 
-void build() {
-	system("ninja -v");
+void build(const char *file) {
+	char cmd[256] = {0};
+	snprintf(cmd, 256, "ninja -v -f %s", file);
+	system(cmd);
 }
 
 int main(int argc, char **argv) {
@@ -15,15 +17,19 @@ int main(int argc, char **argv) {
 	}
 
 	if(!strcmp(argv[1], "scan")) {
-		rebuild_resources();
+		bool pack = false;
+		if(argc >= 3 && !strcmp(argv[2], "--pack")) {
+			pack = true;
+		}
+		rebuild_resources(pack);
 	}
 
 	if(!strcmp(argv[1], "build")) {
-		build();
+		build("build.debug.local.ninja");
 	}
 
     if(!strcmp(argv[1], "go")) {
-        build();
+        build("build.debug.local.ninja");
         system("game.exe");
     }
 

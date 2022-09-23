@@ -11,12 +11,12 @@
 
 static SDL_RWops *from_path(const char *path) {
 	if(cstr_has_prefix(path, "res://")) {
+		path += 6;
 		if(pony_resources_are_packed) {
 			FSPackedMem mem = fs_find_packed_resource(path);
 			return SDL_RWFromConstMem(mem.ptr, (int)mem.length);
 		}
 		else {
-			path += 6;
 			return SDL_RWFromFile(path, "r");
 		}
 	}
