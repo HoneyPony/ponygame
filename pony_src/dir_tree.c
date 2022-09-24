@@ -63,8 +63,18 @@ void check_path(const char *path, const char *file_name, DirTree *root_path, Pro
         foreach_r(tex, result.tex_infos, ls_push(output->tex_list, tex);)
         foreach_r(anim, result.anim_infos, ls_push(output->anim_list, anim);)
 
-        ls_push(root_path->children, result);
+        ls_push_var(root_path->children, result);
     }
+
+	if(cstr_has_suffix(file_name, ".snd")) {
+		 DirTree result = {0};
+        result.name = str_from(file_name);
+        result.type = DIR_TREE_SND;
+
+		result.snd_info = load_snd_build_info(path);
+
+		ls_push_var(root_path->children, result);
+	}
 
 }
 

@@ -80,6 +80,20 @@ void build_tex_loader(ProjectFiles *pf, DirTree *tree, str prefix, FILE *out) {
     str_free(sname);
 }
 
+void build_snd_loader(ProjectFiles *pf, DirTree *tree, str prefix, FILE *out) {
+	str sname = str_dupe(tree->name);
+    str_replace(sname, '.', '_');
+
+	const char *sound_path = tree->snd_info.sound_source;
+	if(!sound_path) return;
+
+	const char *function = tree->snd_info.is_music ? "fs_load_music" : "fs_load_sound";
+
+	fprintf(out, "\t%s%s = %s(\"res://%s\");\n", prefix, sname, function, sound_path);
+
+    str_free(sname);
+}
+
 void build_resource_loader_tree(ProjectFiles *pf, DirTree *tree, str prefix, FILE *out) {
     if(tree->type == DIR_TREE_DIRECTORY) {
         str sname = str_dupe(tree->name);
@@ -99,6 +113,10 @@ void build_resource_loader_tree(ProjectFiles *pf, DirTree *tree, str prefix, FIL
 
     if(tree->type == DIR_TREE_TEX) {
         build_tex_loader(pf, tree, prefix, out);
+    }
+
+	if(tree->type == DIR_TREE_SND) {
+        build_snd_loader(pf, tree, prefix, out);
     }
 }
 
@@ -171,9 +189,24 @@ void build_tex_header(DirTree *tree, int depth, FILE *out) {
     str_free(sname);
 }
 
+void build_snd_header(DirTree *tree, int depth, FILE *out) {
+	str sname = str_dupe(tree->name);
+    str_replace(sname, '.', '_');
+
+	indent(depth, out);
+	const char *type = tree->snd_info.is_music ? "MusicHandle" : "SoundHandle";
+	fprintf(out, "%s %s;\n", type, sname);
+
+    str_free(sname);
+}
+
 void build_resource_header_tree(ProjectFiles *pf, DirTree *tree, int depth, FILE *out) {
     if(tree->type == DIR_TREE_TEX) {
         build_tex_header(tree, depth, out);
+    }
+
+	if(tree->type == DIR_TREE_SND) {
+        build_snd_header(tree, depth, out);
     }
 
     if(tree->type == DIR_TREE_DIRECTORY) {

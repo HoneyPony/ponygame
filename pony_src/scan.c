@@ -90,6 +90,8 @@ void scan_path(const char *path, PathList *result) {
 	CHECK_SUFFIX(pony)
 
 	CHECK_SUFFIX(aseprite)
+
+	CHECK_SUFFIX(snd)
 }
 
 bool already_has_png(PathList *result, const char *name) {
@@ -182,7 +184,10 @@ PathList scan_for_files() {
 	ls_init(result.tex_paths);
 	ls_init(result.pony_paths);
 	ls_init(result.aseprite_paths);
+	ls_init(result.snd_paths);
+
 	ls_init(result.tex_infos);
+	ls_init(result.snd_infos);
 
 	scan_path(".", &result);
 
@@ -192,10 +197,16 @@ PathList scan_for_files() {
 	fix_paths(result.tex_paths);
 	fix_paths(result.pony_paths);
 	fix_paths(result.aseprite_paths);
+	fix_paths(result.snd_paths);
 
 	foreach(tex_path, result.tex_paths, {
 		TexBuildInfo tb = load_tex_build_info(tex_path);
 		ls_push_var(result.tex_infos, tb);
+	})
+
+	foreach(snd_path, result.snd_paths, {
+		SndBuildInfo sb = load_snd_build_info(snd_path);
+		ls_push_var(result.snd_infos, sb);
 	})
 
 	generate_new_files(&result);

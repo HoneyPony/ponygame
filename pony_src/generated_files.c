@@ -61,6 +61,15 @@ void generate_file_res_release_c(ProjectFiles *pf) {
 		pack_res(tmp, out, list, &index);
 	}
 
+	printf("packing %d sounds\n", ls_length(pf->path_list.snd_infos));
+	foreach(snd_info, pf->path_list.snd_infos, {
+		if(!snd_info.sound_source) {
+			printf("pack file warning: bad .snd file '%s'\n", snd_info.snd_path);
+		}
+
+		pack_res(snd_info.sound_source, out, list, &index);
+	})
+
 	fputs("};\n", out);
 
 	fputs("FSPackedMem fs_find_packed_resource(const char *res_path) {\n", out);

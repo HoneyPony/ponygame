@@ -5,6 +5,8 @@
 #include "pony.h"
 
 void build(const char *file) {
+	remove("game.exe");
+
 	char cmd[256] = {0};
 	snprintf(cmd, 256, "ninja -v -f %s", file);
 	system(cmd);

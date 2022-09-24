@@ -52,6 +52,7 @@ directories.c\
 path_list.c\
 config.c\
 tex_file.c\
+snd_file.c\
 image_pack.c\
 resources.c\
 dir_tree.c\

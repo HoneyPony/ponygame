@@ -10,6 +10,13 @@ typedef struct {
 	str tex_path;
 } TexBuildInfo;
 
+typedef struct {
+	str sound_source;
+	str snd_path;
+
+	bool is_music;
+} SndBuildInfo;
+
 // File scanning
 typedef struct {
 	list_of(str) c_paths;
@@ -18,8 +25,10 @@ typedef struct {
 	list_of(str) aseprite_paths;
 	list_of(str) tex_paths;
 	list_of(str) pony_paths;
+	list_of(str) snd_paths;
 
 	list_of(TexBuildInfo) tex_infos;
+	list_of(SndBuildInfo) snd_infos;
 } PathList;
 
 extern PathList scan_for_files();
@@ -81,12 +90,13 @@ typedef struct {
 
 void load_tex_file(const char *path, list_of(TexFileInfo) *output, list_of(AnimInfo) *anim_output);
 TexBuildInfo load_tex_build_info(const char *path);
-
+SndBuildInfo load_snd_build_info(const char *path);
 
 
 #define DIR_TREE_UNKNOWN 0
 #define DIR_TREE_DIRECTORY 1
 #define DIR_TREE_TEX 2
+#define DIR_TREE_SND 3
 
 typedef struct DirTree {
     list_of(struct DirTree) children;
@@ -96,6 +106,8 @@ typedef struct DirTree {
 
     list_of(TexFileInfo) tex_infos;
     list_of(AnimInfo) anim_infos;
+
+	SndBuildInfo snd_info;
 } DirTree;
 
 typedef struct {
