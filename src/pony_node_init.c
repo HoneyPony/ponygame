@@ -84,18 +84,18 @@ void process_Sprite(void *node, UNUSED void *tree) {
 
 	vec2 center = frame->texture.px_size;
 	center = mul(center, 0.5);
-	if((int)frame->texture.px_size.x & 1) {
-		center.x = ceil(center.x);
-	}
-	if((int)frame->texture.px_size.y & 1) {
-		center.y = ceil(center.y);
-	}
+
+	// For now: only base snapping on local scale amount.
+	// We could base this, at least to some degree, on the global scale amount--
+	// but this should work reasonably well, just for downscaling.
+	vec2 lscale = get_lscale(self);
 
 	TexRenderer tr = {
 		(Node*)self,
 		&frame->texture,
 		center,
-		true
+		snap_for_dimension(center.x * lscale.x),
+		snap_for_dimension(center.y * lscale.y)
 	};
 	render_tex_on_node(tr);
 }
@@ -117,7 +117,8 @@ void process_StaticSprite(void *node, UNUSED void *tree) {
 		(Node*)node,
 		self->texture,
 		center,
-		true
+		snap_for_dimension(center.x),
+		snap_for_dimension(center.y)
 	};
 
 	render_tex_on_node(tr);

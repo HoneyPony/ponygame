@@ -29,11 +29,21 @@ typedef struct {
 	vec2 px_size;
 } TexHandle;
 
+typedef enum {
+	SNAP_NONE = 2,
+	SNAP_EVEN = 0,
+	SNAP_ODD = 1
+} SnapType;
+
+extern SnapType snap_for_dimension(float dim);
+extern float snap_coordinate(float coord, SnapType type);
+
 typedef struct {
 	Node *node;
 	TexHandle *tex;
 	vec2 tex_pivot;
-	bool snap;
+	SnapType snap_x;
+	SnapType snap_y;
 } TexRenderer;
 
 typedef struct {

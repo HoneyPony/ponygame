@@ -100,9 +100,8 @@ void render_tex_renderer(TexRenderer tr) {
 	vec2 center = get_gpos(tr.node);
 	// TODO: Transform by camera... or do we just want to snap the camera...?
 	
-	if(tr.snap) {
-		center = round(center);
-	}
+	center.x = snap_coordinate(center.x, tr.snap_x);
+	center.y = snap_coordinate(center.y, tr.snap_y);
 
 	vec2 basis_x = get_basis_x_fast(tr.node);
 	vec2 basis_y = get_basis_y_fast(tr.node);

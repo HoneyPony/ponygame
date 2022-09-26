@@ -6,6 +6,18 @@
 // Declare the global context.
 RenderContext ctx;
 
+SnapType snap_for_dimension(float dim) {
+	int x = (int)dim;
+	if(x & 1) return SNAP_ODD;
+	return SNAP_EVEN;
+}
+
+float snap_coordinate(float coord, SnapType type) {
+	if(type == SNAP_EVEN) return round(coord);
+	if(type == SNAP_ODD) return round(coord) + 0.5;
+	return coord;
+}
+
 void render_init() {
 #ifndef __EMSCRIPTEN__
 	GLenum err = glewInit();
