@@ -84,6 +84,12 @@ void process_Sprite(void *node, UNUSED void *tree) {
 
 	vec2 center = frame->texture.px_size;
 	center = mul(center, 0.5);
+	if((int)frame->texture.px_size.x & 1) {
+		center.x = ceil(center.x);
+	}
+	if((int)frame->texture.px_size.y & 1) {
+		center.y = ceil(center.y);
+	}
 
 	TexRenderer tr = {
 		(Node*)self,
