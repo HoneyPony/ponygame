@@ -36,8 +36,8 @@ void ninja_include_object(FILE *out, const char *cfile) {
 	fprintf(out, "$builddir/%s.o ", cfile);
 }
 
-str ninja_combo_name(bool is_release, bool is_web, const char *postfix) {
-	str name = str_from("build.");
+str ninja_combo_name(bool is_release, bool is_web, const char *prefix, const char *postfix) {
+	str name = str_from(prefix);
 	str_append_cstr(name, is_release ? "release." : "debug.");
 	str_append_cstr(name, is_web ? "web" : "local");
 	str_append_cstr(name, postfix);
@@ -52,19 +52,18 @@ void make_ninja_file(PathList *list, Config *config, bool is_release, bool is_we
 		ls_push_var(tex_build, build);
 	})
 
-	str fname = ninja_combo_name(is_release, is_web, ".ninja");
+	str fname = ninja_combo_name(is_release, is_web, "build.", ".ninja");
 
 	FILE *out = fopen(fname, "w");
-	
 
-	str buildname = ninja_combo_name(is_release, is_web, "");
-	fprintf(out, "builddir = .ponygame/%s\n", buildname);
-	str_free(buildname);
+	str combo_name = ninja_combo_name(is_release, is_web, "", "");
+	fprintf(out, "builddir = .ponygame/build.%s\n", combo_name);
 
 	const char *compiler = "gcc";
 	if(is_web) compiler = config->emcc;
 	fprintf(out, "cc = %s\n", compiler);
-	fputs("cflags = -g -Wall -O1 -I.ponygame ", out);
+	const char *opt = is_release ? "-O2" : "-O0";
+	fprintf(out, "cflags = -g -Wall %s -I.ponygame ", opt);
 	foreach(path, config->include_paths, {
 		fprintf(out, "-I%s ", path);
 	})
@@ -80,10 +79,23 @@ void make_ninja_file(PathList *list, Config *config, bool is_release, bool is_we
 	fputs("  deps = gcc\n\n", out);
 	
 	fputs("rule link\n", out);
-	fputs("  command = $cc $ldflags -o $out $in $libs\n\n", out);
+	if(is_web && !is_release) {
+		// Embed the whole directory for debug web builds... probably not very efficient,
+		// but it should be fine.
+		fputs("  command = $cc --embed-file . $ldflags -o $out $in $libs\n\n", out);
+	}
+	else {
+		fputs("  command = $cc $ldflags -o $out $in $libs\n\n", out);
+	}
+
+	fputs("rule copy\n", out);
+	fputs("  command = cp $in $out\n\n", out);
 
 	fputs("rule aseprite\n", out);
 	fputs("  command = pony tex-from-aseprite $out\n\n", out);
+
+	fputs("rule ffogg\n", out);
+	fputs("  command = ffmpeg -y -hide_banner -loglevel error -i $in $out\n\n", out);
 
 	fputs("rule scan\n", out);
 	if(is_release) {
@@ -117,7 +129,19 @@ void make_ninja_file(PathList *list, Config *config, bool is_release, bool is_we
 		fprintf(out, "build $builddir/%s.o: cc %s\n", cfile, cfile);
 	})
 
-	fputs("\nbuild game.exe: link ", out);
+	if(is_web) {
+		// Let Emscripten build the html file if the user hasn't configured ponygame
+		const char *build_ext = "html";
+		if(config->html_src_path) {
+			build_ext = "js";
+			fprintf(out, "\nbuild .ponygame/dist.%s/index.html: copy %s/basic_shell.html", combo_name, config->html_src_path);
+			fprintf(out, "\nbuild .ponygame/dist.%s/loading_icon.svg: copy %s/loading_icon.svg", combo_name, config->html_src_path);
+		}
+		fprintf(out, "\nbuild .ponygame/dist.%s/index.%s: link ", combo_name, build_ext);
+	}
+	else {
+		fprintf(out, "\nbuild game.%s.exe: link ", combo_name);
+	}
 	// Include res loader object files
 	ninja_include_object(out, ".ponygame/res_loader.c");
 	if(is_release) {
@@ -163,6 +187,12 @@ void make_ninja_file(PathList *list, Config *config, bool is_release, bool is_we
 			fprintf(out, "build %s | %s: aseprite %s\n", info.tex_path, info.image_source, info.aseprite_source);
 		}
 	})
+
+	foreach(snd, list->snd_infos, {
+		if(snd.build_output && snd.sound_source) {
+			fprintf(out, "build %s : ffogg %s\n", snd.build_output, snd.sound_source);
+		}
+	})
     
 	// The build.ninja file is rebuilt whenever we scan. As such, we don't need
 	// any additional outputs.. Also, ninja (probably?) needs to know that this
@@ -189,5 +219,6 @@ void make_ninja_file(PathList *list, Config *config, bool is_release, bool is_we
 	})
 	fputs("\n", out); // Need a newline at the end of the ninja file
 
+	str_free(combo_name);
 	str_free(fname);
 }

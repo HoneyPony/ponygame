@@ -84,7 +84,7 @@ void build_snd_loader(ProjectFiles *pf, DirTree *tree, str prefix, FILE *out) {
 	str sname = str_dupe(tree->name);
     str_replace(sname, '.', '_');
 
-	const char *sound_path = tree->snd_info.sound_source;
+	const char *sound_path = tree->snd_info.build_output;
 	if(!sound_path) return;
 
 	const char *function = tree->snd_info.is_music ? "fs_load_music" : "fs_load_sound";

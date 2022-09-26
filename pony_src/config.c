@@ -7,6 +7,7 @@ Config load_config() {
 	ls_init(result.include_paths);
     ls_init(result.lib_paths);
     result.lib_file = NULL;
+	result.html_src_path = NULL;
 
 	result.emcc = str_from("emcc");
 
@@ -49,9 +50,13 @@ next_line:
             result.lib_file = str_dupe(var_val);
         }
 
+		if(str_eq_cstr(var_name, "html_src_path")) {
+            result.html_src_path = str_dupe(var_val);
+        }
+
 		if(str_eq_cstr(var_name, "emcc")) {
 			str_free(result.emcc);
-			result.emcc = str_dupe(var_name);
+			result.emcc = str_dupe(var_val);
 		}
 	}
 done_reading:

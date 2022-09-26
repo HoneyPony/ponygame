@@ -10,9 +10,19 @@ typedef struct {
 	str tex_path;
 } TexBuildInfo;
 
+#define SND_BUILD_UNKNOWN 0
+#define SND_BUILD_WAV 1
+#define SND_BUILD_FLAC 2
+#define SND_BUILD_OGG 3
+
 typedef struct {
 	str sound_source;
 	str snd_path;
+
+	str build_output;
+
+	// What file type the sound included in the game distributable should be.
+	int build_type;
 
 	bool is_music;
 } SndBuildInfo;
@@ -37,6 +47,7 @@ typedef struct {
 	list_of(str) include_paths;
     list_of(str) lib_paths;
     str lib_file;
+	str html_src_path; // Stores the "basic_shell.html" used for web builds
 
 	str emcc;
 } Config;

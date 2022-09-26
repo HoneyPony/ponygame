@@ -3,8 +3,6 @@
 
 #include "pony.h"
 
-
-
 static const char *res_debug_c = 
 "#include \"pony_fs.h\"\n"
 "\n"
@@ -63,11 +61,11 @@ void generate_file_res_release_c(ProjectFiles *pf) {
 
 	printf("packing %d sounds\n", ls_length(pf->path_list.snd_infos));
 	foreach(snd_info, pf->path_list.snd_infos, {
-		if(!snd_info.sound_source) {
+		if(!snd_info.build_output) {
 			printf("pack file warning: bad .snd file '%s'\n", snd_info.snd_path);
 		}
 
-		pack_res(snd_info.sound_source, out, list, &index);
+		pack_res(snd_info.build_output, out, list, &index);
 	})
 
 	fputs("};\n", out);
