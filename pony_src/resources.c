@@ -290,6 +290,28 @@ void rebuild_resources(bool pack) {
     ls_init(pf.anim_list);
 	ls_init(pf.pony_list);
 
+	// Load the directory tree...
+	// TODO: Make this also generate the path list.
+    get_dir_tree(&pf);
+
+	puts("processing .pony files...");
+
+	foreach(pony, pf.pony_list, {
+		str dot_c = str_dupe(pony->file_path);
+		str_append_cstr(dot_c, ".c");
+
+		if(!already_exists(dot_c)) {
+			generate_file_pony_c_from_pony(dot_c, pony);
+			ls_push(pf.path_list.c_paths, dot_c);
+		}
+		else {
+			str_free(dot_c);
+		}
+	})
+
+	generate_file_my_ponygame_h(&pf);
+	generate_file_pony_source_c(&pf);
+
 	puts("building ninja files...");
 	save_path_list(&pf.path_list);
 	make_ninja_file(&pf.path_list, &pf.config, false, false);
@@ -300,9 +322,7 @@ void rebuild_resources(bool pack) {
     //    load_tex_file(path, &tex_list, &anim_list);
     //})
 
-    // Load the directory tree...
-	// TODO: Make this also generate the path list.
-    get_dir_tree(&pf);
+    
 
     puts("packing textures...");
     pack_images(&pf);
@@ -318,9 +338,6 @@ void rebuild_resources(bool pack) {
 	else {
 		puts("no change");
 	}
-
-	generate_file_my_ponygame_h(&pf);
-	generate_file_pony_source_c(&pf);
 
 	if(pack) {
 		puts("generating res_release.c...");

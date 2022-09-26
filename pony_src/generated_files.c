@@ -211,3 +211,38 @@ void generate_file_my_ponygame_h(ProjectFiles *pf) {
 	fputs("#endif", out);
 	fclose(out);
 }
+
+void generate_file_pony_c_from_pony(const char *path, PonyFileInfo *pony) {
+	FILE *out = fopen(path, "w");
+
+	fputs("#include \"my.ponygame.h\"\n\n", out);
+
+	fputs("// Automatically copied header lines. May not be useful.\n", out);
+	foreach(line, pony->header_lines, {
+		fprintf(out, "%s\n", line);
+	})
+
+	fputs("\n", out);
+	if(pony->construct_func) {
+		fprintf(out, "void %s(%s *self) {\n\t\n}\n\n", pony->construct_func, pony->type_name);
+	}
+	else {
+		fprintf(out, "// void construct_%s(%s *self) { }\n\n", pony->type_name, pony->type_name);
+	}
+
+	if(pony->destruct_func) {
+		fprintf(out, "void %s(%s *self) {\n\t\n}\n\n", pony->destruct_func, pony->type_name);
+	}
+	else {
+		fprintf(out, "// void destruct_%s(%s *self) { }\n\n", pony->type_name, pony->type_name);
+	}
+
+	if(pony->tick_func) {
+		fprintf(out, "void %s(%s *self, %sTree *tree) {\n\t\n}\n\n", pony->tick_func, pony->type_name, pony->type_name);
+	}
+	else {
+		fprintf(out, "// void tick_%s(%s *self, %sTree *tree) { }\n\n", pony->type_name, pony->type_name, pony->type_name);
+	}
+
+	fclose(out);
+}

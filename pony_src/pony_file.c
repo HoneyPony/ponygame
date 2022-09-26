@@ -14,6 +14,7 @@ PonyFileInfo load_pony_file(const char *path) {
 	int read_mode = READ_UKNOWN;
 
 	PonyFileInfo result = {0};
+	// Warning! This might change if we ever change the file path algorithm.
 	result.file_path = str_from(path + 2);
 	ls_init(result.header_lines);
 	ls_init(result.struct_fields);

@@ -76,11 +76,22 @@ void scan_path(const char *path, PathList *result) {
 	#define PUSH_SUFFIX(suffix) ls_push(result-> suffix ## _paths, str_from(path))
 	#define CHECK_SUFFIX(suffix) IF_SUFFIX(suffix) { PUSH_SUFFIX(suffix); }
 	
-	IF_SUFFIX(c) {
+	CHECK_SUFFIX(c)
+
+	// Previously it seemed like it might be better not to add the .pony.c files
+	// because they are being added elsewhere, but honestly, this seems fine to me...
+	//
+	// It even lets you delete a .pony file but keep the C file if you want. Seems
+	// more straightforward than special-casing it.
+	//
+	// The only weird thing will be adding those C files to the ninja file... but
+	// even that can be handled just by adding them to the list when they are first
+	// generated.
+	/*IF_SUFFIX(c) {
 		if(!cstr_has_suffix(path, ".pony.c")) {
 			PUSH_SUFFIX(c);
 		}
-	}
+	}*/
 	
 	CHECK_SUFFIX(png)
 

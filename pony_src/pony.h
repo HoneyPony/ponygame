@@ -4,6 +4,9 @@
 #include "pony_list.h"
 #include "pony_benchtime.h"
 
+// Utility function for checking if a file exists
+extern bool already_exists(const char *path);
+
 typedef struct {
 	str image_source;
 	str aseprite_source;
@@ -191,3 +194,4 @@ void generate_file_res_release_c(ProjectFiles *pf);
 
 void generate_file_pony_source_c(ProjectFiles *pf);
 void generate_file_my_ponygame_h(ProjectFiles *pf);
+void generate_file_pony_c_from_pony(const char *path, PonyFileInfo *pony);
