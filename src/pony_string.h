@@ -53,3 +53,5 @@ extern void str_trim_front(str string, size_t count);
 extern int str_rfind(str s, char c);
 
 void str_replace(str s, char old, char new);
+
+extern void str_wtrim_back(str string);

@@ -2,6 +2,7 @@
 #include <unistd.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "pony.h"
 
@@ -67,7 +68,7 @@ void check_path(const char *path, const char *file_name, DirTree *root_path, Pro
     }
 
 	if(cstr_has_suffix(file_name, ".snd")) {
-		 DirTree result = {0};
+		DirTree result = {0};
         result.name = str_from(file_name);
         result.type = DIR_TREE_SND;
 
@@ -76,6 +77,18 @@ void check_path(const char *path, const char *file_name, DirTree *root_path, Pro
 		ls_push_var(root_path->children, result);
 	}
 
+	if(cstr_has_suffix(file_name, ".pony")) {
+		DirTree result = {0};
+		result.name = str_from(file_name);
+		result.type = DIR_TREE_PONY;
+
+		result.pony_info = malloc(sizeof(*result.pony_info));
+		*result.pony_info = load_pony_file(path);
+
+		ls_push(output->pony_list, result.pony_info);
+		
+		ls_push_var(root_path->children, result);
+	}
 }
 
 void get_dir_tree(ProjectFiles *output) {

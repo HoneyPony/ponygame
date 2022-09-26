@@ -117,7 +117,7 @@ static void pony_event_loop() {
 
 extern void test();
 extern void pony_load_resources();
-
+extern void pony_init_user_nodes();
 
 int main(UNUSED int argc, UNUSED char **argv) {
 	logf_info("welcome to Untitled Game");
@@ -167,6 +167,8 @@ int main(UNUSED int argc, UNUSED char **argv) {
 	pony_init_sound();
 
 	pony_load_resources();
+
+	pony_init_user_nodes();
 
     // Run user initialization code after all of the engine initialization code.
     pony_begin();

@@ -288,6 +288,7 @@ void rebuild_resources(bool pack) {
 
     ls_init(pf.tex_list);
     ls_init(pf.anim_list);
+	ls_init(pf.pony_list);
 
 	puts("building ninja files...");
 	save_path_list(&pf.path_list);
@@ -317,6 +318,9 @@ void rebuild_resources(bool pack) {
 	else {
 		puts("no change");
 	}
+
+	generate_file_my_ponygame_h(&pf);
+	generate_file_pony_source_c(&pf);
 
 	if(pack) {
 		puts("generating res_release.c...");

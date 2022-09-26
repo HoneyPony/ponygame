@@ -113,6 +113,9 @@ void make_ninja_file(PathList *list, Config *config, bool is_release, bool is_we
 		fputs("build .ponygame/my.ponygame.h.pch: cc .ponygame/my.ponygame.h\n\n", out);
 	}
 
+	// Build the generated node code
+	ninja_c_to_o(out, ".ponygame/my.ponygame.c");
+
 	// Build resource debug file
 	if(is_release) {
 		ninja_c_to_o(out, ".ponygame/res_release.c");
@@ -142,6 +145,9 @@ void make_ninja_file(PathList *list, Config *config, bool is_release, bool is_we
 	else {
 		fprintf(out, "\nbuild game.%s.exe: link ", combo_name);
 	}
+	// Include my.ponygame.c.o
+	ninja_include_object(out, ".ponygame/my.ponygame.c");
+
 	// Include res loader object files
 	ninja_include_object(out, ".ponygame/res_loader.c");
 	if(is_release) {

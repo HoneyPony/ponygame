@@ -277,3 +277,15 @@ void str_replace(str s, char old, char new) {
         }
     }
 }
+
+void str_wtrim_back(str string) {
+	StrPrefix *prefix = prefix_ptr(string, StrPrefix);
+	while(prefix->length > 0) {
+		char last = string[prefix->length - 1];
+		if(last == ' ' || last == '\t' || last == '\n') {
+			string[prefix->length - 1] = '\0';
+			prefix->length -= 1;
+		}
+		else return;
+	}
+}

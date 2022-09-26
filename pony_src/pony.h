@@ -103,11 +103,38 @@ void load_tex_file(const char *path, list_of(TexFileInfo) *output, list_of(AnimI
 TexBuildInfo load_tex_build_info(const char *path);
 SndBuildInfo load_snd_build_info(const char *path);
 
+typedef struct {
+	str name;
+	str type;
+	str parent;
+	list_of(str) initializers;
+} PonyFileTreeEntry;
+
+typedef struct {
+	str file_path;
+	str type_name;
+	str type_base_class;
+	list_of(str) struct_fields;
+	list_of(str) header_lines;
+	list_of(PonyFileTreeEntry) tree_entries;
+
+	bool has_tick;
+	bool has_construct;
+	bool has_destruct;
+	bool has_tree;
+
+	str tick_func;
+	str construct_func;
+	str destruct_func;
+} PonyFileInfo;
 
 #define DIR_TREE_UNKNOWN 0
 #define DIR_TREE_DIRECTORY 1
 #define DIR_TREE_TEX 2
 #define DIR_TREE_SND 3
+#define DIR_TREE_PONY 4
+
+PonyFileInfo load_pony_file(const char *path);
 
 typedef struct DirTree {
     list_of(struct DirTree) children;
@@ -119,6 +146,10 @@ typedef struct DirTree {
     list_of(AnimInfo) anim_infos;
 
 	SndBuildInfo snd_info;
+
+	// This is stored as a pointer so that it will have a unique address.
+	// TODO: Free this memory when we're done with it. (or don't, if we don't care.)
+	PonyFileInfo *pony_info;
 } DirTree;
 
 typedef struct {
@@ -128,6 +159,8 @@ typedef struct {
 	// This should be fine though.
     list_of(TexFileInfo*) tex_list;
     list_of(AnimInfo*)    anim_list;
+
+	list_of(PonyFileInfo*) pony_list;
 
     PathList path_list;
     Config config;
@@ -155,3 +188,6 @@ void process_aseprite_from_tex(const char*);
 
 void generate_file_res_debug_c();
 void generate_file_res_release_c(ProjectFiles *pf);
+
+void generate_file_pony_source_c(ProjectFiles *pf);
+void generate_file_my_ponygame_h(ProjectFiles *pf);
