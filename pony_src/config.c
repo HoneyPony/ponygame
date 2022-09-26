@@ -65,3 +65,13 @@ done_reading:
 
 	return result;
 }
+
+void generate_file_blank_ponyconfig() {
+	FILE *out = fopen(".ponygame/my.ponyconfig", "w");
+	fputs("include_path=C:/.../ponygame/src\n", out);
+	fputs("lib_path=C:/.../ponygame\n", out);
+	fputs("lib_file=/.../ponygame/libponygame.a\n", out);
+	fputs("html_src_path=C$:/.../ponygame/web_src\n", out);
+	fputs("emcc=C:/.../emsdk/upstream/emscripten/emcc.bat\n", out);
+	fclose(out);
+}

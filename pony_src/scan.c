@@ -27,13 +27,21 @@ void generate_aseprite_tex(const char *tex_path, const char* aseprite_file) {
 	str png_file = str_from(tex_path);
 	str_append_cstr(png_file, ".png"); // File format: ".tex.png"
 
-	FILE *out = fopen(tex_path, "w");
-	fputs("# This .tex file contains animation data for the associated texture.\n", out);
-	fprintf(out, "@load %s\n", png_file);
-	fprintf(out, "@from-aseprite %s\n", aseprite_file);
+	TexBuildInfo fake;
+	fake.tex_path = str_from(tex_path);
+	fake.aseprite_source = str_from(aseprite_file);
+	fake.image_source = png_file;
 
-	fclose(out);
+	// This is kind of a hack to get the first generation of the .tex file generated
+	// correctly. TODO: Cleanup this code to call aseprite more nicely.
+	//
+	// In particular, the old code just generated a (wrong) .tex file within the body
+	// of this method. If we re-use our existing aseprite generation code, we need
+	// to give it a TexBuildInfo, which doesn't really make any sense.
+	process_aseprite_from_texbuild(&fake);
 
+	str_free(fake.tex_path);
+	str_free(fake.aseprite_source);
 	str_free(png_file);
 }
 

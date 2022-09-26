@@ -246,3 +246,16 @@ void generate_file_pony_c_from_pony(const char *path, PonyFileInfo *pony) {
 
 	fclose(out);
 }
+
+void generate_file_blank_main_c() {
+	FILE *out = fopen("main.c", "w");
+
+	fputs("#include \"my.ponygame.h\"\n", out);
+	fputs("#include \"pony.main.h\"\n\n", out);
+
+	fputs("impl_begin {\n\t\n}\n\n", out);
+	fputs("impl_tick_start {\n\t\n}\n\n", out);
+	fputs("impl_tick_end {\n\t\n}\n", out);
+
+	fclose(out);
+}

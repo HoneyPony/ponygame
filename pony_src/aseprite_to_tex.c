@@ -5,7 +5,7 @@
 
 #include "pony.h"
 
-void process_aseprite(TexBuildInfo *tb) {
+void process_aseprite_from_texbuild(TexBuildInfo *tb) {
 	FILE *f = NULL;
 
 	char aseprite_cmd[2048] = {0};
@@ -39,7 +39,8 @@ void process_aseprite(TexBuildInfo *tb) {
 
 	cJSON *frames = cJSON_GetObjectItem(result, "frames");
 
-	if(cJSON_IsArray(tags)) {
+	// Only process tag-based animation if there is at least one tag
+	if(cJSON_IsArray(tags) && (cJSON_GetArraySize(tags) > 0)) {
 		cJSON *tag = NULL;
 		cJSON_ArrayForEach(tag, tags) {
 			cJSON *name = cJSON_GetObjectItem(tag, "name");
@@ -74,6 +75,43 @@ void process_aseprite(TexBuildInfo *tb) {
 			}
 		}
 	}
+	// Process file as single animation if there is more than one frame...
+	// perhaps this will be good for particle effects, etc...
+	else if(cJSON_IsArray(frames) && (cJSON_GetArraySize(frames) > 0)) {
+		fputs("@anim loop\n", out); // Default animation name: loop
+
+		for(int i = 0; i < cJSON_GetArraySize(frames); ++i) {
+			cJSON *anim_frame = cJSON_GetArrayItem(frames, i);
+
+			cJSON *frame = cJSON_GetObjectItem(anim_frame, "frame");
+			cJSON *duration = cJSON_GetObjectItem(anim_frame, "duration");
+
+			cJSON *x = cJSON_GetObjectItem(frame, "x");
+			cJSON *y = cJSON_GetObjectItem(frame, "y");
+			cJSON *w = cJSON_GetObjectItem(frame, "w");
+			cJSON *h = cJSON_GetObjectItem(frame, "h");
+
+			if(cJSON_IsNumber(duration) &&
+				cJSON_IsNumber(x) &&
+				cJSON_IsNumber(y) &&
+				cJSON_IsNumber(w) &&
+				cJSON_IsNumber(h) 
+			) {
+				fprintf(out, "\t@frame %dms %d %d %d %d\n", duration->valueint, x->valueint, y->valueint, w->valueint, h->valueint);
+			}
+		}
+	}
+	else {
+		cJSON *size = cJSON_GetObjectItem(meta, "size");
+		if(size) {
+			cJSON *w = cJSON_GetObjectItem(size, "w");
+			cJSON *h = cJSON_GetObjectItem(size, "h");
+
+			if(cJSON_IsNumber(w) && cJSON_IsNumber(h)) {
+				fprintf(out, "@static 0 0 %d %d\n\n", w->valueint, h->valueint);
+			}
+		}
+	}
 
 	fclose(out);
 
@@ -84,5 +122,5 @@ void process_aseprite(TexBuildInfo *tb) {
 
 void process_aseprite_from_tex(const char *path) {
 	TexBuildInfo tb = load_tex_build_info(path);
-	process_aseprite(&tb);
+	process_aseprite_from_texbuild(&tb);
 }

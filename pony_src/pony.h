@@ -188,6 +188,7 @@ void rebuild_resources(bool pack);
 
 // Process aseprite
 void process_aseprite_from_tex(const char*);
+void process_aseprite_from_texbuild(TexBuildInfo *tb);
 
 void generate_file_res_debug_c();
 void generate_file_res_release_c(ProjectFiles *pf);
@@ -195,3 +196,6 @@ void generate_file_res_release_c(ProjectFiles *pf);
 void generate_file_pony_source_c(ProjectFiles *pf);
 void generate_file_my_ponygame_h(ProjectFiles *pf);
 void generate_file_pony_c_from_pony(const char *path, PonyFileInfo *pony);
+
+void generate_file_blank_ponyconfig();
+void generate_file_blank_main_c();

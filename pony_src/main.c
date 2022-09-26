@@ -47,5 +47,11 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	if(!strcmp(argv[1], "init")) {
+		ensure_directory_tree_exists();
+		generate_file_blank_ponyconfig();
+		generate_file_blank_main_c();
+	}
+
 	return 0;
 }
