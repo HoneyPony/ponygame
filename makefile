@@ -205,3 +205,4 @@ $(STATIC_BIN): $(OBJ) $(SHADER_OBJ)
 
 -include $(OBJ:.o=.d)
 -include $(TEST_OBJ:.o=.d)
+-include $(PONY_OBJ:.o=.d)
