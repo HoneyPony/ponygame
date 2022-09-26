@@ -223,12 +223,18 @@ void make_ninja_file(PathList *list, Config *config, bool is_release, bool is_we
 	// Solution: It seems that adding restat = true to the 'scan' rule makes this
 	// work correctly. ninja figures out that my.res.h is up to date, and doesn't
 	// bother to try to rebuild it.
-	fprintf(out, "\nbuild %s .ponygame/my.res.h: scan | ", fname);
+	fprintf(out, "\nbuild %s .ponygame/my.res.h .ponygame/my.ponygame.h .ponygame/my.ponygame.c: scan | ", fname);
+	// Re-scan files when a .tex file changes (build the res header, spritesheet, etc)
 	foreach(path, list->tex_paths, {
 		fprintf(out, "%s ", path);
 	})
+	// Re-scan files when a .png file changes
 	foreach(info, tex_build, {
 		if(info.image_source) fprintf(out, "%s ", info.image_source);
+	})
+	// Re-scan files when a .pony file changes
+	foreach(pony, list->pony_paths, {
+		fprintf(out, "%s ", pony);
 	})
 	fputs("\n", out); // Need a newline at the end of the ninja file
 
