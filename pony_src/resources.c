@@ -276,7 +276,7 @@ bool check_and_replace_resource_header() {
 	return false;
 }
 
-void rebuild_resources(bool pack) {
+void rebuild_resources(RebuildResourceArguments args) {
 	BTime time = bt_start();
 
 	puts("pony: scan & rebuild resources");
@@ -324,9 +324,13 @@ void rebuild_resources(bool pack) {
     //})
 
     
-
-    puts("packing textures...");
-    pack_images(&pf);
+	if(args.no_sheet) {
+		puts("--no-sheet: skipping spritesheet.");
+	}
+	else {
+		puts("packing textures...");
+		pack_images(&pf);
+	}
 
     puts("building resource header...");
     build_resource_header(&pf);
@@ -340,8 +344,8 @@ void rebuild_resources(bool pack) {
 		puts("no change");
 	}
 
-	if(pack) {
-		puts("generating res_release.c...");
+	if(args.pack) {
+		puts("--pack: generating res_release.c...");
 		generate_file_res_release_c(&pf);
 	}
 

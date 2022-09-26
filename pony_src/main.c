@@ -19,11 +19,18 @@ int main(int argc, char **argv) {
 	}
 
 	if(!strcmp(argv[1], "scan")) {
-		bool pack = false;
-		if(argc >= 3 && !strcmp(argv[2], "--pack")) {
-			pack = true;
+		RebuildResourceArguments args = {0};
+		for(int i = 2; i < argc; ++i) {
+			if(!strcmp(argv[i], "--pack")) {
+				args.pack = true;
+			}
+			// TODO: Implement this... will require storing the generated rectangles,
+			// or something, so that the res_loader.c can still be generated
+			//if(!strcmp(argv[i], "--no-sheet")) {
+			//	args.no_sheet = true;
+			//}
 		}
-		rebuild_resources(pack);
+		rebuild_resources(args);
 	}
 
 	if(!strcmp(argv[1], "build")) {

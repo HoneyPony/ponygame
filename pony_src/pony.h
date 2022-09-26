@@ -181,7 +181,11 @@ void get_dir_tree(ProjectFiles *output);
 void pack_images(ProjectFiles *pf);
 void build_resource_loader(ProjectFiles *output);
 void build_resource_header(ProjectFiles *output);
-void rebuild_resources(bool pack);
+typedef struct {
+	bool no_sheet;
+	bool pack;
+} RebuildResourceArguments;
+void rebuild_resources(RebuildResourceArguments args);
 
 #define FILE_NAME_RES_H ".ponygame/my.res.h"
 #define FILE_NAME_RES_LOADER ".ponygame/res_loader.c"
