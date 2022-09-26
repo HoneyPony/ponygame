@@ -9,9 +9,10 @@ unsigned char *load_image_data(const char *arg, int *x, int *y) {
 }
 
 TexBuildInfo load_tex_build_info(const char *path) {
-	FILE *in = fopen(path, "r");
-
 	TexBuildInfo info = { NULL, NULL, NULL };
+
+	FILE *in = fopen(path, "r");
+	if(!in) return info;
 
 	char line[1024];
 	char arg[1024];

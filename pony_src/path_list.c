@@ -48,8 +48,12 @@ void make_ninja_file(PathList *list, Config *config, bool is_release, bool is_we
 	list_of(TexBuildInfo) tex_build;
 	ls_init(tex_build);
 	foreach(path, list->tex_paths, {
+		// TODO: FIgure out how the contents of "my.ponyconfig" are getting passed
+		// as the "path" argument, to this function, after doing ninja -t clean
 		TexBuildInfo build = load_tex_build_info(path);
-		ls_push_var(tex_build, build);
+		if(build.tex_path) {
+			ls_push_var(tex_build, build);
+		}
 	})
 
 	str fname = ninja_combo_name(is_release, is_web, "build.", ".ninja");

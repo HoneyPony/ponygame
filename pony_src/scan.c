@@ -144,9 +144,10 @@ void generate_tex_from_aseprite(PathList *result, const char *source) {
 		// Load the new build info
 		TexBuildInfo tb = load_tex_build_info(tex_name);
 		ls_push_var(result->tex_infos, tb);
-	}	
-
-	str_free(tex_name);
+	}
+	else {
+		str_free(tex_name);
+	}
 }
 
 void generate_tex_from_png(PathList *result, const char *png_file) {
@@ -161,8 +162,9 @@ void generate_tex_from_png(PathList *result, const char *png_file) {
 		generate_empty_tex(tex_name);
 		ls_push(result->tex_paths, tex_name);
 	}
-
-	str_free(tex_name);
+	else {
+		str_free(tex_name);
+	}
 }
 
 void generate_new_files(PathList *result) {
