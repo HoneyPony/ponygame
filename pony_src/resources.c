@@ -43,6 +43,7 @@ void build_tex_loader(ProjectFiles *pf, DirTree *tree, str prefix, FILE *out) {
     }
     else {
 		foreach(anim, tree->anim_infos, {
+			//fprintf(out, "\tlogf_info(\"loading %s\\n\");\n", sname);
 			fprintf(out, "\t%s%s.%s = (AnimHandle) {\n", prefix, sname, anim.name);
 			fprintf(out, "\t\t%d,\n", anim.frame_count);
 			fprintf(out, "\t\tframe_memory + %d\n", pf->anim_frame_ptr);

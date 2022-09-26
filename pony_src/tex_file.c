@@ -54,6 +54,7 @@ void load_tex_file(const char *path, list_of(TexFileInfo) *tex_out, list_of(Anim
 	char line[1024];
 	char arg[1024];
 	while(!feof(in)) {
+		line[0] = '\0';
 		fgets(line, 1024, in);
 		if(sscanf(line, "@load %s", arg) == 1) {
 			image_data = load_image_data(arg, &x_stride, &y_stride);
@@ -94,7 +95,7 @@ void load_tex_file(const char *path, list_of(TexFileInfo) *tex_out, list_of(Anim
 		}
 		else {
 			TexFileInfo info;
-			if(sscanf(line, "\t@frame %dms %llu %llu %llu %llu", &info.anim_length, &info.x, &info.y, &info.width, &info.height) == 5) {
+			if(sscanf(line, " @frame %dms %llu %llu %llu %llu", &info.anim_length, &info.x, &info.y, &info.width, &info.height) == 5) {
 				// Image specific animation data
 				info.anim_name = next.name;
 				info.anim_frame = next.frame_count;

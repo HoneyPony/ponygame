@@ -168,10 +168,14 @@ int main(UNUSED int argc, UNUSED char **argv) {
 
 	pony_load_resources();
 
+	logf_info("finished loading resources.");
+
 	pony_init_user_nodes();
 
     // Run user initialization code after all of the engine initialization code.
     pony_begin();
+
+	logf_info("finished all initialization.");
 
 #ifdef __EMSCRIPTEN__
 	is_vsync = 1;

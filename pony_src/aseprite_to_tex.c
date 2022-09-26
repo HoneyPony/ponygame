@@ -75,8 +75,8 @@ void process_aseprite_from_texbuild(TexBuildInfo *tb) {
 			}
 		}
 	}
-	// Process file as single animation if there is more than one frame...
-	// perhaps this will be good for particle effects, etc...
+	// Process file as single animation if we find a frames array.
+	// TODO: Deprecate StaticSprite, just treat all sprites as animations...?
 	else if(cJSON_IsArray(frames) && (cJSON_GetArraySize(frames) > 0)) {
 		fputs("@anim loop\n", out); // Default animation name: loop
 
