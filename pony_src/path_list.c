@@ -50,6 +50,9 @@ void make_ninja_file(PathList *list, Config *config, bool is_release, bool is_we
 	foreach(path, list->tex_paths, {
 		// TODO: FIgure out how the contents of "my.ponyconfig" are getting passed
 		// as the "path" argument, to this function, after doing ninja -t clean
+		//
+		// Update: it appears the problem (was) with e.g. generate_tex_from_aseprite,
+		// which (was) freeing the generated tex string even when adding it to the list.
 		TexBuildInfo build = load_tex_build_info(path);
 		if(build.tex_path) {
 			ls_push_var(tex_build, build);
@@ -220,7 +223,7 @@ void make_ninja_file(PathList *list, Config *config, bool is_release, bool is_we
 	// Solution: It seems that adding restat = true to the 'scan' rule makes this
 	// work correctly. ninja figures out that my.res.h is up to date, and doesn't
 	// bother to try to rebuild it.
-	fprintf(out, "\n\nbuild %s .ponygame/my.res.h: scan | ", fname);
+	fprintf(out, "\nbuild %s .ponygame/my.res.h: scan | ", fname);
 	foreach(path, list->tex_paths, {
 		fprintf(out, "%s ", path);
 	})

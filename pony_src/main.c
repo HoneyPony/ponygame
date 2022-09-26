@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
 
     if(!strcmp(argv[1], "go")) {
         build("build.debug.local.ninja");
-        system("game.exe");
+        system("game.debug.local.exe");
     }
 
 	if(!strcmp(argv[1], "generate:res_debug.c")) {
