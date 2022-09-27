@@ -95,6 +95,42 @@ void build_snd_loader(ProjectFiles *pf, DirTree *tree, str prefix, FILE *out) {
     str_free(sname);
 }
 
+str pony_tree_func_name(PonyFileInfo *pony) {
+	str fname = str_from("tree_init_");
+	str_append_str(fname, pony->file_path);
+	// Use the file path for a (generally?) unique function name.
+	str_replace(fname, '/', '_');
+	str_replace(fname, '.', '_');
+	return fname;
+}
+
+void build_pony_loader(ProjectFiles *pf, DirTree *tree, str prefix, FILE *out) {
+	if(!tree->pony_info->has_tree) {
+		return;
+	}
+
+	str sname = str_dupe(tree->name);
+	if(cstr_has_suffix(sname, ".pony")) {
+		// Pony files have the special privilege of simply not having a suffix
+		// in the tree.
+		// This is unique for now! Maybe later we can have a nicer interface for
+		// all the files??
+		str_rewind(sname, 5);
+	}
+    str_replace(sname, '.', '_');
+	str fname = pony_tree_func_name(tree->pony_info);
+
+	// TODO: Make the pony sname generation a function.
+
+	// All we need to do is point the handle at the associated function.
+	// This is honestly kind of weird, as the other node-specific code generation
+	// goes in its own file, but I guess it's fine for now...
+	fprintf(out, "%s%s.instance = %s;\n", prefix, sname, fname);
+
+	str_free(fname);
+    str_free(sname);
+}
+
 void build_resource_loader_tree(ProjectFiles *pf, DirTree *tree, str prefix, FILE *out) {
     if(tree->type == DIR_TREE_DIRECTORY) {
         str sname = str_dupe(tree->name);
@@ -119,6 +155,10 @@ void build_resource_loader_tree(ProjectFiles *pf, DirTree *tree, str prefix, FIL
 	if(tree->type == DIR_TREE_SND) {
         build_snd_loader(pf, tree, prefix, out);
     }
+
+	if(tree->type == DIR_TREE_PONY) {
+        build_pony_loader(pf, tree, prefix, out);
+    }
 }
 
 void resource_loader_allocate_frame_list(ProjectFiles *pf, FILE *out) {
@@ -128,6 +168,42 @@ void resource_loader_allocate_frame_list(ProjectFiles *pf, FILE *out) {
 	})
 
 	fprintf(out, "static AnimFrame frame_memory[%d];\n\n", frame_count);
+}
+
+void build_pony_tree_instancers(ProjectFiles *pf, FILE *out) {
+	foreach(pony, pf->pony_list, {
+		if(!pony->has_tree) continue;
+		str fname = pony_tree_func_name(pony);
+
+		// TODO: Also make the TypenameTree if the pony file has a type associated
+		// with it.
+
+		fprintf(out, "static Node *%s() {\n", fname);
+		// First step: allocate all the nodes in the tree.
+		foreach(tree, pony->tree_entries, {
+			fprintf(out, "\t%s *%s = new(%s);\n", tree.type, tree.name, tree.type);
+		})
+
+		// Second step: reparent nodes to their parents.
+		foreach(tree, pony->tree_entries, {
+			if(tree.parent) {
+				fprintf(out, "\treparent(%s, %s);\n", tree.name, tree.parent);
+			}
+		})
+
+		// Third step: run tree initializers. The user can control this by
+		// rearranging nodes in their tree.
+		foreach(tree, pony->tree_entries, {
+			foreach(initializer, tree.initializers, {
+				fprintf(out, "\t%s\n", initializer);
+			})
+		})
+
+		fputs("\treturn (Node*)self;\n", out);
+		fputs("}\n\n", out);
+
+		str_free(fname);
+	})
 }
 
 void build_resource_loader(ProjectFiles *pf) {
@@ -141,6 +217,8 @@ void build_resource_loader(ProjectFiles *pf) {
 
 	resource_loader_allocate_frame_list(pf, out);
 	pf->anim_frame_ptr = 0;
+
+	build_pony_tree_instancers(pf, out);
 
     fputs("void pony_load_resources() {\n", out);
 
@@ -201,6 +279,31 @@ void build_snd_header(DirTree *tree, int depth, FILE *out) {
     str_free(sname);
 }
 
+void build_pony_header(DirTree *tree, int depth, FILE *out) {
+	// The .pony file only counts as a resource if there is a tree to be instanced
+	// there.
+	if(!tree->pony_info->has_tree) {
+		return;
+	}
+
+	str sname = str_dupe(tree->name);
+	if(cstr_has_suffix(sname, ".pony")) {
+		// Pony files have the special privilege of simply not having a suffix
+		// in the tree.
+		// This is unique for now! Maybe later we can have a nicer interface for
+		// all the files??
+		str_rewind(sname, 5);
+	}
+    str_replace(sname, '.', '_');
+
+	// Pony files that count as resources are used to instance trees. This means
+	// they can be called like this: res.something.instance()
+	indent(depth, out);
+	fprintf(out, "struct %s { TreeInstancer instance; } %s;\n", sname, sname);
+
+    str_free(sname);
+}
+
 void build_resource_header_tree(ProjectFiles *pf, DirTree *tree, int depth, FILE *out) {
     if(tree->type == DIR_TREE_TEX) {
         build_tex_header(tree, depth, out);
@@ -209,6 +312,10 @@ void build_resource_header_tree(ProjectFiles *pf, DirTree *tree, int depth, FILE
 	if(tree->type == DIR_TREE_SND) {
         build_snd_header(tree, depth, out);
     }
+
+	if(tree->type == DIR_TREE_PONY) {
+		build_pony_header(tree, depth, out);
+	}
 
     if(tree->type == DIR_TREE_DIRECTORY) {
         str sname = str_dupe(tree->name);
@@ -337,7 +444,7 @@ void rebuild_resources(RebuildResourceArguments args) {
     printf("building resource loader...");
     build_resource_loader(&pf);
 	bool used = check_and_replace_resource_header();
-	if(used) {
+	if(used) { 
 		puts("wrote my.res.h");
 	}
 	else {

@@ -54,4 +54,6 @@ extern int str_rfind(str s, char c);
 
 void str_replace(str s, char old, char new);
 
+bool is_whitespace(char c);
+
 extern void str_wtrim_back(str string);

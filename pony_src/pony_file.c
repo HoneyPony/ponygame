@@ -8,6 +8,22 @@
 #define READ_HEADER_LINES  2
 #define READ_TREE_LINES    3
 
+void push_tree_entry(list_of(PonyFileTreeEntry) *list, PonyFileTreeEntry tree, bool *tree_has_self_entry, const char *path) {
+	if(str_eq_cstr(tree.name, "self")) {
+		if(*tree_has_self_entry) {
+			printf("error: in %s:\n\tduplicated self entry\n", path);
+			exit(-1);
+		}
+		*tree_has_self_entry = true;
+	}
+	else if(!tree.parent) {
+		printf("error: in %s:\n\tnon-self entry has no parent: %s\n", path, tree.name);
+		exit(-1);
+	}
+
+	ls_push(*list, tree);
+}
+
 PonyFileInfo load_pony_file(const char *path) {
 	FILE *in = fopen(path, "r");
 
@@ -22,6 +38,8 @@ PonyFileInfo load_pony_file(const char *path) {
 
 	PonyFileTreeEntry tree = {0};
 	ls_init(tree.initializers);
+
+	bool tree_has_self_entry = false;
 
 	while(!feof(in)) {
 		char line[1024];
@@ -82,13 +100,51 @@ PonyFileInfo load_pony_file(const char *path) {
 					tree.parent = str_from(var1);
 				}
 				else {
-					ls_push(tree.initializers, str_from(line));
+					str initializer = str_blank();
+					char *read = line;
+					bool trim = true;
+
+					// Use a for loop so that the pointer will be advanced every
+					// time we use 'continue'
+					for(; *read; ++read) {
+						// Trim any whitespace at the front.
+						if(is_whitespace(*read)) {
+							if(trim) continue;
+						}
+						else {
+							trim = false;
+						}
+
+						// Always skip newlines.
+						if(*read == '\n') continue;
+
+						// Substitute $ for the object name
+						if(*read == '$') {
+							if(!tree.name) {
+								printf("error: in %s:\n\ttrying to use $ but there is no name: %s\n", path, line);
+								exit(-1);
+							}
+							str_append_str(initializer, tree.name);
+							continue;
+						}
+
+						// If it fits no other case, just append the character
+						str_push(initializer, *read);
+					}
+
+					if(str_rfind(initializer, ';') == -1) {
+						printf("warning: in %s: added semicolon to '%s'\n", path, initializer);
+						str_push(initializer, ';');
+					}
+
+					ls_push(tree.initializers, initializer);
 				}
 			}
 			else if(line[0] == '\t') {
 				if(sscanf(line, " %s : %s", var1, var2) == 2) {
 					if(tree.name && tree.type) {
-						ls_push(result.tree_entries, tree);
+						push_tree_entry(&result.tree_entries, tree, &tree_has_self_entry, path);
+
 						tree = (PonyFileTreeEntry){0};
 						ls_init(tree.initializers);
 					}
@@ -105,8 +161,7 @@ PonyFileInfo load_pony_file(const char *path) {
 	}
 
 	if(tree.name && tree.type) {
-		// Push last tree entry
-		ls_push(result.tree_entries, tree);
+		push_tree_entry(&result.tree_entries, tree, &tree_has_self_entry, path);
 	}
 	result.has_tree = !ls_empty(result.tree_entries);
 
@@ -129,6 +184,11 @@ PonyFileInfo load_pony_file(const char *path) {
 			printf("error: in %s:\n\t@tick specified but no type name\n", path);
 		}
 		result.tick_func = str_fromf("tick_%s", result.type_name);
+	}
+
+	if(result.has_tree && !tree_has_self_entry) {
+		printf("error: in %s:\n\ttree specified but no 'self' node\n", path);
+		exit(-1);
 	}
 
 	return result;

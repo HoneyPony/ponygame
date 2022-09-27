@@ -278,11 +278,15 @@ void str_replace(str s, char old, char new) {
     }
 }
 
+bool is_whitespace(char c) {
+	return c == ' ' || c == '\t' || c == '\n';
+}
+
 void str_wtrim_back(str string) {
 	StrPrefix *prefix = prefix_ptr(string, StrPrefix);
 	while(prefix->length > 0) {
 		char last = string[prefix->length - 1];
-		if(last == ' ' || last == '\t' || last == '\n') {
+		if(is_whitespace(last)) {
 			string[prefix->length - 1] = '\0';
 			prefix->length -= 1;
 		}

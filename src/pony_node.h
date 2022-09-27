@@ -221,3 +221,5 @@ if((var_name = node_try_downcast_by_header(node, &node_header(Ty))))
 using_node_internal(__VA_ARGS__)
 
 extern Node* root;
+
+typedef Node* (*TreeInstancer)(void);
