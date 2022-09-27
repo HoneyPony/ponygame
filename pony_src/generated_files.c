@@ -121,7 +121,14 @@ void generate_file_pony_source_c(ProjectFiles *pf) {
 		}
 		if(pony->has_tick) {
 			fprintf(out, "extern void %s(%s *self, %sTree *tree);\n", pony->tick_func, pony->type_name, pony->type_name);
-			fprintf(out, "void %s_impl(void *ptr, void *tree) { %s(ptr, tree); }\n", pony->tick_func, pony->tick_func);
+			fprintf(out, "void %s_impl(void *ptr, void *unused_tree) {\n", pony->tick_func);
+			if(pony->has_tree) {
+				fprintf(out, "\tvoid *tree = &((%s*)ptr)->tree;\n", pony->type_name);
+			}
+			else {
+				fputs("\tvoid *tree = NULL;\n", out);
+			}
+			fprintf(out, "\t%s(ptr, tree);\n}\n", pony->tick_func);
 		}
 	})
 
@@ -154,25 +161,9 @@ void generate_file_my_ponygame_h(ProjectFiles *pf) {
 	// Write static header portion
 	fputs(my_ponygame_h, out);
 
-	foreach(pony, pf->pony_list, {
-		if(!pony->type_name) continue;
-		fprintf(out, "#define FieldList_%s \\\n", pony->type_name);
-		fprintf(out, "FieldList_%s", pony->type_base_class);
-		// Generate slashes before each new line, always have a space at the end
-		// of a line as well
-		foreach(field, pony->struct_fields, {
-			fprintf(out, " \\\n%s", field);
-		})
-		fputs("\n\n", out);
-	})
-
-	foreach(pony, pf->pony_list, {
-		if(!pony->type_name) continue;
-		fprintf(out, "node_from_field_list(%s)\n", pony->type_name);
-	})
-
-	fputs("\n", out);
-	
+	// Trees must be generated before the other types -- because trees are used
+	// as value types, while all the fields they have are reference types and
+	// so don't need to be declared previously.
 	foreach(pony, pf->pony_list, {
 		// This loop is specifically for Node types with an associated tree
 		if(!pony->type_name) continue;
@@ -187,12 +178,37 @@ void generate_file_my_ponygame_h(ProjectFiles *pf) {
 		fprintf(out, "typedef struct %sTree {\n", pony->type_name);
 
 		foreach(entry, pony->tree_entries, {
-			// Print entries to tree
-			fprintf(out, "\t%s *%s;\n", entry.type, entry.name);
+			// Print entries to tree -- need to use struct Something * format,
+			// as these types haven't necessarily been declared yet
+			fprintf(out, "\tstruct %s *%s;\n", entry.type, entry.name);
 		})
 
 		fprintf(out, "} %sTree;\n\n", pony->type_name);
 	})
+
+	foreach(pony, pf->pony_list, {
+		if(!pony->type_name) continue;
+		fprintf(out, "#define FieldList_%s \\\n", pony->type_name);
+		fprintf(out, "FieldList_%s", pony->type_base_class);
+		if(pony->has_tree) {
+			// The tree must be a stack-allocated type, so that all the pointers
+			// are stored with the node.
+			fprintf(out, " \\\nstruct %sTree tree;", pony->type_name);
+		}
+		// Generate slashes before each new line, always have a space at the end
+		// of a line as well
+		foreach(field, pony->struct_fields, {
+			fprintf(out, " \\\n%s", field);
+		})
+		fputs("\n\n", out);
+	})
+
+	foreach(pony, pf->pony_list, {
+		if(!pony->type_name) continue;
+		fprintf(out, "node_from_field_list(%s)\n", pony->type_name);
+	})
+
+	fputs("\n", out);
 
 	foreach(pony, pf->pony_list, {
 		// Don't print the comments, etc for empty headers

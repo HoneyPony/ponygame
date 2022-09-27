@@ -48,7 +48,16 @@ struct NodeInternal {
 };
 
 typedef void (*NodeConstructor)(void *node);
+
+// TODO / Note to self: I'm thinking I should completely remove the tree parameter
+// from the general node process. Any node that has a tree variable will simply pass
+// that variable to the (generated) code. Then, we don't need to store an offset, or
+// whatever, in the node header, and we also don't need any geneeral-purpose code
+// for computing the header -- which will speed up calling process() in the usual
+// case (i.e. for regular nodes).
 typedef void (*NodeProcess)(void *node, void *tree);
+
+typedef struct Node* (*TreeInstancer)(void);
 
 typedef struct NodeHeader {
 	struct NodeHeader *base_class;
@@ -79,6 +88,12 @@ typedef struct NodeHeader {
 	NodeConstructor destruct;
 
 	size_t alloc_block_size;
+
+	// A node with an associated tree should not ever be instanced without
+	// a copy of the tree. This is ensured through node_new_from_header.
+	// The only way to get a node without the associated tree is through
+	// node_new_from_header_unsafe().
+	TreeInstancer associated_tree;
 } NodeHeader;
 
 #define node_header(Ty) macro_concat(node_header_for_, Ty)
@@ -100,7 +115,8 @@ node_header(Ty).list_free = (struct NodeLinks){ NULL, NULL }; \
 node_header(Ty).construct = construct_f; \
 node_header(Ty).process = process_f; \
 node_header(Ty).destruct = destruct_f; \
-node_header(Ty).alloc_block_size = block_size;
+node_header(Ty).alloc_block_size = block_size; \
+node_header(Ty).associated_tree = NULL; 
 
 #define node_meta_defines(Ty)\
 NodeHeader node_header(Ty);
@@ -108,6 +124,8 @@ NodeHeader node_header(Ty);
 typedef void AnyNode;
 
 extern void *node_new_from_header(NodeHeader *header);
+
+extern void *node_new_from_header_unsafe(NodeHeader *header);
 
 // This function should not be called by user-facing code generally.
 // 
@@ -221,5 +239,3 @@ if((var_name = node_try_downcast_by_header(node, &node_header(Ty))))
 using_node_internal(__VA_ARGS__)
 
 extern Node* root;
-
-typedef Node* (*TreeInstancer)(void);

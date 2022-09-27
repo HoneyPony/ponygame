@@ -122,10 +122,17 @@ void build_pony_loader(ProjectFiles *pf, DirTree *tree, str prefix, FILE *out) {
 
 	// TODO: Make the pony sname generation a function.
 
-	// All we need to do is point the handle at the associated function.
+	// If the tree has no associated type, all we need to do is point the handle
+	// at the associated function.
 	// This is honestly kind of weird, as the other node-specific code generation
 	// goes in its own file, but I guess it's fine for now...
-	fprintf(out, "%s%s.instance = %s;\n", prefix, sname, fname);
+	fprintf(out, "\t%s%s.instance = %s;\n", prefix, sname, fname);
+
+	// If there is an associated type with the tree, then the header needs to
+	// have its associated_tree pointed at the tree function as well.
+	if(tree->pony_info->type_name) {
+		fprintf(out, "\tnode_header(%s).associated_tree = %s;\n", tree->pony_info->type_name, fname);
+	}
 
 	str_free(fname);
     str_free(sname);
@@ -181,7 +188,10 @@ void build_pony_tree_instancers(ProjectFiles *pf, FILE *out) {
 		fprintf(out, "static Node *%s() {\n", fname);
 		// First step: allocate all the nodes in the tree.
 		foreach(tree, pony->tree_entries, {
-			fprintf(out, "\t%s *%s = new(%s);\n", tree.type, tree.name, tree.type);
+			// Need to use the unsafe node allocator, as the safe allocator will
+			// try to allocate a tree, which ... would result in infinite
+			// recursion
+			fprintf(out, "\t%s *%s = node_new_from_header_unsafe(&node_header(%s));\n", tree.type, tree.name, tree.type);
 		})
 
 		// Second step: reparent nodes to their parents.
@@ -198,6 +208,16 @@ void build_pony_tree_instancers(ProjectFiles *pf, FILE *out) {
 				fprintf(out, "\t%s\n", initializer);
 			})
 		})
+
+		// If this is a type, then there is a tree variable that needs to be
+		// initialized.
+		// We can't do it in the new() function, because that function just calls
+		// this one -- so we have to initialize the tree here.
+		if(pony->type_name) {
+			foreach(tree, pony->tree_entries, {
+				fprintf(out, "\tself->tree.%s = %s;\n", tree.name, tree.name);
+			})
+		}
 
 		fputs("\treturn (Node*)self;\n", out);
 		fputs("}\n\n", out);

@@ -83,7 +83,7 @@ void node_construct_recursively(void *node, NodeHeader *next) {
 	}
 }
 
-void *node_new_from_header(NodeHeader *header) {
+void *node_new_from_header_unsafe(NodeHeader *header) {
 	void *node = node_new_uninit_from_header(header);
 
 	// The header must be stored here as it is not stored elsewhere.
@@ -100,6 +100,13 @@ void *node_new_from_header(NodeHeader *header) {
 	node_construct_recursively(node, header);
 
 	return node;
+}
+
+void *node_new_from_header(NodeHeader *header) {
+	if(header->associated_tree) {
+		return header->associated_tree();
+	}
+	return node_new_from_header_unsafe(header);
 }
 
 static void node_destroy_recursive(Node *top) {
@@ -292,6 +299,7 @@ uint64_t time0 = SDL_GetTicks64();
 		Node *next = node_process_list[i];
 		if(next->internal.is_valid) {
 			NodeHeader *header = next->header;
+
 			header->process(next, NULL);
 		}
 	}

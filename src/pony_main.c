@@ -174,11 +174,13 @@ int main(UNUSED int argc, UNUSED char **argv) {
 	// Initialize sound before loading resources
 	pony_init_sound();
 
+	// Nodes must be initialized before resources are loaded so that the load_resources
+	// function can override the associated_tree of the node headers.
+	pony_init_user_nodes();
+
 	pony_load_resources();
 
 	logf_info("finished loading resources.");
-
-	pony_init_user_nodes();
 
     // Run user initialization code after all of the engine initialization code.
     pony_begin();
