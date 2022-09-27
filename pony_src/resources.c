@@ -439,10 +439,8 @@ void rebuild_resources(RebuildResourceArguments args) {
 		pack_images(&pf);
 	}
 
-    puts("building resource header...");
+    printf("building resource header...");
     build_resource_header(&pf);
-    printf("building resource loader...");
-    build_resource_loader(&pf);
 	bool used = check_and_replace_resource_header();
 	if(used) { 
 		puts("wrote my.res.h");
@@ -450,6 +448,8 @@ void rebuild_resources(RebuildResourceArguments args) {
 	else {
 		puts("no change");
 	}
+    puts("building resource loader...");
+    build_resource_loader(&pf);
 
 	if(args.pack) {
 		puts("--pack: generating res_release.c...");
