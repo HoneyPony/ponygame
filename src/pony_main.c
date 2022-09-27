@@ -19,7 +19,7 @@
 #include "pony_compiler_features.h"
 #include "pony_node.h"
 #include "pony.main.h"
-
+#include "pony_input.h"
 
 /* Do we want multiple window support? */
 static SDL_Window *pony_main_window = NULL;
@@ -77,11 +77,17 @@ static void pony_event_loop() {
 		/* Handle other events */
 	}
 
+	// Update input after processing events
+	pony_update_input_pre();
+
 	uint64_t something_time = SDL_GetTicks64() - non_render_time;
 
     pony_tick_start(); // User can define some code that happens around the pony loop
 	node_process_all();
     pony_tick_end();
+
+	// Update input state for next frame before rendering
+	pony_update_input_post();
 
 	non_render_time = SDL_GetTicks64() - non_render_time;
 	uint64_t render_time = SDL_GetTicks64();
@@ -157,6 +163,8 @@ int main(UNUSED int argc, UNUSED char **argv) {
 		logf_error("could not create GL context.");
 		exit(-1);
 	}
+
+	pony_input_init();
 
 	render_init();
 

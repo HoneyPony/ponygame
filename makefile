@@ -34,6 +34,7 @@ pony_node.c\
 pony_glm.c\
 pony_fs.c\
 pony_sound.c\
+pony_input.c\
 pony_benchtime.c\
 render/render.c\
 render/shader.c\

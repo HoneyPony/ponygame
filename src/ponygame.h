@@ -8,6 +8,7 @@
 #include "pony_sound.h"
 #include "pony_log.h"
 #include "pony_fs.h"
+#include "pony_input.h"
 
 // Builtin Nodes
 #include "node_sprite.h"
