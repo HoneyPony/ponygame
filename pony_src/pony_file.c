@@ -47,6 +47,9 @@ PonyFileInfo load_pony_file(const char *path) {
 		char var2[1024];
 		fgets(line, 1024, in);
 
+		// Quick and easy way to "comment out" lines...
+		if(line[0] == '#') continue;
+
 		if(line[0] == '@') {
 			if(cstr_has_prefix(line, "@type")) {
 				if(sscanf(line, "@type %s : %s", var1, var2) != 2) {
