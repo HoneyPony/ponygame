@@ -82,8 +82,8 @@ void process_Sprite(void *node, UNUSED void *tree) {
 	// Update frame after updating accumulator
 	frame = &anim->frames[self->current_frame];
 
-	vec2 center = frame->texture.px_size;
-	center = mul(center, 0.5);
+	vec2 frame_size = frame->texture.px_size;
+	vec2 center = mul(frame_size, 0.5);
 
 	// For now: only base snapping on local scale amount.
 	// We could base this, at least to some degree, on the global scale amount--
@@ -94,8 +94,11 @@ void process_Sprite(void *node, UNUSED void *tree) {
 		(Node*)self,
 		&frame->texture,
 		center,
-		snap_for_dimension(center.x * lscale.x),
-		snap_for_dimension(center.y * lscale.y)
+		// Base snapping on whether the frame size is even or odd, for both
+		// dimensions. This means that an unscaled, unrotated image will be
+		// placed on exact pixel coordinates.
+		snap_for_dimension(frame_size.x * lscale.x),
+		snap_for_dimension(frame_size.y * lscale.y)
 	};
 	render_tex_on_node(tr);
 }
