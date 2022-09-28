@@ -27,6 +27,12 @@ void render_init() {
 	}
 #endif
 
+	// Initialize some default parameters
+	ctx.screen.target_width = 480;
+	ctx.screen.target_height = 330;
+	// This will be overridden later (hopefully...?)
+	ctx.screen.scale_f = 1;
+
 	ctx.frame_width = 480; // TODO: Do initial computation with window size...?
 	ctx.frame_height = 360;
 
@@ -50,7 +56,24 @@ void render_game_objects() {
 	render_objects();
 }
 
+void update_projection() {
+	
+	ctx.projection_frame = ctx.projection;
+
+	// Center the origin
+	mat4 center_origin;
+	mat4_translation(&center_origin, ctx.screen.offset.x, ctx.screen.offset.y, 0);
+	mat4_multiply(&ctx.projection_frame, &center_origin);
+
+	// TODO: round & translate the camera
+
+	
+}
+
 void render() {
+	
+	update_projection();
+
 	render_refresh_sprite();
 
 	render_game_objects();

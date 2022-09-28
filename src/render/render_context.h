@@ -22,12 +22,26 @@ typedef struct {
 	} sprite_render;
 
 	mat4 projection;
+	mat4 projection_frame;
 
 	int32_t screen_width;
 	int32_t screen_height;
 
 	int32_t frame_width;
 	int32_t frame_height;
+
+	// The data used to compute the screen scaling, etc.
+	struct {
+		// How big the screen should be, at least.
+		int32_t target_width;
+		int32_t target_height;
+
+		// The currently computed scale factor, e.g. x1, x2, x3
+		int32_t scale_f;
+
+		// The offset to center 0,0 on the screen.
+		vec2 offset;
+	} screen;
 } RenderContext;
 
 extern RenderContext ctx;

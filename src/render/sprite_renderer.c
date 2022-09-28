@@ -18,7 +18,7 @@ void render_init_sprite() {
 void render_refresh_sprite() {
 	glUseProgram(sprite_shader.shader);
 
-	shader_set_mat4(sprite_shader.mat, &ctx.projection);
+	shader_set_mat4(sprite_shader.mat, &ctx.projection_frame);
 	shader_set_int(sprite_shader.tex, 0);
 }
 
