@@ -22,7 +22,7 @@ typedef struct {
 	} sprite_render;
 
 	mat4 projection;
-	mat4 projection_frame;
+	mat4 projection_sprites;
 
 	int32_t screen_width;
 	int32_t screen_height;

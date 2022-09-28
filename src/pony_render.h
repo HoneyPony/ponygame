@@ -60,9 +60,11 @@ typedef struct {
  * Pushes a new render command that renders a rectangular texture at the given
  * node. The texture is rendered with the node transform. The specific pivot
  * for texture must also be specified.
- * 
- * @param node 
- * @param tex 
- * @param tex_pivot 
  */
 extern void render_tex_on_node(TexRenderer renderer);
+
+/**
+ * @brief Stores the current position that the camera is centered on.
+ * Set this value in order to move the camera.
+ */
+extern vec2 camera_point;

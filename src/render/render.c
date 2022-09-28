@@ -56,18 +56,21 @@ void render_game_objects() {
 	render_objects();
 }
 
+vec2 camera_point;
+
 void update_projection() {
-	
-	ctx.projection_frame = ctx.projection;
+
+	ctx.projection_sprites = ctx.projection;
 
 	// Center the origin
 	mat4 center_origin;
 	mat4_translation(&center_origin, ctx.screen.offset.x, ctx.screen.offset.y, 0);
-	mat4_multiply(&ctx.projection_frame, &center_origin);
+	mat4_multiply(&ctx.projection_sprites, &center_origin);
 
-	// TODO: round & translate the camera
-
-	
+	// Translate based on the camera
+	mat4 camera_mat;
+	mat4_translation(&camera_mat, -round(camera_point.x), -round(camera_point.y), 0);
+	mat4_multiply(&ctx.projection_sprites, &camera_mat);
 }
 
 void render() {
