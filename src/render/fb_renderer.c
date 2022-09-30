@@ -124,7 +124,9 @@ void render_fit_window(int width, int height) {
 	mat4_ortho(&ctx.projection,
 		0, x,
 		0, y,
-		-10, 10); // TODO: Determine Z range
+		// These coordinates seem to cause Z coordinates to work as intened...
+		// where -z is in the back.
+		-16384, 16384); // TODO: Determine best Z range. This should work reasonably well with a 16 bit depth buffer, for now.
 
 	ctx.screen.offset = round(vxy(x * 0.5, y * 0.5));
 	logf_info("offset = %f %f", ctx.screen.offset.x, ctx.screen.offset.y);
@@ -183,6 +185,8 @@ void render_framebuffer() {
 	// Bind the default framebuffer, in order to render to screen.
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, ctx.screen_width, ctx.screen_height);
+
+	glDisable(GL_DEPTH_TEST);
 
 	glUseProgram(frame_shader.shader);
 

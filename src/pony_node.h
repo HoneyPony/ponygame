@@ -151,7 +151,8 @@ extern void node_process_all();
 struct NodeInternal internal; \
 NodeHeader *header; \
 struct Node *parent; \
-list_of(struct Node*) children;
+list_of(struct Node*) children; \
+int32_t z_index;
 
 #define FieldList_PrinterNode \
 FieldList_Node

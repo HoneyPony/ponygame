@@ -51,7 +51,7 @@ void render_game_objects() {
 	glViewport(0, 0, ctx.frame_width, ctx.frame_height);
 
 	glClearColor(0.3, 0.3, 0.3, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	render_objects();
 }

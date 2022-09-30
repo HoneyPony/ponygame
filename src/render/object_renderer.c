@@ -113,7 +113,9 @@ void render_tex_renderer(TexRenderer tr) {
 
 	RenderCommand cmd;
 
-	cmd.z_index = 0; // TODO: Z index
+	// Use the correctly-ordered Z index for the command, as commands are
+	// being sorted.
+	cmd.z_index = tr.node->z_index;
 	cmd.type = CMD_SPRITE;
 	cmd.opaque = 1; // TODO: Support transparency computation
 
@@ -145,8 +147,8 @@ void render_tex_renderer(TexRenderer tr) {
 	vertex_data.top_left_uv = tr.tex->top_left_uv;
 	vertex_data.top_right_uv = tr.tex->top_right_uv;
 
-	// TODO: z-index
-	float z_index = 0;
+	// Apparently the projection is correctly flipping the Z index..?
+	float z_index = tr.node->z_index;
 
 	vertex_data.z1 = z_index;
 	vertex_data.z2 = z_index;
@@ -169,8 +171,10 @@ int compare_sprite_command_opaque(const RenderCommand *a, const RenderCommand *b
 	int tex_dif = b->sprite.texture - a->sprite.texture;
 	if(tex_dif != 0) return tex_dif;
 
-	// Same tex = sort by Z
-	int z_dif = b->z_index - a->z_index;
+	return 0;
+
+	// Same tex = sort by Z, but back-to-front.
+	int z_dif = a->z_index - b->z_index;
 	return z_dif;
 }
 
@@ -362,6 +366,9 @@ void render_objects() {
 		element_list.length * sizeof(uint32_t),
 		element_list.list,
 		GL_DYNAMIC_DRAW);
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 
 	// Fourth step: Render state spec list.
 	render_state_spec_list();
