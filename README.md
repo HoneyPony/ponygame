@@ -10,6 +10,11 @@ than raw C code can do itself. For example:
 - PonyGame automatically converts sound files into .ogg format for minimal program size
 - PonyGame packs all assets into the executable as binary data, making distribution simple
 
+### License
+
+I have not yet decided on a license for PonyGame. I am leaning towards either GPL or maybe a less
+restrictive license, I am not sure.
+
 ### Usage
 PonyGame is currently not strongly recommended for general use. The only supported development environment
 at the time is Windows with MinGW64. Dependencies for PonyGame include SDL2, SDL2_mixer, and GLEW. More
