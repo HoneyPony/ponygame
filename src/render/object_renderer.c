@@ -142,6 +142,8 @@ void render_tex_renderer(TexRenderer tr) {
 	vertex_data.bottom_left =  add(center, add(down, left));
 	vertex_data.bottom_right = add(center, add(down, right));
 
+	//logf_verbose("coords -- tl = %f %f ; br = %f %f", vertex_data.top_left.x, vertex_data.top_left.y, vertex_data.bottom_right.x, vertex_data.bottom_right.y);
+
 	vertex_data.bottom_left_uv = tr.tex->bottom_left_uv;
 	vertex_data.bottom_right_uv = tr.tex->bottom_right_uv;
 	vertex_data.top_left_uv = tr.tex->top_left_uv;

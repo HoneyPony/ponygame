@@ -33,6 +33,11 @@ static inline vec2 add(vec2 a, vec2 b) {
 	return vxy(a.x + b.x, a.y + b.y);
 }
 
+static inline vec2 sub(vec2 a, vec2 b) {
+	return vxy(a.x - b.x, a.y - b.y);
+}
+
+
 static inline float length(vec2 v) {
 	return sqrt(v.x * v.x + v.y * v.y);
 }

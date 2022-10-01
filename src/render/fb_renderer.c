@@ -3,6 +3,7 @@
 struct {
 	GLuint shader;
 	GLuint tex;
+	GLuint transform;
 } frame_shader;
 
 float pixel_fb_verts[] = {
@@ -41,18 +42,37 @@ static void compute_screen_vertices() {
 	// 
 	// I'm haven't yet figured out how to explain the factor of two needed.
 
-	float scale_x = (float)(ctx.frame_width * ctx.screen.scale_f) / (float)(ctx.screen_width);
-	float scale_y = (float)(ctx.frame_height * ctx.screen.scale_f) / (float)(ctx.screen_height);
+	// PROBLEM: Trying to center pixels on other pixels probably doesn't work right.
+	// Rather than centering, let's just extend off the right edge for now.
+	// In this case, we actually need to scale up by two, I think...?
 
-	scale_x = 1.0 + ((scale_x - 1.0) / 2.0);
-	scale_y = 1.0 + ((scale_y - 1.0) / 2.0);
+	//float scale_x = (float)(ctx.frame_width * ctx.screen.scale_f) / (float)(ctx.screen_width);
+	//float scale_y = (float)(ctx.frame_height * ctx.screen.scale_f) / (float)(ctx.screen_height);
+
+//	scale_x = 1.0 + ((scale_x - 1.0) / 2.0);
+//	scale_y = 1.0 + ((scale_y - 1.0) / 2.0);
 
 	logf_info("width: %d vs %d", ctx.frame_width * ctx.screen.scale_f, ctx.screen_width);
+	logf_info("height: %d vs %d", ctx.frame_height * ctx.screen.scale_f, ctx.screen_height);
+	logf_info("scaling: %d", ctx.screen.scale_f);
 
-	float posx = scale_x;
-	float negx = -scale_x;
-	float posy = scale_y;
-	float negy = -scale_y;
+//	float posx = scale_x;
+//	float negx = -1;
+//	float posy = 1;
+//	float negy = -scale_y;
+
+	float posx = ctx.frame_width * ctx.screen.scale_f;
+	float negx = 0;
+	float negy = ctx.frame_height * ctx.screen.scale_f;
+	float posy = 0;
+
+	// Center texture with rounded coordinates
+	int x_half = lround((posx - ctx.screen_width) * 0.5);
+	int y_half = lround((negy - ctx.screen_height) * 0.5);
+	posx -= x_half;
+	negx -= x_half;
+	negy -= y_half;
+	posy -= y_half;
 
 	// First triangle
 	pixel_fb_verts[0] = negx;
@@ -64,7 +84,7 @@ static void compute_screen_vertices() {
 	pixel_fb_verts[8] = posx;
 	pixel_fb_verts[9] = posy;
 
-	logf_info("x scale, y scale: %f %f", scale_x, scale_y);
+	//logf_info("x scale, y scale: %f %f", scale_x, scale_y);
 
 	// Second triangle
 	pixel_fb_verts[12] = posx;
@@ -79,6 +99,11 @@ static void compute_screen_vertices() {
 	// Upload buffer
 	glBindBuffer(GL_ARRAY_BUFFER, ctx.pixel_fb.rect_vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(pixel_fb_verts), pixel_fb_verts, GL_STATIC_DRAW);
+
+	mat4 matrix;
+	mat4_ortho(&matrix, 0.0, ctx.screen_width, ctx.screen_height, 0.0, -10, 10);
+	shader_bind(frame_shader.shader);
+	shader_set_mat4(frame_shader.transform, &matrix);
 }
 
 // The framebuffer renderer is basically responsible for the screen, so it
@@ -136,6 +161,7 @@ void render_init_framebuffer() {
 	// Compile the framebuffer shader
 	frame_shader.shader = shader_compile(shader_src_frame_vert, shader_src_frame_frag);
 	frame_shader.tex = shader_name(frame_shader.shader, "texture");
+	frame_shader.transform = shader_name(frame_shader.shader, "transform");
 
 	// Generate the VBO for drawing the framebuffer.
 	glGenBuffers(1, &ctx.pixel_fb.rect_vbo);
