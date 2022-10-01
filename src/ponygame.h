@@ -15,5 +15,8 @@
 
 float get_dt();
 
+extern int rand_range(int i, int j);
+extern float randf_range(float i, float j);
+
 //#define tree_instance(tree)
 //#define instance(tree) tree_instance(tree)
