@@ -97,6 +97,7 @@ void process_Sprite(void *node, UNUSED void *tree) {
 
 	TexRenderer tr = {
 		(Node*)self,
+		self->snap_relative,
 		&frame->texture,
 		center,
 		// Base snapping on whether the frame size is even or odd, for both
@@ -123,15 +124,7 @@ void process_StaticSprite(void *node, UNUSED void *tree) {
 	vec2 center = self->texture->px_size;
 	center = mul(center, 0.5);
 
-	TexRenderer tr = {
-		(Node*)node,
-		self->texture,
-		center,
-		snap_for_dimension(center.x),
-		snap_for_dimension(center.y)
-	};
-
-	render_tex_on_node(tr);
+	// TODO: Remove StaticSprite
 }
 
 void pony_init_builtin_nodes() {

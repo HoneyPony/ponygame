@@ -40,6 +40,7 @@ extern float snap_coordinate(float coord, SnapType type);
 
 typedef struct {
 	Node *node;
+	Node *snap_relative;
 	TexHandle *tex;
 	vec2 tex_pivot;
 	SnapType snap_x;

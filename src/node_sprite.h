@@ -9,6 +9,7 @@ AnimHandle *current_animation; \
 int current_frame; \
 float accumulator; \
 bool snap; \
+Node *snap_relative; \
 float r; \
 float g; \
 float b; \
