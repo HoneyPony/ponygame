@@ -74,6 +74,9 @@ static void compute_screen_vertices() {
 	negy -= y_half;
 	posy -= y_half;
 
+	ctx.screen.computed_x_offset = -negx - ctx.screen_width / 2;
+	ctx.screen.computed_y_offset = -posy - ctx.screen_height / 2;
+
 	// First triangle
 	pixel_fb_verts[0] = negx;
 	pixel_fb_verts[1] = negy;

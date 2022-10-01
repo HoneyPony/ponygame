@@ -41,6 +41,10 @@ typedef struct {
 
 		// The offset to center 0,0 on the screen.
 		vec2 offset;
+
+		// How much the screen is shifted off the real screen.
+		int32_t computed_x_offset;
+		int32_t computed_y_offset;
 	} screen;
 } RenderContext;
 

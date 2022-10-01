@@ -1,10 +1,15 @@
-#include "pony_input.h"
-#include "pony_clib.h"
+
 
 #include <SDL2/SDL_scancode.h>
 #include <SDL2/SDL_keycode.h>
 
 #include <SDL2/SDL.h>
+
+#include "pony_input.h"
+#include "pony_clib.h"
+
+#include "pony_render.h"
+#include "render/render_context.h"
 
 static InputButton **scancode_to_key_map;
 static int scancode_key_count;
@@ -51,4 +56,23 @@ void pony_update_input_post() {
 		InputButton *button = scancode_to_key_map[i];
 		button->was_pressed = button->pressed;
 	}
+}
+
+vec2 mouse_screen() {
+	int x, y;
+	SDL_GetMouseState(&x, &y);
+
+	y = ctx.screen_height - y;
+
+	x += ctx.screen.computed_x_offset;
+	y += ctx.screen.computed_y_offset;
+
+	float mx = (float)x / ctx.screen.scale_f;
+	float my = (float)y / ctx.screen.scale_f;
+
+	return round(vxy(mx, my));
+}
+
+vec2 mouse_global() {
+	return add(mouse_screen(), camera_point);
 }

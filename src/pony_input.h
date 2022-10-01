@@ -1,6 +1,7 @@
 #pragma once
 
 #include "pony_clib.h"
+#include "pony_math.h"
 
 typedef struct {
 	// Whether this button is currently pressed, on this frame.
@@ -30,3 +31,6 @@ extern struct PonyKeyboard keys;
 extern void pony_input_init();
 extern void pony_update_input_pre();
 extern void pony_update_input_post();
+
+extern vec2 mouse_screen();
+extern vec2 mouse_global();
