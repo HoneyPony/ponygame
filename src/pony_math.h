@@ -25,6 +25,11 @@ static inline vec2 round_v2(vec2 v) {
 	return vxy(roundf(v.x), roundf(v.y));
 }
 
+static inline vec2 floor_v2(vec2 v) {
+	return vxy(floor(v.x), floor(v.y));
+}
+
+
 static inline vec2 mul(vec2 a, float c) {
 	return vxy(a.x * c, a.y * c);
 }
