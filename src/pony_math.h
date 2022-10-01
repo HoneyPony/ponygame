@@ -33,6 +33,16 @@ static inline vec2 add(vec2 a, vec2 b) {
 	return vxy(a.x + b.x, a.y + b.y);
 }
 
+static inline float length(vec2 v) {
+	return sqrt(v.x * v.x + v.y * v.y);
+}
+
+static inline vec2 norm(vec2 v) {
+	float l = length(v);
+	if(l == 0) return v;
+	return vxy(v.x / l, v.y / l);
+}
+
 #define dot(a, b)\
 _Generic((a),\
 	vec2: dot_v2\
