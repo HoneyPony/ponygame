@@ -342,7 +342,7 @@ void build_resource_header_tree(ProjectFiles *pf, DirTree *tree, int depth, FILE
         str_replace(sname, '.', '_');
 
         indent(depth, out);
-        fprintf(out, "struct %s {\n", sname);
+        fprintf(out, "struct {\n");
 
         foreach(dt, tree->children, {
             build_resource_header_tree(pf, &dt, depth + 1, out);
