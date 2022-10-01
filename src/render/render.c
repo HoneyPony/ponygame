@@ -6,6 +6,8 @@
 // Declare the global context.
 RenderContext ctx;
 
+float clear_color[4];
+
 SnapType snap_for_dimension(float dim) {
 	int x = (int)dim;
 	if(x & 1) return SNAP_ODD;
@@ -50,7 +52,7 @@ void render_game_objects() {
 	glBindFramebuffer(GL_FRAMEBUFFER, ctx.pixel_fb.framebuffer);
 	glViewport(0, 0, ctx.frame_width, ctx.frame_height);
 
-	glClearColor(0.3, 0.3, 0.3, 1.0);
+	glClearColor(clear_color[0], clear_color[1], clear_color[2], clear_color[3]);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	render_objects();

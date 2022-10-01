@@ -74,3 +74,5 @@ extern void render_tex_on_node(TexRenderer renderer);
  * Set this value in order to move the camera.
  */
 extern vec2 camera_point;
+
+extern float clear_color[4];

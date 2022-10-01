@@ -108,3 +108,18 @@ float deg2rad_f(float x) {
 double deg2rad_d(double x) {
 	return DEG_2_RAD * x;
 }
+
+/* lerp */
+
+// TODO: integer lerp doesn't make any sense
+int lerp_i(int a, int b, int t) {
+	return a * (1 - t) + b * t;
+}
+
+float lerp_f(float a, float b, float t) {
+	return a * (1 - t) + b * t;
+}
+
+double lerp_d(double a, double b, double t) {
+	return a * (1 - t) + b * t;
+}

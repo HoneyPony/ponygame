@@ -26,7 +26,13 @@ struct PonyKeyboard {
 	#undef PONY_KEY
 };
 
+struct PonyMouse {
+	InputButton left;
+	InputButton right;
+};
+
 extern struct PonyKeyboard keys;
+extern struct PonyMouse mouse;
 
 extern void pony_input_init();
 extern void pony_update_input_pre();

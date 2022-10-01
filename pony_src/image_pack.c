@@ -77,7 +77,13 @@ void pack_images(ProjectFiles *pf) {
 
 		rect.id = index++;
 
-		ls_push(rects, rect);
+		if(rect.w >= 1024 || rect.h >= 1024) {
+			frame->use_raw_file = true;
+		}
+		else {
+			frame->use_raw_file = false;
+			ls_push(rects, rect);
+		}
 	})
 
 	int image_index = 0;

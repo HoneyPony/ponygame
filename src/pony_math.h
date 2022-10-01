@@ -98,6 +98,12 @@ extern double deg2rad_d(double x);
 
 #define deg2rad(x) mathdef1(deg2rad, x)
 
+extern int lerp_i(int a, int b, int t);
+extern float lerp_f(float a, float b, float t);
+extern double lerp_d(double a, double b, double t);
+
+#define lerp(a, b, t) mathdef3(lerp, a, b, t);
+
 // Need to redefine round
 #undef round
 #define round(x)\
@@ -108,3 +114,4 @@ _Generic((x),\
 	vec2: round_v2\
 )(x)
 
+#define PI 3.14159265359 

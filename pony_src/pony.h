@@ -83,6 +83,8 @@ typedef struct {
 	int anim_length;
 
     int spritesheet_index;
+	bool use_raw_file;
+	str raw_file_var;
 
     struct {
         uint16_t sx;

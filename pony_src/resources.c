@@ -7,7 +7,22 @@ bool tex_file_is_static(DirTree *file) {
 }
 
 void build_tex_handle_statement(TexFileInfo *tf, FILE *out) {
-    fprintf(out, "(TexHandle) {\n\t\tspritesheet%04d,\n", tf->spritesheet_index);
+	if(tf->use_raw_file) {
+		fprintf(out, "(TexHandle) {\n\t\t%s,\n", tf->raw_file_var);
+
+		fprintf(out, "\t\tvxy(0,0),\n");
+		fprintf(out, "\t\tvxy(1,0),\n");
+		fprintf(out, "\t\tvxy(0,1),\n");
+		fprintf(out, "\t\tvxy(1,1),\n");
+
+		// Output texture size
+		fprintf(out, "\t\tvxy(%.9g,%.9g)\n", (float)tf->width, (float)tf->height);
+
+		fputs("\t};\n", out);
+		return;
+	}
+	
+	fprintf(out, "(TexHandle) {\n\t\tspritesheet%04d,\n", tf->spritesheet_index);
 
 	//printf("[%s] generated coords: %d, %d, %d, %d\n", tf->anim_name, tf->coords.sx, tf->coords.sy, tf->coords.ex, tf->coords.ey);
 
@@ -226,6 +241,16 @@ void build_pony_tree_instancers(ProjectFiles *pf, FILE *out) {
 	})
 }
 
+void load_for_raw_tex(TexFileInfo *tex, FILE *out) {
+	str name = str_from("singletex_");
+	str_append_str(name, tex->image_source);
+	str_replace(name, '/', '_');
+	str_replace(name, '.', '_');
+	tex->raw_file_var = name;
+
+	fprintf(out, "\tGLuint %s = gltex_load(\"res://%s\");\n", tex->raw_file_var, tex->image_source);
+}
+
 void build_resource_loader(ProjectFiles *pf) {
 
     FILE *out = fopen(FILE_NAME_RES_LOADER, "w");
@@ -246,6 +271,12 @@ void build_resource_loader(ProjectFiles *pf) {
         fprintf(out, "\tGLuint spritesheet%04d = gltex_load(\"res://.ponygame/spritesheet%04d.png\");\n", i, i);
     }
     fputs("\n", out);
+
+	foreach(tex, pf->tex_list, {
+		if(tex->use_raw_file) {
+			load_for_raw_tex(tex, out);
+		}
+	})
 
     str prefix = str_from("res.");
 

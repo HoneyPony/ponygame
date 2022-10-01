@@ -16,6 +16,7 @@ static int scancode_key_count;
 
 // Define input variables
 struct PonyKeyboard keys;
+struct PonyMouse mouse;
 
 static InputButton dummy_input;
 
@@ -49,6 +50,18 @@ void pony_update_input_pre() {
 		button->just_pressed =   button->pressed && !button->was_pressed;
 		button->just_released = !button->pressed &&  button->was_pressed;
 	}
+
+		uint32_t m = SDL_GetMouseState(NULL, NULL);
+
+	mouse.left.pressed = !!(m & SDL_BUTTON_LMASK);
+	mouse.right.pressed = !!(m & SDL_BUTTON_RMASK);
+
+#define UPDATE(button)\
+	button.just_pressed =   button.pressed && !button.was_pressed; \
+	button.just_released = !button.pressed &&  button.was_pressed;
+
+	UPDATE(mouse.left)
+	UPDATE(mouse.right)
 }
 
 void pony_update_input_post() {
@@ -56,6 +69,9 @@ void pony_update_input_post() {
 		InputButton *button = scancode_to_key_map[i];
 		button->was_pressed = button->pressed;
 	}
+
+	mouse.left.was_pressed = mouse.left.pressed;
+	mouse.right.was_pressed = mouse.right.pressed;
 }
 
 vec2 mouse_screen() {
