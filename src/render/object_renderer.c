@@ -101,10 +101,16 @@ static uint32_t push_vertices(float vertices[SPRITE_VERTEX_SIZE]) {
 }
 
 void render_tex_renderer(TexRenderer tr) {
+	if(!tr.node->visible) return;
+
 	vec2 center = get_gpos(tr.node);
 	vec2 relative = vxy(0, 0);
 	if(tr.snap_relative) {
 		relative = get_gpos(tr.snap_relative);
+	}
+
+	if(tr.on_camera) {
+		center = add(center, camera_point);
 	}
 	// TODO: Transform by camera... or do we just want to snap the camera...?
 	

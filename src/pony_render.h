@@ -50,6 +50,8 @@ typedef struct {
 	float g;
 	float b;
 	float a;
+
+	bool on_camera;
 } TexRenderer;
 
 typedef struct {

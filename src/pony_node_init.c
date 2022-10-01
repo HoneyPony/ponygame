@@ -42,6 +42,9 @@ void construct_Node(void *node) {
 
 	// Initialize flags
 	self->internal.matrix_dirty = 0;
+
+	// Visible by default
+	self->visible = true;
 }
 
 void process_PrinterNode(UNUSED void *node, UNUSED void *tree) {
@@ -106,7 +109,9 @@ void process_Sprite(void *node, UNUSED void *tree) {
 		snap_for_dimension(frame_size.x * lscale.x),
 		snap_for_dimension(frame_size.y * lscale.y),
 
-		self->r, self->g, self->b, self->a
+		self->r, self->g, self->b, self->a,
+
+		self->on_camera
 	};
 	render_tex_on_node(tr);
 }
@@ -114,6 +119,12 @@ void process_Sprite(void *node, UNUSED void *tree) {
 void construct_StaticSprite(void *node) {
 	StaticSprite *self = node;
 	self->snap = true;
+
+	
+	self->r = 1;
+	self->g = 1;
+	self->b = 1;
+	self->a = 1;
 }
 
 void process_StaticSprite(void *node, UNUSED void *tree) {
@@ -124,7 +135,26 @@ void process_StaticSprite(void *node, UNUSED void *tree) {
 	vec2 center = self->texture->px_size;
 	center = mul(center, 0.5);
 
-	// TODO: Remove StaticSprite
+	TexHandle *frame = self->texture;
+	vec2 frame_size = frame->px_size;
+	vec2 lscale = get_lscale(self);
+
+	TexRenderer tr = {
+		(Node*)self,
+		self->snap_relative,
+		frame,
+		center,
+		// Base snapping on whether the frame size is even or odd, for both
+		// dimensions. This means that an unscaled, unrotated image will be
+		// placed on exact pixel coordinates.
+		snap_for_dimension(frame_size.x * lscale.x),
+		snap_for_dimension(frame_size.y * lscale.y),
+
+		self->r, self->g, self->b, self->a,
+
+		self->on_camera
+	};
+	render_tex_on_node(tr);
 }
 
 void pony_init_builtin_nodes() {

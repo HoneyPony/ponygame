@@ -80,6 +80,16 @@ void generate_file_res_release_c(ProjectFiles *pf) {
 		pack_res(tmp, out, list, &index);
 	}
 
+	foreach(tex, pf->tex_list, {
+		if(tex->use_raw_file) {
+			char tmp[1024] = { 0 };
+			snprintf(tmp, 1024, "pngcrush -ow %s", tex->image_source);
+			system(tmp);
+
+			pack_res(tex->image_source, out, list, &index);
+		}
+	})
+
 	printf("packing %d sounds\n", ls_length(pf->path_list.snd_infos));
 	foreach(snd_info, pf->path_list.snd_infos, {
 		if(!snd_info.build_output) {

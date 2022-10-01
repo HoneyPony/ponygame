@@ -152,7 +152,8 @@ struct NodeInternal internal; \
 NodeHeader *header; \
 struct Node *parent; \
 list_of(struct Node*) children; \
-int32_t z_index;
+int32_t z_index; \
+bool visible;
 
 #define FieldList_PrinterNode \
 FieldList_Node
