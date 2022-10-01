@@ -33,6 +33,8 @@ typedef struct {
 	int8_t type;
 } RenderStateSpec;
 
+static size_t opaque_state_spec_count = 0;
+
 #define CMD_SPRITE 0
 
 static list_of(RenderCommand) opaque_list = NULL;
@@ -62,6 +64,8 @@ else {\
 }\
 } while(0)
 
+#define SPRITE_VERTEX_SIZE 36
+
 void render_init_objects() {
 	ls_init(tex_renderer_list);
 
@@ -83,16 +87,16 @@ void render_tex_on_node(TexRenderer tr) {
 	ls_push(tex_renderer_list, tr);
 }
 
-static uint32_t push_vertices(float vertices[20]) {
-	if(vertex_list.length + 20 > vertex_list.alloc) {
+static uint32_t push_vertices(float vertices[SPRITE_VERTEX_SIZE]) {
+	if(vertex_list.length + SPRITE_VERTEX_SIZE > vertex_list.alloc) {
 		vertex_list.alloc *= 2;
 		vertex_list.list = pony_realloc(vertex_list.list, vertex_list.alloc * sizeof(float));
 	}
 
-	memcpy(vertex_list.list + vertex_list.length, vertices, sizeof(float) * 20);
-	uint32_t result = (uint32_t)(vertex_list.length / 5);
+	memcpy(vertex_list.list + vertex_list.length, vertices, sizeof(float) * SPRITE_VERTEX_SIZE);
+	uint32_t result = (uint32_t)(vertex_list.length / 9);
 
-	vertex_list.length += 20;
+	vertex_list.length += SPRITE_VERTEX_SIZE;
 	return result;
 }
 
@@ -119,21 +123,33 @@ void render_tex_renderer(TexRenderer tr) {
 	cmd.type = CMD_SPRITE;
 	cmd.opaque = 1; // TODO: Support transparency computation
 
+	// Alpha less than 254/255
+	if(tr.a < 0.997) {
+		cmd.opaque = 0;
+	}
+
 	union {
-		float array[20];
+		float array[SPRITE_VERTEX_SIZE];
 		struct {
 			vec2 top_left;
 			float z1;
 			vec2 top_left_uv;
+			float color1[4];
+
 			vec2 top_right;
 			float z2;
 			vec2 top_right_uv;
+			float color2[4];
+
 			vec2 bottom_right;
 			float z3;
 			vec2 bottom_right_uv;
+			float color3[4];
+
 			vec2 bottom_left;
 			float z4;
 			vec2 bottom_left_uv;
+			float color4[4];
 		};
 	} vertex_data;
 
@@ -156,6 +172,18 @@ void render_tex_renderer(TexRenderer tr) {
 	vertex_data.z2 = z_index;
 	vertex_data.z3 = z_index;
 	vertex_data.z4 = z_index;
+
+#define VDATA_COLOR(var)\
+var[0] = tr.r;\
+var[1] = tr.g;\
+var[2] = tr.b;\
+var[3] = tr.a;
+
+	VDATA_COLOR(vertex_data.color1)
+	VDATA_COLOR(vertex_data.color2)
+	VDATA_COLOR(vertex_data.color3)
+	VDATA_COLOR(vertex_data.color4)
+#undef VDATA_COLOR
 
 	cmd.sprite.texture = tr.tex->texture;
 	cmd.sprite.index = push_vertices(vertex_data.array);
@@ -264,7 +292,7 @@ void push_elements(uint32_t elements[6]) {
 
 void render_build_state_spec_for_list(list_of(RenderCommand) list) {
 	RenderStateSpec next;
-	next.draw_start = 0;
+	next.draw_start = element_list.length;
 	next.draw_count = 0;
 	for(uint32_t i = 0; i < ls_length(list); ++i) {
 		RenderCommand *cmd = &list[i];
@@ -328,14 +356,17 @@ push_vertices:
 void render_build_state_spec() {
 	// First: Render opaque objects, then render transparent objects.
 	render_build_state_spec_for_list(opaque_list);
+	opaque_state_spec_count = ls_length(state_spec_list);
 	render_build_state_spec_for_list(transparent_list);
 }
 
 void render_state_spec_list() {
 	render_bind_sprite();
 
-	for(uint32_t i = 0; i < ls_length(state_spec_list); ++i) {
+	for(uint32_t i = 0; i < opaque_state_spec_count; ++i) {
 		RenderStateSpec *spec = &state_spec_list[i];
+
+		//logf_verbose("opaque spec: %d -> %d", spec->draw_start, spec->draw_count);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, spec->texture);
@@ -343,6 +374,23 @@ void render_state_spec_list() {
 		glDrawElements(GL_TRIANGLES, spec->draw_count, GL_UNSIGNED_INT, 
 			(void*)(spec->draw_start * sizeof(uint32_t)));
 	}
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	for(uint32_t i = opaque_state_spec_count; i < ls_length(state_spec_list); ++i) {
+		RenderStateSpec *spec = &state_spec_list[i];
+
+		//logf_verbose("transparent spec: %d -> %d", spec->draw_start, spec->draw_count);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, spec->texture);
+
+		glDrawElements(GL_TRIANGLES, spec->draw_count, GL_UNSIGNED_INT, 
+			(void*)(spec->draw_start * sizeof(uint32_t)));
+	}
+
+	glDisable(GL_BLEND);
 }
 
 // Renders all the render lists.

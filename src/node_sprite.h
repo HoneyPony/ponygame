@@ -8,7 +8,11 @@ FieldList_Node \
 AnimHandle *current_animation; \
 int current_frame; \
 float accumulator; \
-bool snap;
+bool snap; \
+float r; \
+float g; \
+float b; \
+float a;
 
 node_from_field_list(Sprite)
 

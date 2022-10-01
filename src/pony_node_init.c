@@ -53,6 +53,11 @@ void construct_Sprite(void *node) {
 	self->accumulator = 0;
 	self->current_frame = 0;
 	self->snap = true;
+
+	self->r = 1;
+	self->g = 1;
+	self->b = 1;
+	self->a = 1;
 }
 
 void process_Sprite(void *node, UNUSED void *tree) {
@@ -98,7 +103,9 @@ void process_Sprite(void *node, UNUSED void *tree) {
 		// dimensions. This means that an unscaled, unrotated image will be
 		// placed on exact pixel coordinates.
 		snap_for_dimension(frame_size.x * lscale.x),
-		snap_for_dimension(frame_size.y * lscale.y)
+		snap_for_dimension(frame_size.y * lscale.y),
+
+		self->r, self->g, self->b, self->a
 	};
 	render_tex_on_node(tr);
 }

@@ -29,12 +29,16 @@ void render_bind_sprite() {
 
 	// Attribute arrays
 	// First attribute: Position: x, y, and z.
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0); 
 
 	// Second attribute: UV's.
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+
+	// Third attribute: colors.
+	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(5 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 
 	// Shader
 	glUseProgram(sprite_shader.shader);

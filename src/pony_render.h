@@ -44,6 +44,11 @@ typedef struct {
 	vec2 tex_pivot;
 	SnapType snap_x;
 	SnapType snap_y;
+
+	float r;
+	float g;
+	float b;
+	float a;
 } TexRenderer;
 
 typedef struct {
