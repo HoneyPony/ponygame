@@ -3,6 +3,7 @@
 
 #include "pony_node.h"
 #include "pony_unsafe_transforms.h"
+#include "pony_log.h"
 
 typedef struct NodeLinks Link;
 list_of(NodeHeader*) node_header_list;
@@ -27,6 +28,10 @@ static void link_insert_after(Link *link_to_insert, Link *new_previous) {
 
 	link_to_insert->next_node = new_previous->next_node;
 	link_to_insert->last_node = new_previous;
+
+	if(new_previous->next_node) {
+		new_previous->next_node->last_node = link_to_insert;
+	}
 
 	new_previous->next_node = link_to_insert;
 }
@@ -100,6 +105,10 @@ void *node_new_from_header_unsafe(NodeHeader *header) {
 
 	node_construct_recursively(node, header);
 
+	if(((Node*)node)->children == NULL) {
+		logf_warn("incorrectly constructed node! %p", node);
+	}
+
 	return node;
 }
 
@@ -148,7 +157,6 @@ static void node_destroy_recursive(Node *top) {
 	}
 
 	link_insert_after(&top->internal.links, &top_header->list_destroyed);
-
 	// Finally, the internal metadata in a destroyed node needs to be updated.
 	// This will invalidate any Refs to this node, as well as prevent the
 	// game loop from executing this node's tick functions.
@@ -288,6 +296,10 @@ void node_compute_transform_tree(Node *tree) {
 }
 
 void node_process_all() {
+	foreach(header, node_header_list, {
+		node_header_collect_destroyed_list(header);
+	})
+
 	if(!node_process_list) {
 		ls_init(node_process_list);
 	}
@@ -313,9 +325,7 @@ uint64_t time0 = SDL_GetTicks64();
 
 	ls_clear(node_process_list);
 
-	foreach(header, node_header_list, {
-		node_header_collect_destroyed_list(header);
-	})
+	
 
 	uint64_t time1 = SDL_GetTicks64();
 	//printf("time to process nodes: %llu -> %llu\n", time0, time1);
