@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "pony.h"
 
@@ -206,7 +207,14 @@ void build_pony_tree_instancers(ProjectFiles *pf, FILE *out) {
 			// Need to use the unsafe node allocator, as the safe allocator will
 			// try to allocate a tree, which ... would result in infinite
 			// recursion
-			fprintf(out, "\t%s *%s = node_new_from_header_unsafe(&node_header(%s));\n", tree.type, tree.name, tree.type);
+			// However, nodes that are children of a particular tree need to use
+			// the non-unsafe header. So...
+			if(!strcmp(tree.name, "self")) {
+				fprintf(out, "\t%s *%s = node_new_from_header_unsafe(&node_header(%s));\n", tree.type, tree.name, tree.type);
+			}
+			else {
+				fprintf(out, "\t%s *%s = new(%s);\n", tree.type, tree.name, tree.type);
+			}
 		})
 
 		// Second step: reparent nodes to their parents.

@@ -102,7 +102,7 @@ extern int lerp_i(int a, int b, int t);
 extern float lerp_f(float a, float b, float t);
 extern double lerp_d(double a, double b, double t);
 
-#define lerp(a, b, t) mathdef3(lerp, a, b, t);
+#define lerp(a, b, t) mathdef3(lerp, a, b, t)
 
 // Need to redefine round
 #undef round
