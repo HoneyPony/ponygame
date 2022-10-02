@@ -158,6 +158,8 @@ void process_StaticSprite(void *node, UNUSED void *tree) {
 }
 
 void pony_init_builtin_nodes() {
+	ls_init(node_header_list);
+
 	node_meta_initialize(Node, NULL, construct_Node, NULL, NULL, BLOCKS_SMALL)
 
 	// Initialize root immediately

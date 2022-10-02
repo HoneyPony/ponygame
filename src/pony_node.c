@@ -5,6 +5,7 @@
 #include "pony_unsafe_transforms.h"
 
 typedef struct NodeLinks Link;
+list_of(NodeHeader*) node_header_list;
 
 static void link_unlink(Link *target) {
 	if(!target) return;
@@ -311,6 +312,10 @@ uint64_t time0 = SDL_GetTicks64();
 //printf("time to compute tree: %lu\n", time);
 
 	ls_clear(node_process_list);
+
+	foreach(header, node_header_list, {
+		node_header_collect_destroyed_list(header);
+	})
 
 	uint64_t time1 = SDL_GetTicks64();
 	//printf("time to process nodes: %llu -> %llu\n", time0, time1);

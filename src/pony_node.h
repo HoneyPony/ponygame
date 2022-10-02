@@ -106,6 +106,8 @@ extern NodeHeader node_header(List) ;
 #define BLOCKS_SMALL 64
 #define BLOCKS_LARGE 1024
 
+extern list_of(NodeHeader*) node_header_list;
+
 #define node_meta_initialize(Ty, base_class_ptr, construct_f, process_f, destruct_f, block_size) \
 node_header(Ty).base_class = base_class_ptr; \
 node_header(Ty).node_size = sizeof(Ty); \
@@ -116,7 +118,8 @@ node_header(Ty).construct = construct_f; \
 node_header(Ty).process = process_f; \
 node_header(Ty).destruct = destruct_f; \
 node_header(Ty).alloc_block_size = block_size; \
-node_header(Ty).associated_tree = NULL; 
+node_header(Ty).associated_tree = NULL; \
+ls_push(node_header_list, &node_header(Ty));
 
 #define node_meta_defines(Ty)\
 NodeHeader node_header(Ty);
