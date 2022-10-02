@@ -157,7 +157,7 @@ void generate_file_pony_source_c(ProjectFiles *pf) {
 			"\t\t%s%s,\n"
 			"\t\t%s%s,\n"
 			"\t\t%s%s,\n"
-			"\t\tBLOCKS_LARGE\n"
+			"\t\tBLOCKS_TINY\n"
 		"\t)\n", pony->type_name, pony->type_base_class, construct, construct_impl, tick, tick_impl, destruct, destruct_impl);
 	})
 	fputs("}\n", out);
