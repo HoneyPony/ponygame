@@ -43,11 +43,15 @@ MusicHandle fs_load_music(const char *path) {
 }
 
 void sound_play(SoundHandle sound) {
-	Mix_PlayChannel(-1, sound.chunk, 1);
+	Mix_PlayChannel(-1, sound.chunk, 0);
 }
 
 void music_play(MusicHandle music) {
 	Mix_PlayMusic(music.music, -1);
+}
+
+void music_play_once(MusicHandle music) {
+	Mix_PlayMusic(music.music, 0);
 }
 
 void set_volume(float volume) {

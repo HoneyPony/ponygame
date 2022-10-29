@@ -28,6 +28,8 @@ typedef struct {
 	int build_type;
 
 	bool is_music;
+
+	bool is_wav;
 } SndBuildInfo;
 
 // File scanning

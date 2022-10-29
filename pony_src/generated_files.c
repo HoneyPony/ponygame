@@ -229,6 +229,7 @@ void generate_file_my_ponygame_h(ProjectFiles *pf) {
 		// Copy user header lines to output
 		foreach(line, pony->header_lines, {
 			fputs(line, out);
+			fputs("\n", out); // Also add newlines
 		})
 		fputs("\n\n", out);
 	})

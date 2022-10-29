@@ -5,7 +5,7 @@
 SndBuildInfo load_snd_build_info(const char *path) {
 	FILE *in = fopen(path, "r");
 
-	SndBuildInfo info = { NULL, NULL, NULL, SND_BUILD_OGG, false };
+	SndBuildInfo info = { NULL, NULL, NULL, SND_BUILD_OGG, false, false };
 
 	char line[1024];
 	char arg[1024];
@@ -18,6 +18,9 @@ SndBuildInfo load_snd_build_info(const char *path) {
 		}
 		if(cstr_has_prefix(line, "@music")) {
 			info.is_music = true;
+		}
+		if(cstr_has_prefix(line, "@wav")) {
+			info.is_wav = true;
 		}
 	}
 
@@ -33,7 +36,12 @@ SndBuildInfo load_snd_build_info(const char *path) {
 	if(info.sound_source) {
 		info.build_output = str_from(".ponygame/build.resources/");
 		str_append_str(info.build_output, info.snd_path); // Build is based on the '.snd' file
-		str_append_cstr(info.build_output, ".ogg"); // TODO: Implement other sound types
+		if(info.is_wav) {
+			str_append_cstr(info.build_output, ".wav"); // TODO: Implement other sound types
+		}
+		else {
+			str_append_cstr(info.build_output, ".ogg"); // TODO: Implement other sound types
+		}
 	}
 
 	

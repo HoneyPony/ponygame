@@ -287,6 +287,8 @@ void node_add_tree_to_process_list(Node *tree) {
 	}
 }
 
+//
+
 void node_compute_transform_tree(Node *tree) {
 	node_force_compute_transform(tree);
 

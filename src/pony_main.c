@@ -125,6 +125,8 @@ extern void test();
 extern void pony_load_resources();
 extern void pony_init_user_nodes();
 
+extern const char *game_title;
+
 int main(UNUSED int argc, UNUSED char **argv) {
 	logf_info("welcome to Untitled Game");
 
@@ -143,7 +145,7 @@ int main(UNUSED int argc, UNUSED char **argv) {
 		exit(-1);
 	}
 	
-	pony_main_window = SDL_CreateWindow("Untitled Game",
+	pony_main_window = SDL_CreateWindow(game_title,
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
 		640,

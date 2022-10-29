@@ -9,6 +9,7 @@ typedef struct {
 } MusicHandle;
 
 void music_play(MusicHandle mus);
+void music_play_once(MusicHandle mus);
 void sound_play(SoundHandle sound);
 void set_volume(float volume);
 

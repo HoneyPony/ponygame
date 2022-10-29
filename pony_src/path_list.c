@@ -174,7 +174,7 @@ void make_ninja_file(PathList *list, Config *config, bool is_release, bool is_we
     }
     // Library paths...
 	if(is_web) {
-		fputs("\n  libs = -sUSE_SDL=2 -sUSE_SDL_MIXER=2 -lponygame_web\n", out);
+		fputs("\n  libs = -sINITIAL_MEMORY=50069504 -sALLOW_MEMORY_GROWTH=1 -sUSE_SDL=2 -sUSE_SDL_MIXER=2 -lponygame_web\n", out);
 	}
 	else {
 		if(is_release) {
@@ -185,7 +185,7 @@ void make_ninja_file(PathList *list, Config *config, bool is_release, bool is_we
 			"-static -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm "
 			"-limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -static-libgcc -lsetupapi "
 			"-lmpg123 -lopusfile -lopus -logg -lssp "
-			"-lshlwapi "
+			"-lshlwapi -mwindows "
 			"\n", out);
 		}
 		else {
