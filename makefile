@@ -8,6 +8,8 @@ STATIC_SDL_FLAGS=-static -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinm
 # Note: add -mwindows for the final build of a game probably. Not actually related
 # to the static linking though.
 
+LIB_OPTIMIZATION=-O3
+
 SRC_DIR=src
 OBJ_DIR?=build
 WEB_OBJ_DIR=$(OBJ_DIR)/web
@@ -121,19 +123,19 @@ all: lib $(PONY_BIN)
 no-test: $(BIN)
 
 $(OBJ_DIR)/shaders/%.c.o: $(OBJ_DIR)/shaders/%.c $(DIR_LOCK)
-	$(CC) -c $< -o $@ -O2
+	$(CC) -c $< -o $@ $(LIB_OPTIMIZATION)
 
 $(OBJ_DIR)/shaders/%.c: shader_src/% shader2c $(DIR_LOCK)
 	./shader2c $< $@
 
 $(OBJ_DIR)/%.c.o: $(SRC_DIR)/%.c $(DIR_LOCK)
-	$(CC) -MD -c $< -o $@ $(CFLAGS) -Iinclude -O2
+	$(CC) -MD -c $< -o $@ $(CFLAGS) -Iinclude $(LIB_OPTIMIZATION)
 
 $(WEB_OBJ_DIR)/shaders/%.c.o: $(OBJ_DIR)/shaders/%.c $(DIR_LOCK)
-	$(EMCC) -c $< -o $@ -O2
+	$(EMCC) -c $< -o $@ $(LIB_OPTIMIZATION)
 
 $(WEB_OBJ_DIR)/%.c.o: $(SRC_DIR)/%.c $(DIR_LOCK)
-	$(EMCC) -MD -c $< -o $@ $(CFLAGS) -Iinclude -O2 -sUSE_SDL_MIXER=2
+	$(EMCC) -MD -c $< -o $@ $(CFLAGS) -Iinclude $(LIB_OPTIMIZATION) -sUSE_SDL_MIXER=2
 
 $(BIN): $(OBJ) $(SHADER_OBJ)
 	$(CC) -o $@ $^ $(addprefix -l,$(LINK))

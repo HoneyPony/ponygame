@@ -122,16 +122,46 @@ void render_tex_renderer(TexRenderer tr) {
 	// Do we want to wrap this in an if statement...?
 	center = add(center, relative);
 
+	vec2 basis_x = get_basis_x_fast(tr.node);
+	vec2 basis_y = get_basis_y_fast(tr.node);
+
+	// Pretty-fast-off-screen-culling:
+	// Theory: culling any sprites that are off screen will prevent needing
+	// to sort them, upload them to the GPU, etc...
+	// so we should do that.
+	// but, we should do it fast.
+	// How?
+	// Well, we assume that the sprite is on-screen if its largest dimension,
+	// times its largest scale, plus its center coord, is on-screen.
+	{
+		float max_dim = v_max_dim(tr.tex->px_size);
+		// The maximum amount that any value could possibly be stretched from
+		// its original value is this amount. (I think)
+		max_dim *= max_f(
+			abs(basis_x.x) + abs(basis_y.x),
+			abs(basis_x.y) + abs(basis_y.y)
+		);
+
+		vec2 off_camera = sub(center, camera_point);
+
+		float a = abs(off_camera.x) + max_dim;
+		float b = abs(off_camera.y) + max_dim;
+		if(a > ctx.frame_width || b > ctx.frame_height) {
+			return;
+		}
+	}
+
 	center.x = snap_coordinate(center.x, tr.snap_x);
 	center.y = snap_coordinate(center.y, tr.snap_y);
 
-	vec2 basis_x = get_basis_x_fast(tr.node);
-	vec2 basis_y = get_basis_y_fast(tr.node);
+	
 
 	vec2 left  = mul(basis_x,                     -tr.tex_pivot.x);
 	vec2 right = mul(basis_x, tr.tex->px_size.x - tr.tex_pivot.x);
 	vec2 down  = mul(basis_y,                     -tr.tex_pivot.y);
 	vec2 up    = mul(basis_y, tr.tex->px_size.y - tr.tex_pivot.y);
+
+	
 
 	RenderCommand cmd;
 

@@ -17,6 +17,10 @@ static inline vec2 vxy(float x, float y) {
 	return (vec2){ x, y };
 }
 
+static inline float v_max_dim(vec2 v) {
+	return (v.x > v.y) ? v.x : v.y;
+}
+
 static inline float dot_v2(vec2 a, vec2 b) {
 	return a.x * b.x + a.y * b.y;
 }
@@ -45,6 +49,10 @@ static inline vec2 sub(vec2 a, vec2 b) {
 
 static inline float length(vec2 v) {
 	return sqrt(v.x * v.x + v.y * v.y);
+}
+
+static inline float max_f(float a, float b) {
+	return (a > b) ? a : b;
 }
 
 static inline vec2 norm(vec2 v) {
