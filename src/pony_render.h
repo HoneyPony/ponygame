@@ -36,6 +36,7 @@ typedef enum {
 } SnapType;
 
 extern SnapType snap_for_dimension(float dim);
+extern SnapType snap_for_dimension_checked(float dim);
 extern float snap_coordinate(float coord, SnapType type);
 
 typedef struct {
@@ -78,3 +79,8 @@ extern void render_tex_on_node(TexRenderer renderer);
 extern vec2 camera_point;
 
 extern float clear_color[4];
+
+// Renderer configuration
+// TODO: This does affect a lot more than just the renderer, but... for now
+// it'll just be here.
+void render_set_target_screen_size(int32_t width, int32_t height);

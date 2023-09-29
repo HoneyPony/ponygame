@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "render.h"
+#include "pony_global_config_vars.h"
 
 // Declare the global context.
 RenderContext ctx;
@@ -12,6 +13,13 @@ SnapType snap_for_dimension(float dim) {
 	int x = (int)dim;
 	if(x & 1) return SNAP_ODD;
 	return SNAP_EVEN;
+}
+
+SnapType snap_for_dimension_checked(float dim) {
+	if(pixel_art_game) {
+		return snap_for_dimension(dim);
+	}
+	return dim;
 }
 
 float snap_coordinate(float coord, SnapType type) {
@@ -46,6 +54,11 @@ void render_init() {
 	logf_info("         framebuffer: %d", ctx.pixel_fb.rect_vbo);
 	logf_info("       sprite render: %d", ctx.sprite_render.vbo);
 	logf_info(" sprite render [ebo]: %d", ctx.sprite_render.ebo);
+}
+
+void render_set_target_screen_size(int32_t width, int32_t height) {
+	ctx.screen.target_width = width;
+	ctx.screen.target_height = height;
 }
 
 void render_game_objects() {

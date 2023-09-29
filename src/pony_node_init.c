@@ -106,8 +106,8 @@ void process_Sprite(void *node, UNUSED void *tree) {
 		// Base snapping on whether the frame size is even or odd, for both
 		// dimensions. This means that an unscaled, unrotated image will be
 		// placed on exact pixel coordinates.
-		snap_for_dimension(frame_size.x * lscale.x),
-		snap_for_dimension(frame_size.y * lscale.y),
+		snap_for_dimension_checked(frame_size.x * lscale.x),
+		snap_for_dimension_checked(frame_size.y * lscale.y),
 
 		self->r, self->g, self->b, self->a,
 
@@ -147,8 +147,8 @@ void process_StaticSprite(void *node, UNUSED void *tree) {
 		// Base snapping on whether the frame size is even or odd, for both
 		// dimensions. This means that an unscaled, unrotated image will be
 		// placed on exact pixel coordinates.
-		snap_for_dimension(frame_size.x * lscale.x),
-		snap_for_dimension(frame_size.y * lscale.y),
+		snap_for_dimension_checked(frame_size.x * lscale.x),
+		snap_for_dimension_checked(frame_size.y * lscale.y),
 
 		self->r, self->g, self->b, self->a,
 
