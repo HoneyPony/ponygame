@@ -37,7 +37,7 @@ typedef struct {
 		int32_t target_height;
 
 		// The currently computed scale factor, e.g. x1, x2, x3
-		int32_t scale_f;
+		float scale_f;
 
 		// The offset to center 0,0 on the screen.
 		vec2 offset;

@@ -52,9 +52,9 @@ static void compute_screen_vertices() {
 //	scale_x = 1.0 + ((scale_x - 1.0) / 2.0);
 //	scale_y = 1.0 + ((scale_y - 1.0) / 2.0);
 
-	logf_info("width: %d vs %d", ctx.frame_width * ctx.screen.scale_f, ctx.screen_width);
-	logf_info("height: %d vs %d", ctx.frame_height * ctx.screen.scale_f, ctx.screen_height);
-	logf_info("scaling: %d", ctx.screen.scale_f);
+	logf_info("width: %f vs %d", ctx.frame_width * ctx.screen.scale_f, ctx.screen_width);
+	logf_info("height: %f vs %d", ctx.frame_height * ctx.screen.scale_f, ctx.screen_height);
+	logf_info("scaling: %f", ctx.screen.scale_f);
 
 //	float posx = scale_x;
 //	float negx = -1;
@@ -119,12 +119,12 @@ void render_fit_window(int width, int height) {
 	ctx.screen_height = height;
 
 	// Compute scale factor.
-	ctx.screen.scale_f = 1;
+	ctx.screen.scale_f = 0.25;
 	while(
 		ctx.screen.target_width * ctx.screen.scale_f <= ctx.screen_width &&
 		ctx.screen.target_height * ctx.screen.scale_f <= ctx.screen_height
 	) {
-		ctx.screen.scale_f += 1;
+		ctx.screen.scale_f += 0.125; // Exact floating-point value
 	}
 	// At this point, the scale_f is big enough that some of the target pixels
 	// are definitionally off the screen. 
@@ -132,16 +132,16 @@ void render_fit_window(int width, int height) {
 		// Back off the scale so that everything fits on screen.
 		// TODO: Introduce a parameter with how many pixels we are allowed to
 		// cut off..?
-		ctx.screen.scale_f -= 1;
+		ctx.screen.scale_f -= 0.125;
 	}
 
-	logf_info("screen scaling factor: %d", ctx.screen.scale_f);
-	logf_info("screen scale info: total = %d %d, actual = %d %d", ctx.screen.target_width * ctx.screen.scale_f,  ctx.screen.target_height * ctx.screen.scale_f, ctx.screen_width, ctx.screen_height);
-	logf_info("effective resolution: %d x %d", ctx.screen_width / ctx.screen.scale_f, ctx.screen_height / ctx.screen.scale_f);
+	logf_info("screen scaling factor: %f", ctx.screen.scale_f);
+	logf_info("screen scale info: total = %f %f, actual = %d %d", ctx.screen.target_width * ctx.screen.scale_f,  ctx.screen.target_height * ctx.screen.scale_f, ctx.screen_width, ctx.screen_height);
+	logf_info("effective resolution: %d x %d", (int)(ctx.screen_width / ctx.screen.scale_f), (int)(ctx.screen_height / ctx.screen.scale_f));
 
 	// Need to effectively take ceiling of these dimensions, due to compute_screen_vertices, etc
-	ctx.frame_width = (width + ctx.screen.scale_f - 1) / ctx.screen.scale_f;                            
-	ctx.frame_height = (height + ctx.screen.scale_f - 1) / ctx.screen.scale_f;
+	ctx.frame_width = (int)ceil(width * ctx.screen.scale_f);                          
+	ctx.frame_height = (int)ceil(height * ctx.screen.scale_f);
 
 	resize_framebuffer();
 	compute_screen_vertices();
