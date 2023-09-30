@@ -50,6 +50,12 @@ off of what it finds. Then, running `pony build` or `pony go` will use `ninja` t
 `build.debug.local.ninja` file, generating a working game executable.
 
 ### More to come...
-Unfortunatenly, PonyGame is still in an early stage and is, at this point, intended to primarily be
-used for personal use. Perhaps after Ludum Dare 51 there will be a link to an example game built
-with it, though!
+Unfortunately, PonyGame is still in an early stage and is, at this point, intended to primarily be
+used for personal use.
+
+It was used for Ludum Dare 51. You can see the source code for the resulting game [here](https://github.com/HoneyPony/far).
+
+In the future, the architecture of PonyGame may also significantly shift, simply because that's the nature
+of a game engine built for personal use. Some potential ideas for future versions include: a custom
+language (that transpiles to C) for game code, garbage collection, some changes to the scene tree
+structure, etc.
