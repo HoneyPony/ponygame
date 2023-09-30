@@ -30,6 +30,7 @@ void generate_aseprite_tex(const char *tex_path, const char* aseprite_file) {
 	TexBuildInfo fake;
 	fake.tex_path = str_from(tex_path);
 	fake.aseprite_source = str_from(aseprite_file);
+	fake.krita_source = NULL;
 	fake.image_source = png_file;
 
 	// This is kind of a hack to get the first generation of the .tex file generated
@@ -42,6 +43,29 @@ void generate_aseprite_tex(const char *tex_path, const char* aseprite_file) {
 
 	str_free(fake.tex_path);
 	str_free(fake.aseprite_source);
+	str_free(png_file);
+}
+
+void generate_krita_tex(const char *tex_path, const char* krita_file) {
+	str png_file = str_from(tex_path);
+	str_append_cstr(png_file, ".png"); // File format: ".tex.png"
+
+	TexBuildInfo fake;
+	fake.tex_path = str_from(tex_path);
+	fake.krita_source = str_from(krita_file);
+	fake.aseprite_source = NULL;
+	fake.image_source = png_file;
+
+	// This is kind of a hack to get the first generation of the .tex file generated
+	// correctly. TODO: Cleanup this code to call aseprite more nicely.
+	//
+	// In particular, the old code just generated a (wrong) .tex file within the body
+	// of this method. If we re-use our existing aseprite generation code, we need
+	// to give it a TexBuildInfo, which doesn't really make any sense.
+	process_krita_from_texbuild(&fake);
+
+	str_free(fake.tex_path);
+	str_free(fake.krita_source);
 	str_free(png_file);
 }
 
@@ -110,6 +134,9 @@ void scan_path(const char *path, PathList *result) {
 
 	CHECK_SUFFIX(aseprite)
 
+	// Name krita used everywhere else, but technically .kra
+	IF_SUFFIX(kra) { ls_push(result->krita_paths, str_from(path)); }
+
 	CHECK_SUFFIX(snd)
 }
 
@@ -139,6 +166,20 @@ bool already_has_aseprite(PathList *result, const char *name) {
 	return false;
 }
 
+// TODO: This is O(n^2), that's really not good. (Also worse due to string comparison)
+bool already_has_krita(PathList *result, const char *name) {
+	foreach_r(tb, result->tex_infos, {
+		if(!tb->krita_source) continue;
+
+		// If this image is already in a source, we already have it
+		if(!strcmp(name, tb->krita_source)) {
+			return true;
+		}
+	})
+	// Don't already have the PNG
+	return false;
+}
+
 void generate_tex_from_aseprite(PathList *result, const char *source) {
 	str tex_name = str_from(source);
 
@@ -147,6 +188,25 @@ void generate_tex_from_aseprite(PathList *result, const char *source) {
 
 	if(!already_exists(tex_name)) {
 		generate_aseprite_tex(tex_name, source);
+		ls_push(result->tex_paths, tex_name);
+
+		// Load the new build info
+		TexBuildInfo tb = load_tex_build_info(tex_name);
+		ls_push_var(result->tex_infos, tb);
+	}
+	else {
+		str_free(tex_name);
+	}
+}
+
+void generate_tex_from_krita(PathList *result, const char *source) {
+	str tex_name = str_from(source);
+
+	str_rewind(tex_name, 3); // remove 'kra'
+	str_append_cstr(tex_name, "tex");
+
+	if(!already_exists(tex_name)) {
+		generate_krita_tex(tex_name, source);
 		ls_push(result->tex_paths, tex_name);
 
 		// Load the new build info
@@ -183,6 +243,13 @@ void generate_new_files(PathList *result) {
 		}
 	})
 
+	foreach(krita_file, result->krita_paths, {
+		// We don't already have a .tex loading this krita
+		if(!already_has_krita(result, krita_file)) {
+			generate_tex_from_krita(result, krita_file);
+		}
+	})
+
 	foreach(png_file, result->png_paths, {
 		if(!already_has_png(result, png_file)) {
 			generate_tex_from_png(result, png_file);
@@ -205,6 +272,7 @@ PathList scan_for_files() {
 	ls_init(result.tex_paths);
 	ls_init(result.pony_paths);
 	ls_init(result.aseprite_paths);
+	ls_init(result.krita_paths);
 	ls_init(result.snd_paths);
 
 	ls_init(result.tex_infos);
@@ -218,6 +286,7 @@ PathList scan_for_files() {
 	fix_paths(result.tex_paths);
 	fix_paths(result.pony_paths);
 	fix_paths(result.aseprite_paths);
+	fix_paths(result.krita_paths);
 	fix_paths(result.snd_paths);
 
 	foreach(tex_path, result.tex_paths, {

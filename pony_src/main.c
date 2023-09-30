@@ -33,20 +33,20 @@ int main(int argc, char **argv) {
 		rebuild_resources(args);
 	}
 
-	if(!strcmp(argv[1], "build")) {
+	else if(!strcmp(argv[1], "build")) {
 		build("build.debug.local.ninja");
 	}
 
-    if(!strcmp(argv[1], "go")) {
+    else if(!strcmp(argv[1], "go")) {
         build("build.debug.local.ninja");
         system("game.debug.local.exe");
     }
 
-	if(!strcmp(argv[1], "generate:res_debug.c")) {
+	else if(!strcmp(argv[1], "generate:res_debug.c")) {
 		generate_file_res_debug_c();
 	}
 
-	if(!strcmp(argv[1], "tex-from-aseprite")) {
+	else if(!strcmp(argv[1], "tex-from-aseprite")) {
 		if(argc > 2) {
 			printf("pony: tex-from-aseprite %s ", argv[2]);
 			process_aseprite_from_tex(argv[2]);
@@ -54,10 +54,22 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	if(!strcmp(argv[1], "init")) {
+	else if(!strcmp(argv[1], "tex-from-krita")) {
+		if(argc > 2) {
+			printf("pony: tex-from-krita %s ", argv[2]);
+			process_krita_from_tex(argv[2]);
+			puts("done!");
+		}
+	}
+
+	else if(!strcmp(argv[1], "init")) {
 		ensure_directory_tree_exists();
 		generate_file_blank_ponyconfig();
 		generate_file_blank_main_c();
+	}
+
+	else {
+		printf("unknown command %s\n", argv[1]);
 	}
 
 	return 0;

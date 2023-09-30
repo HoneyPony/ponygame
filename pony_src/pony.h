@@ -10,6 +10,7 @@ extern bool already_exists(const char *path);
 typedef struct {
 	str image_source;
 	str aseprite_source;
+	str krita_source;
 	str tex_path;
 } TexBuildInfo;
 
@@ -38,6 +39,7 @@ typedef struct {
 	list_of(str) h_paths;
 	list_of(str) png_paths;
 	list_of(str) aseprite_paths;
+	list_of(str) krita_paths;
 	list_of(str) tex_paths;
 	list_of(str) pony_paths;
 	list_of(str) snd_paths;
@@ -72,6 +74,7 @@ typedef struct {
 	// Used when generating the ninja files...
 	str image_source;
 	str aseprite_source;
+	str krita_source;
 
 	size_t x;
 	size_t y;
@@ -197,6 +200,10 @@ void rebuild_resources(RebuildResourceArguments args);
 // Process aseprite
 void process_aseprite_from_tex(const char*);
 void process_aseprite_from_texbuild(TexBuildInfo *tb);
+
+// Process krita
+void process_krita_from_tex(const char*);
+void process_krita_from_texbuild(TexBuildInfo *tb);
 
 void generate_file_res_debug_c();
 void generate_file_res_release_c(ProjectFiles *pf);

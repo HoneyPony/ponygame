@@ -9,7 +9,7 @@ unsigned char *load_image_data(const char *arg, int *x, int *y) {
 }
 
 TexBuildInfo load_tex_build_info(const char *path) {
-	TexBuildInfo info = { NULL, NULL, NULL };
+	TexBuildInfo info = { NULL, NULL, NULL, NULL };
 
 	FILE *in = fopen(path, "r");
 	if(!in) return info;
@@ -25,6 +25,9 @@ TexBuildInfo load_tex_build_info(const char *path) {
 		}
 		if(sscanf(line, "@from-aseprite %s", arg) == 1) {
 			info.aseprite_source = str_from(arg);
+		}
+		if(sscanf(line, "@from-krita %s", arg) == 1) {
+			info.krita_source = str_from(arg);
 		}
 	}
 
@@ -50,6 +53,7 @@ void load_tex_file(const char *path, list_of(TexFileInfo) *tex_out, list_of(Anim
 
 	str image_source = NULL;
 	str aseprite_source = NULL;
+	str krita_source = NULL;
 
 	char line[1024];
 	char arg[1024];
@@ -62,6 +66,9 @@ void load_tex_file(const char *path, list_of(TexFileInfo) *tex_out, list_of(Anim
 		}
 		if(sscanf(line, "@from-aseprite %s", arg) == 1) {
 			aseprite_source = str_from(arg);
+		}
+		if(sscanf(line, "@from-krita %s", arg) == 1) {
+			krita_source = str_from(arg);
 		}
         else if(cstr_has_prefix(line, "@static")) {
             TexFileInfo info;
@@ -107,6 +114,7 @@ void load_tex_file(const char *path, list_of(TexFileInfo) *tex_out, list_of(Anim
 				// Metadata used for build files
 				info.image_source = image_source;
 				info.aseprite_source = aseprite_source;
+				info.krita_source = krita_source;
 
 				// Keep track of frame count for current animation info
 				next.frame_count += 1;

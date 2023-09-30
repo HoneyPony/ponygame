@@ -61,6 +61,7 @@ image_pack.c\
 resources.c\
 dir_tree.c\
 aseprite_to_tex.c\
+krita_to_tex.c\
 dummy_functions.c\
 generated_files.c\
 pony_file.c\

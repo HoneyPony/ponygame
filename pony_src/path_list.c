@@ -101,6 +101,9 @@ void make_ninja_file(PathList *list, Config *config, bool is_release, bool is_we
 	fputs("rule aseprite\n", out);
 	fputs("  command = pony tex-from-aseprite $out\n\n", out);
 
+	fputs("rule krita\n", out);
+	fputs("  command = pony tex-from-krita $out\n\n", out);
+
 	fputs("rule ffogg\n", out);
 	fputs("  command = ffmpeg -y -hide_banner -loglevel error -i $in $out\n\n", out);
 
@@ -198,6 +201,10 @@ void make_ninja_file(PathList *list, Config *config, bool is_release, bool is_we
 		// tex paths...?
 		if(info.aseprite_source && info.image_source && info.tex_path) {
 			fprintf(out, "build %s | %s: aseprite %s\n", info.tex_path, info.image_source, info.aseprite_source);
+		}
+
+		if(info.krita_source && info.image_source && info.tex_path) {
+			fprintf(out, "build %s | %s: krita %s\n", info.tex_path, info.image_source, info.krita_source);
 		}
 	})
 
