@@ -3,6 +3,7 @@
 
 #include "render.h"
 #include "pony_unsafe_transforms.h"
+#include "pony_global_config_vars.h"
 
 // Renderer lists
 static list_of(TexRenderer) tex_renderer_list;
@@ -169,7 +170,7 @@ void render_tex_renderer(TexRenderer tr) {
 	// being sorted.
 	cmd.z_index = tr.node->z_index;
 	cmd.type = CMD_SPRITE;
-	cmd.opaque = 1; // TODO: Support transparency computation
+	cmd.opaque = may_assume_opaque; // TODO: Support transparency computation
 
 	// Alpha less than 254/255
 	if(tr.a < 0.997) {
