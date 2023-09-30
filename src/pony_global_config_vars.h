@@ -8,4 +8,6 @@ extern bool may_assume_opaque;
 
 extern const char* game_title;
 
+extern bool disable_pixel_perfect_framebuffer;
+
 #endif

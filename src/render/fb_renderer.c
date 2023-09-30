@@ -1,5 +1,7 @@
 #include "render.h"
 
+#include "pony_global_config_vars.h"
+
 struct {
 	GLuint shader;
 	GLuint tex;
@@ -135,6 +137,11 @@ void render_fit_window(int width, int height) {
 		ctx.screen.scale_f -= 0.125;
 	}
 
+
+	if(disable_pixel_perfect_framebuffer) {
+		ctx.screen.scale_f = 1 / ctx.screen.scale_f;
+	}
+
 	logf_info("screen scaling factor: %f", ctx.screen.scale_f);
 	logf_info("screen scale info: total = %f %f, actual = %d %d", ctx.screen.target_width * ctx.screen.scale_f,  ctx.screen.target_height * ctx.screen.scale_f, ctx.screen_width, ctx.screen_height);
 	logf_info("effective resolution: %d x %d", (int)(ctx.screen_width / ctx.screen.scale_f), (int)(ctx.screen_height / ctx.screen.scale_f));
@@ -143,11 +150,15 @@ void render_fit_window(int width, int height) {
 	ctx.frame_width = (int)ceil(width * ctx.screen.scale_f);                          
 	ctx.frame_height = (int)ceil(height * ctx.screen.scale_f);
 
+	
+
 	resize_framebuffer();
 	compute_screen_vertices();
 
 	float x = ctx.frame_width;
 	float y = ctx.frame_height;
+
+	
 
 	mat4_ortho(&ctx.projection,
 		0, x,

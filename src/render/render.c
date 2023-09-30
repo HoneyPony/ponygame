@@ -62,8 +62,14 @@ void render_set_target_screen_size(int32_t width, int32_t height) {
 }
 
 void render_game_objects() {
-	glBindFramebuffer(GL_FRAMEBUFFER, ctx.pixel_fb.framebuffer);
-	glViewport(0, 0, ctx.frame_width, ctx.frame_height);
+	if(!disable_pixel_perfect_framebuffer) {
+		glBindFramebuffer(GL_FRAMEBUFFER, ctx.pixel_fb.framebuffer);
+		glViewport(0, 0, ctx.frame_width, ctx.frame_height);
+	}
+	else {
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, ctx.screen_width, ctx.screen_height);
+	}
 
 	glClearColor(clear_color[0], clear_color[1], clear_color[2], clear_color[3]);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -95,5 +101,7 @@ void render() {
 	render_refresh_sprite();
 
 	render_game_objects();
-	render_framebuffer();	
+	if(!disable_pixel_perfect_framebuffer) {
+		render_framebuffer();	
+	}
 }
