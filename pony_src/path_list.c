@@ -101,8 +101,13 @@ void make_ninja_file(PathList *list, Config *config, bool is_release, bool is_we
 	fputs("rule aseprite\n", out);
 	fputs("  command = pony tex-from-aseprite $out\n\n", out);
 
+	// Do not allow the krita file importer to run more than once at a time,
+	// because otherwise bad things could happen.
+	fputs("pool krita_pool\n", out);
+	fputs("  depth = 1\n\n", out);
+
 	fputs("rule krita\n", out);
-	fputs("  command = pony tex-from-krita $out\n\n", out);
+	fputs("  command = pony tex-from-krita $out\n  pool = krita_pool\n\n", out);
 
 	fputs("rule ffogg\n", out);
 	fputs("  command = ffmpeg -y -hide_banner -loglevel error -i $in $out\n\n", out);
