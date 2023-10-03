@@ -227,7 +227,7 @@ void generate_tex_from_png(PathList *result, const char *png_file) {
 
 	// Generate the tex file if it doesn't already exist.
 	if(!already_exists(tex_name)) {
-		generate_empty_tex(tex_name);
+		generate_png_tex(tex_name, png_file);
 		ls_push(result->tex_paths, tex_name);
 	}
 	else {
