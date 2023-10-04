@@ -11,6 +11,8 @@
 #include "pony_render.h"
 #include "render/render_context.h"
 
+#include "pony_global_config_vars.h"
+
 static InputButton **scancode_to_key_map;
 static int scancode_key_count;
 
@@ -80,11 +82,26 @@ vec2 mouse_screen() {
 
 	y = ctx.screen_height - y;
 
-	x += ctx.screen.computed_x_offset;
-	y += ctx.screen.computed_y_offset;
+	if(disable_pixel_perfect_framebuffer) {
+		x -= ctx.screen_width / 2;
+		y -= ctx.screen_height / 2;
+	}
+	else {
+		x += ctx.screen.computed_x_offset;
+		y += ctx.screen.computed_y_offset;
+	}
+
+	//logf_info("mouse: %d %d", x, y);
 
 	float mx = (float)x / ctx.screen.scale_f;
 	float my = (float)y / ctx.screen.scale_f;
+
+	if(disable_pixel_perfect_framebuffer) {
+		mx = (float)x * ctx.screen.scale_f;
+		my = (float)y * ctx.screen.scale_f;
+
+		//printf("scaled: %f %f | %f\n", mx, my, ctx.screen.scale_f);
+	}
 
 	return round(vxy(mx, my));
 }

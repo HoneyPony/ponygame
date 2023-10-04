@@ -147,9 +147,9 @@ void render_tex_renderer(TexRenderer tr) {
 
 		float a = abs(off_camera.x) + max_dim;
 		float b = abs(off_camera.y) + max_dim;
-		if(a > ctx.frame_width || b > ctx.frame_height) {
+		/*if(a > ctx.frame_width || b > ctx.frame_height) {
 			return;
-		}
+		}*/
 	}
 
 	center.x = snap_coordinate(center.x, tr.snap_x);

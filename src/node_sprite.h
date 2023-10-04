@@ -32,3 +32,7 @@ bool snap; \
 bool on_camera; 
 
 node_from_field_list(StaticSprite)
+
+// For more efficiently attaching single-sprites to nodes.
+void process_Sprite(void* self, void* UNUSED_tree);
+void process_StaticSprite(void *self, void *UNUSED_tree);
