@@ -20,6 +20,11 @@ node_from_field_list(Sprite)
 
 void sprite_play(Sprite *sprite, AnimHandle *anim);
 
+/** Sets the color modulation of the given sprite in HSV. */
+void sprite_set_hsv(Sprite *sprite, float hsv[3]);
+/** Gets the color modulation of the given sprite in HSV. */
+void sprite_get_hsv(Sprite *sprite, float hsv[3]);
+
 #define FieldList_StaticSprite \
 FieldList_Node \
 TexHandle *texture; \
