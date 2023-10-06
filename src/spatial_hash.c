@@ -154,7 +154,7 @@ sh_find(SpatialHash *sh, vec2 center, float radius, list_of(AnyNode*) *output_bu
 	int32_t min_x = (int32_t)floor((center.x - radius) / sh->cell_size);
 	int32_t min_y = (int32_t)floor((center.y - radius) / sh->cell_size);
 	int32_t max_x = (int32_t)ceil((center.x + radius) / sh->cell_size);
-	int32_t max_y = (int32_t)ceil((center.x + radius) / sh->cell_size);
+	int32_t max_y = (int32_t)ceil((center.y + radius) / sh->cell_size);
 
 	if(min_x < sh->aabb.min_x) min_x = sh->aabb.min_x;
 	if(min_y < sh->aabb.min_y) min_y = sh->aabb.min_y;
@@ -183,7 +183,7 @@ sh_find_one(SpatialHash *sh, vec2 center, float radius) {
 	int32_t min_x = (int32_t)floor((center.x - radius) / sh->cell_size);
 	int32_t min_y = (int32_t)floor((center.y - radius) / sh->cell_size);
 	int32_t max_x = (int32_t)ceil((center.x + radius) / sh->cell_size);
-	int32_t max_y = (int32_t)ceil((center.x + radius) / sh->cell_size);
+	int32_t max_y = (int32_t)ceil((center.y + radius) / sh->cell_size);
 
 	if(min_x < sh->aabb.min_x) min_x = sh->aabb.min_x;
 	if(min_y < sh->aabb.min_y) min_y = sh->aabb.min_y;
@@ -214,7 +214,7 @@ sh_find_closest(SpatialHash *sh, vec2 center, float radius) {
 	int32_t min_x = (int32_t)floor((center.x - radius) / sh->cell_size);
 	int32_t min_y = (int32_t)floor((center.y - radius) / sh->cell_size);
 	int32_t max_x = (int32_t)ceil((center.x + radius) / sh->cell_size);
-	int32_t max_y = (int32_t)ceil((center.x + radius) / sh->cell_size);
+	int32_t max_y = (int32_t)ceil((center.y + radius) / sh->cell_size);
 
 	if(min_x < sh->aabb.min_x) min_x = sh->aabb.min_x;
 	if(min_y < sh->aabb.min_y) min_y = sh->aabb.min_y;
