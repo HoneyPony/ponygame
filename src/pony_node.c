@@ -120,6 +120,11 @@ void *node_new_from_header(NodeHeader *header) {
 }
 
 static void node_destroy_recursive(Node *top) {
+	// If this node has already been destroyed, then return.
+	if(!top->internal.is_valid) {
+		return;
+	}
+
 	// Free all child trees.
 	for(size_t i = 0; i < ls_length(top->children); ++i) {
 		node_destroy_recursive(top->children[i]);

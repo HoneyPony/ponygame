@@ -33,6 +33,19 @@ static ListPrefix* ls_expand(ListPrefix *prefix, size_t item_size) {
 	return prefix;
 }
 
+void*
+ls_prealloc_internal(void *list, size_t item_size, size_t desired_count) {
+	ListPrefix *prefix = prefix_ptr(list, ListPrefix);
+
+	if(prefix->alloc < desired_count) {
+		size_t size = prefix_alloc_size(desired_count * item_size, ListPrefix);
+		prefix = pony_realloc(prefix, size);
+		prefix->alloc = desired_count;
+	}
+
+	return prefix_obj_ptr(prefix, ListPrefix);
+}
+
 #define BASE(ptr) ((uint8_t*)ptr)
 
 void *ls_push_internal(void *list, size_t item_size, void *item) {

@@ -12,6 +12,10 @@ void ls_pop_internal(void *list, size_t item_size, void *item_out);
 void ls_delete_internal(void *list, size_t item_size, size_t index);
 bool ls_has_internal(void *list, size_t item_size, void *item);
 size_t ls_find_internal(void *list, size_t item_size, void *item);
+void* ls_prealloc_internal(void *list, size_t item_size, size_t desired_count);
+
+#define ls_prealloc(list, count)\
+((list) = ls_prealloc_internal((list), sizeof(*(list)), (count)))
 
 extern void ls_free(void *list);
 extern void ls_clear(void *list);

@@ -13,6 +13,9 @@
 // Builtin Nodes
 #include "node_sprite.h"
 
+// Spatial hash
+#include "spatial_hash.h"
+
 float get_dt();
 
 extern int rand_range(int i, int j);
