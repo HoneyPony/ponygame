@@ -412,6 +412,8 @@ void render_build_state_spec() {
 void render_state_spec_list() {
 	render_bind_sprite();
 
+	glDepthMask(GL_TRUE);
+
 	for(uint32_t i = 0; i < opaque_state_spec_count; ++i) {
 		RenderStateSpec *spec = &state_spec_list[i];
 
@@ -423,6 +425,9 @@ void render_state_spec_list() {
 		glDrawElements(GL_TRIANGLES, spec->draw_count, GL_UNSIGNED_INT, 
 			(void*)(spec->draw_start * sizeof(uint32_t)));
 	}
+
+	// Don't write to depth buffer for transparent sprites.
+	glDepthMask(GL_FALSE);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
