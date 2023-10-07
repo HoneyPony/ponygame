@@ -29,6 +29,9 @@ sh_resize(SpatialHash *sh, SpatialHashAABB new_aabb) {
 		ls_push(new_cells, c);
 	}
 
+	size_t dbg_copied = 0;
+	size_t dbg_inited = 0;
+
 	for(int32_t x = new_aabb.min_x; x < new_aabb.max_x; ++x) {
 		for(int32_t y = new_aabb.min_y; y < new_aabb.max_y; ++y) {
 			// To remap an old cell, we use sh_map.
@@ -38,15 +41,21 @@ sh_resize(SpatialHash *sh, SpatialHashAABB new_aabb) {
 				int32_t oldidx = sh_map(x, y, &sh->aabb);
 				int32_t newidx = sh_map(x, y, &new_aabb);
 				new_cells[newidx] = sh->cells[oldidx];
+
+				dbg_copied += 1;
 			}
 			else {
 				// Make a new cell by initializing that cell's list.
 				int32_t newidx = sh_map(x, y, &new_aabb);
 				//printf("initializing cell %d %d -> %d\n", x, y, newidx);
 				ls_init(new_cells[newidx].nodes);
+
+				dbg_inited += 1;
 			}
 		}
 	}
+
+	logf_info("sh_resize: copied %zu, inited %zu, total = %zu | computed total = %zu", dbg_copied, dbg_inited, (dbg_copied + dbg_inited), total);
 
 	if(sh->cells) {
 		ls_free(sh->cells);
@@ -97,7 +106,7 @@ sh_add(SpatialHash *sh, AnyNode *node, SpatialHashRef *ref) {
 		aabb.min_y = iy;
 		resize = true;
 	}
-	if(iy >= aabb.max_x) {
+	if(iy >= aabb.max_y) {
 		aabb.max_y = iy + 1;
 		resize = true;
 	}
