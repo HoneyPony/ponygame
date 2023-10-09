@@ -39,6 +39,7 @@ pony_sound.c\
 pony_input.c\
 pony_random.c\
 pony_benchtime.c\
+nuklear_impl.c\
 spatial_hash.c\
 render/render.c\
 render/shader.c\

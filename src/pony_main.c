@@ -21,9 +21,13 @@
 #include "pony.main.h"
 #include "pony_input.h"
 
+/* Basic UI support; TODO our own UI library? */
+#include "ponygame_nuklear.h"
+
 /* Do we want multiple window support? */
 static SDL_Window *pony_main_window = NULL;
 static SDL_GLContext pony_main_context;
+static struct nk_context *pony_main_nk_ctx;
 
 static uint32_t is_vsync = 0;
 
@@ -44,6 +48,15 @@ static void pony_render() {
 	
 	render_fit_window(width, height);
 	render();
+
+	/* Render the nuklear UI */
+	glViewport(0, 0, width, height);
+	//glClearColor(0.3, 0.3, 0.3, 1.0);
+	//glClear(GL_COLOR_BUFFER_BIT);
+
+	pony_ui(pony_main_nk_ctx, width, height);
+	
+	nk_sdl_render(NK_ANTI_ALIASING_ON, 512 * 1024, 128 * 1024);
 }
 
 /* TODO: Handle this by closing event loop */
@@ -71,11 +84,14 @@ static void pony_event_loop() {
 	
 	uint32_t frame_time = SDL_GetTicks();
 	
+	nk_input_begin(pony_main_nk_ctx);
 	while(SDL_PollEvent(&evt)) {
 		if(evt.type == SDL_QUIT) pony_quit();
 		
 		/* Handle other events */
+		nk_sdl_handle_event(&evt);
 	}
+	nk_input_end(pony_main_nk_ctx);
 
 	// Update input after processing events
 	pony_update_input_pre();
@@ -144,6 +160,12 @@ int main(UNUSED int argc, UNUSED char **argv) {
 		//puts("[ponygame] SDL_Init failure.");
 		exit(-1);
 	}
+
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+	//SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	
 	pony_main_window = SDL_CreateWindow(game_title,
 		SDL_WINDOWPOS_CENTERED,
@@ -166,9 +188,18 @@ int main(UNUSED int argc, UNUSED char **argv) {
 		exit(-1);
 	}
 
+	// Must initialize GLEW before nuklear.
+	render_init();
+
+	pony_main_nk_ctx = nk_sdl_init(pony_main_window);
+	struct nk_font_atlas *atlas;
+	nk_sdl_font_stash_begin(&atlas);
+	/* TODO: Call user function for loading fonts..? */
+	nk_sdl_font_stash_end();
+
 	pony_input_init();
 
-	render_init();
+	
 
 	SDL_GL_SetSwapInterval(1);
 	is_vsync = SDL_GL_GetSwapInterval();
@@ -201,6 +232,7 @@ int main(UNUSED int argc, UNUSED char **argv) {
 		pony_event_loop(NULL);
 	}
 	
+	nk_sdl_shutdown();
 	SDL_GL_DeleteContext(pony_main_context);
 	SDL_DestroyWindow(pony_main_window);
 	SDL_Quit();
