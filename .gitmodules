@@ -1,3 +1,6 @@
 [submodule "vendor/cimgui"]
 	path = vendor/cimgui
 	url = https://github.com/cimgui/cimgui
+[submodule "vendor/Nuklear"]
+	path = vendor/Nuklear
+	url = https://github.com/Immediate-Mode-UI/Nuklear
