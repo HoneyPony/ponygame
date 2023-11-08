@@ -194,7 +194,8 @@ int main(UNUSED int argc, UNUSED char **argv) {
 	pony_main_nk_ctx = nk_sdl_init(pony_main_window);
 	struct nk_font_atlas *atlas;
 	nk_sdl_font_stash_begin(&atlas);
-	/* TODO: Call user function for loading fonts..? */
+	pony_fonts(atlas);
+	/* TODO: Build resource system (i.e. packing into binary) for fonts */
 	nk_sdl_font_stash_end();
 
 	pony_input_init();

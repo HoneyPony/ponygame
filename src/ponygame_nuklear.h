@@ -9,6 +9,7 @@
 #define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
 #define NK_INCLUDE_FONT_BAKING
 #define NK_INCLUDE_DEFAULT_FONT
+#define NK_INCLUDE_STANDARD_IO
 #include "../vendor/Nuklear/nuklear.h"
 
 #define PONY_NK(...) __VA_ARGS__
@@ -31,5 +32,6 @@
 #endif
 
 extern void pony_ui(struct nk_context *ctx, int32_t win_width, int32_t win_height);
+extern void pony_fonts(struct nk_font_atlas *atlas);
 
 #endif

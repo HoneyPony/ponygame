@@ -1,5 +1,7 @@
 #include "spatial_hash.h"
 
+#include "pony_log.h"
+
 static int32_t
 sh_map(int32_t ix, int32_t iy, SpatialHashAABB *aabb) {
 	ix -= aabb->min_x;
