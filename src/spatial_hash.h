@@ -35,8 +35,16 @@ void sh_add(SpatialHash *sh, AnyNode *node, SpatialHashRef *ref);
 void sh_remove(SpatialHash *sh, AnyNode *node, SpatialHashRef *ref);
 void sh_update(SpatialHash *sh, AnyNode *node, SpatialHashRef *ref);
 
+/** Return true if this node may be selected, false otherwise. */
+typedef int (*sh_filter_fn)(AnyNode *node, void *user_data);
+
+typedef struct {
+	sh_filter_fn fn;
+	void *user_data;
+} sh_filter;
+
 void sh_find(SpatialHash *sh, vec2 center, float radius, list_of(AnyNode*) *output_buffer);
 AnyNode *sh_find_one(SpatialHash *sh, vec2 center, float radius);
-AnyNode *sh_find_closest(SpatialHash *sh, vec2 center, float radius);
+AnyNode *sh_find_closest(SpatialHash *sh, vec2 center, float radius, sh_filter filter);
 
 #endif

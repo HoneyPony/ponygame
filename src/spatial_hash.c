@@ -221,7 +221,7 @@ sh_find_one(SpatialHash *sh, vec2 center, float radius) {
 }
 
 AnyNode*
-sh_find_closest(SpatialHash *sh, vec2 center, float radius) {
+sh_find_closest(SpatialHash *sh, vec2 center, float radius, sh_filter filter) {
 	int32_t min_x = (int32_t)floor((center.x - radius) / sh->cell_size);
 	int32_t min_y = (int32_t)floor((center.y - radius) / sh->cell_size);
 	int32_t max_x = (int32_t)ceil((center.x + radius) / sh->cell_size);
@@ -242,16 +242,23 @@ sh_find_closest(SpatialHash *sh, vec2 center, float radius) {
 			SpatialCell *sc = &sh->cells[sh_map(x, y, &sh->aabb)];
 
 			foreach(node, sc->nodes, {
+
 				vec2 pos = get_gpos(node);
 				vec2 dist_vec = sub(pos, center);
 				float dist = dot(dist_vec, dist_vec);
 				if(closest) {
 					if(dist < closest_dist) {
+						if(!filter.fn(node, filter.user_data)) {
+							continue;
+						}
 						closest = node;
 						closest_dist = dist;
 					}
 				}
 				else if(dist <= (radius * radius)) {
+					if(!filter.fn(node, filter.user_data)) {
+						continue;
+					}
 					closest = node;
 					closest_dist = dist;
 				}
